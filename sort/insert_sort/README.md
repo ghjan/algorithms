@@ -16,7 +16,7 @@ insert_sort $ go run main.go
 
 ## 排序效果
 
-![2](http://p7f8yck57.bkt.clouddn.com/2018-06-13-132125.gif)
+ <img src="http://p7f8yck57.bkt.clouddn.com/2018-06-13-132125.gif" width="60%"/>
 
 
 
