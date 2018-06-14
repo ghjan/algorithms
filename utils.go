@@ -11,7 +11,7 @@ import (
 func GetArr(n, max int) []int {
 	rand.Seed(time.Now().UnixNano())
 	arr := make([]int, n)
-	for i := 0; i < n-1; i++ {
+	for i := 0; i < n; i++ {
 		arr[i] = rand.Intn(max + 1)
 	}
 	return arr
