@@ -17,11 +17,11 @@ Golang 实现的常见数据结构与算法，及一些高频算法面试题。
 algorithms
     ├── sort		# 排序算法
     │   └── bubble_sort		# 冒泡排序
-    │       ├── README.md		## 算法文档：排序过程及 GIF 演示、复杂度和稳定性分析、使用场景
-    │       ├── main.go			## 直接遍历实现
-    │       ├── flag_main.go        ## flag 优化
-    │       ├── end_main.go		## 缩短扫描距离优化
-    │       └── shaker_main.go      ## 双向冒泡优化
+    │   │   ├── README.md		## 算法文档：排序过程及 GIF 演示、复杂度和稳定性分析、使用场景
+    │   │   ├── main.go			## 直接遍历实现
+    │   │   ├── flag_main.go	## flag 优化
+    │   │   ├── end_main.go		## 缩短扫描距离优化
+    │   │   └── shaker_main.go	## 双向冒泡优化
     │   ├── count_sort		# 计数排序
     │   ├── insert_sort		# 插入排序
     │   ├── merge_sort		# 合并排序
