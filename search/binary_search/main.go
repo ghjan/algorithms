@@ -4,7 +4,7 @@ import "fmt"
 
 func main() {
 	arr := []int{1, 3, 4, 6, 7, 8, 10, 13, 14}
-	fmt.Println(binarySearch(arr, 7)) // 4
+	fmt.Println(binarySearch(arr, 4)) // 4
 }
 
 //
@@ -17,7 +17,10 @@ func binarySearch(sortedArr []int, v int) int {
 
 	// 游标未相遇
 	for left < right {
-		mid := (right - left) / 2
+		// mid := (right - left) / 2
+		// 避免整型上溢
+		mid := left + ((right - left) >> 1)
+		fmt.Println("[DEBUG arr[mid]]:\t", sortedArr[mid])
 		if sortedArr[mid] > v {
 			// 中点值更大，则在左区间
 			right = mid - 1
