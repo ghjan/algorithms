@@ -16,3 +16,14 @@ func GetArr(n, max int) []int {
 	}
 	return arr
 }
+
+//
+// 获取 [min, max] 的连续数值数组
+//
+func GetRange(min, max int) []int {
+	arr := make([]int, max-min+1)
+	for i := range arr {
+		arr[i] = min + i
+	}
+	return arr
+}
