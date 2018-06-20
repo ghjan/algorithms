@@ -10,7 +10,7 @@
 
 mid 取值：`mid = left + (v - arr[left]) / (arr[right] - arr[left]) * (right - left)`，一句话：用值的比例估算位置比例，得出位置
 
-## 排序过程
+## 查找过程
 
 ```shell
 insert_search git $ go run main.go	# 在 [0, 1, ..., 1000] 的数组中寻找 233
