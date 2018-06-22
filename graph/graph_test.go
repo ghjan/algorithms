@@ -1,10 +1,13 @@
 package graph
 
-import "testing"
+import (
+	"testing"
+	"fmt"
+)
+
+var g Graph
 
 func TestAdd(t *testing.T) {
-
-	g := Graph{}
 	n1, n2, n3, n4, n5 := Node{1}, Node{2}, Node{3}, Node{4}, Node{5}
 
 	g.AddNode(&n1)
@@ -22,4 +25,11 @@ func TestAdd(t *testing.T) {
 	g.AddEdge(&n4, &n5)
 
 	g.String()
+}
+
+func TestBFS(t *testing.T)  {
+	TestAdd(t)
+	g.BFS(func(node *Node) {
+		fmt.Printf("[Current Traverse Node]: %v\n", node)
+	})
 }
