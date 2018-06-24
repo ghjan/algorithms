@@ -17,7 +17,7 @@ func (g *Graph) BFS(f func(node *Node)) {
 	// 取图的第一个节点入队列
 	head := g.nodes[0]
 	q.Enqueue(*head)
-	// 标识节点是否已经被访问过
+	// 标识节点是否已经被访问过-已入队列
 	visited := make(map[*Node]bool)
 	visited[head] = true
 	// 遍历所有节点直到队列为空
@@ -30,14 +30,14 @@ func (g *Graph) BFS(f func(node *Node)) {
 		nexts := g.edges[*node]
 		// 将所有未访问过的邻接节点入队列
 		for _, next := range nexts {
-			// 如果节点已被访问过
+			// 如果节点已被访问过-已入队列
 			if visited[next] {
 				continue
 			}
 			q.Enqueue(*next)
 			visited[next] = true
 		}
-		// 对每个正在遍历的节点执行回调
+		// 对每个正在遍历的（出队列）节点执行回调
 		if f != nil {
 			f(node)
 		}
