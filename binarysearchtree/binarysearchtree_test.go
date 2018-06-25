@@ -3,6 +3,7 @@ package binarysearchtree
 import (
 	"testing"
 	"fmt"
+	"github.com/stretchr/testify/assert"
 )
 
 var tree ItemBinarySearchTree
@@ -74,8 +75,30 @@ func TestSearch(t *testing.T) {
 }
 
 func TestRemove(t *testing.T) {
-	tree.Remove(1)
-	if fmt.Sprintf("%s", *tree.Min()) != "2" {
+	var treeLocal ItemBinarySearchTree
+
+	initTree(&treeLocal)
+	treeLocal.String()
+
+	//删除一个不存在的
+	node_removed, newNode := treeLocal.Remove(11)
+	treeLocal.String()
+	assert.Equal(t, node_removed, nil, fmt.Sprintf("remove can not return expected node_removed:%v, actual:%v", nil, node_removed))
+	assert.Equal(t, newNode, nil, fmt.Sprintf("remove can not return expected newNode:%v, actual:%v", nil, newNode))
+
+	//删除最左边的
+	node_removed, newNode = treeLocal.Remove(1)
+	treeLocal.String()
+	assert.Equal(t, node_removed.key, 1, fmt.Sprintf("remove can not return expected node_removed which has value:%d, actual:%d", 1, node_removed.key))
+	assert.Equal(t, newNode, nil, fmt.Sprintf("remove can not return expected newNode:%v, actual:%v", nil, newNode))
+	if fmt.Sprintf("%s", *treeLocal.Min()) != "2" {
 		t.Errorf("Remove(1) failed")
 	}
+
+	//删除有两个儿子的结点
+	node_removed, newNode = treeLocal.Remove(6)
+	treeLocal.String()
+	assert.Equal(t, node_removed.key, 6, fmt.Sprintf("remove can not return expected node_removed which has value:%d, actual:%d", 6, node_removed.key))
+	assert.Equal(t, newNode.key, 7, fmt.Sprintf("remove can not return expected newNode:%d, actual:%d", 7, newNode.key))
+
 }

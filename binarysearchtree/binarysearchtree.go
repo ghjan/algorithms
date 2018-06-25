@@ -54,6 +54,7 @@ func insertNode(node, newNode *Node) {
 }
 
 // 搜索序号
+// 返回true说明找到了
 func (tree *ItemBinarySearchTree) Search(key int) bool {
 	tree.lock.RLock()
 	defer tree.lock.RUnlock()
@@ -75,46 +76,49 @@ func search(node *Node, key int) bool {
 }
 
 // 删除节点
-func (tree *ItemBinarySearchTree) Remove(key int) {
+//返回被删除的结点
+func (tree *ItemBinarySearchTree) Remove(key int) (removedNode, newNode *Node) {
 	tree.lock.Lock()
 	defer tree.lock.Unlock()
-	remove(tree.root, key)
+	return remove(nil, tree.root, key, true)
 }
+
 // 递归删除节点
-func remove(node *Node, key int) *Node {
+func remove(parent, node *Node, key int, is_left bool) (removedNode, newNode *Node) {
 	// 要删除的节点不存在
 	if node == nil {
-		return nil
+		return nil, nil
 	}
 
+	var new_node *Node = nil
 	// 寻找节点
 	// 要删除的节点在左侧
 	if key < node.key {
-		node.left = remove(node.left, key)
-		return node
+		node.left, new_node = remove(node, node.left, key, true)
+		return node, new_node
 	}
 	// 要删除的节点在右侧
 	if key > node.key {
-		node.right = remove(node.right, key)
-		return node
+		node.right, new_node = remove(node, node.right, key, false)
+		return node, new_node
 	}
 
 	// 判断节点类型
 	// 要删除的节点是叶子节点，直接删除
 	// if key == node.key {
 	if node.left == nil && node.right == nil {
-		node = nil
-		return node
+		process_remove(parent, nil, is_left)
+		return node, nil
 	}
 
 	// 要删除的节点只有一个节点，删除自身
 	if node.left == nil {
-		node = node.right
-		return node
+		process_remove(parent, node.right, is_left)
+		return node, node.right
 	}
 	if node.right == nil {
-		node = node.left
-		return node
+		process_remove(parent, node.left, is_left)
+		return node, node.left
 	}
 
 	// 要删除的节点有 2 个子节点，找到右子树的最左节点，替换当前节点
@@ -128,9 +132,19 @@ func remove(node *Node, key int) *Node {
 		}
 	}
 	// 使用右子树的最左节点替换当前节点，即删除当前节点
-	node.key, node.value = mostLeftNode.key, mostLeftNode.value
-	node.right = remove(node.right, node.key)
-	return node
+	new_node.key, new_node.value = mostLeftNode.key, mostLeftNode.value
+	process_remove(parent, new_node, is_left)
+	_, new_node.right = remove(new_node, new_node.right, new_node.key, false)
+	return node, new_node
+}
+func process_remove(parent, node *Node, is_left bool) {
+	if parent != nil {
+		if is_left {
+			parent.left = node
+		} else {
+			parent.right = node
+		}
+	}
 }
 
 // 获取树中值最小的节点：最左节点
@@ -229,9 +243,9 @@ func stringify(node *Node, level int) {
 	}
 	format += "----[ "
 	level++
-	// 先递归打印左子树
-	stringify(node.left, level)
-	fmt.Printf(format+"%d\n", node.key)
-	/// 再递归打印右子树
+	/// 先递归打印右子树
 	stringify(node.right, level)
+	fmt.Printf(format+"%d\n", node.key)
+	// 再递归打印左子树
+	stringify(node.left, level)
 }
