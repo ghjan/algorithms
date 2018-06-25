@@ -90,17 +90,14 @@ func remove(parent, node *Node, key int, is_left bool) (removedNode, newNode *No
 		return nil, nil
 	}
 
-	var new_node *Node = nil
 	// 寻找节点
 	// 要删除的节点在左侧
 	if key < node.key {
-		node.left, new_node = remove(node, node.left, key, true)
-		return node, new_node
+		return remove(node, node.left, key, true)
 	}
 	// 要删除的节点在右侧
 	if key > node.key {
-		node.right, new_node = remove(node, node.right, key, false)
-		return node, new_node
+		return remove(node, node.right, key, false)
 	}
 
 	// 判断节点类型
@@ -132,10 +129,10 @@ func remove(parent, node *Node, key int, is_left bool) (removedNode, newNode *No
 		}
 	}
 	// 使用右子树的最左节点替换当前节点，即删除当前节点
-	new_node.key, new_node.value = mostLeftNode.key, mostLeftNode.value
-	process_remove(parent, new_node, is_left)
-	_, new_node.right = remove(new_node, new_node.right, new_node.key, false)
-	return node, new_node
+	node_remo := *node
+	node.key, node.value = mostLeftNode.key, mostLeftNode.value
+	_, mostLeftNode.right = remove(node, node.right, mostLeftNode.key, false)
+	return &node_remo, mostLeftNode
 }
 func process_remove(parent, node *Node, is_left bool) {
 	if parent != nil {
