@@ -1,9 +1,9 @@
 package binarysearchtree
 
 import (
-	"github.com/cheekybits/genny/generic"
 	"fmt"
 	"sync"
+	"github.com/cheekybits/genny/generic"
 )
 
 type Item generic.Type
@@ -20,36 +20,56 @@ type ItemBinarySearchTree struct {
 	lock sync.RWMutex
 }
 
+//释放
+func (tree *ItemBinarySearchTree) Destroy() {
+	if tree == nil {
+		return
+	}
+	if tree != nil {
+		tree.PostOrderTraverse2(func(nodeMe *Node) {
+			nodeMe = nil
+		})
+	}
+}
+
 // 向树中插入元素
-func (tree *ItemBinarySearchTree) Insert(key int, value Item) {
+// 返回插入点，即新节点的父亲节点
+func (tree *ItemBinarySearchTree) Insert(key int, value Item) *Node {
 	tree.lock.Lock()
 	defer tree.lock.Unlock()
 	newNode := &Node{key, value, nil, nil}
 	// 初始化树
 	if tree.root == nil {
 		tree.root = newNode
+		return tree.root
 	} else {
 		// 在树中递归查找正确的位置并插入
-		insertNode(tree.root, newNode)
+		return insertNode(tree.root, newNode)
 	}
 }
-func insertNode(node, newNode *Node) {
+
+// 返回插入点，即新节点的父亲节点
+func insertNode(node, newNode *Node) *Node {
 	// 插入到左子树
 	if newNode.key < node.key {
 		if node.left == nil {
 			node.left = newNode
+			return node
 		} else {
 			// 递归查找左边插入
-			insertNode(node.left, newNode)
+			return insertNode(node.left, newNode)
 		}
-	} else {
+	} else if newNode.key > node.key {
 		// 插入到右子树
 		if node.right == nil {
 			node.right = newNode
+			return node
 		} else {
 			// 递归查找右边插入
-			insertNode(node.right, newNode)
+			return insertNode(node.right, newNode)
 		}
+	} else {
+		return nil
 	}
 }
 
@@ -190,7 +210,7 @@ func preOrderTraverse(node *Node, printFunc func(Item)) {
 	}
 }
 
-// 中序遍历：左子树 -> 根节点 -> 右子树
+// 中序遍历：左子树 -> 根节点 -> 右子树 打印函數
 func (tree *ItemBinarySearchTree) PostOrderTraverse(printFunc func(Item)) {
 	tree.lock.RLock()
 	defer tree.lock.RUnlock()
@@ -201,6 +221,20 @@ func postOrderTraverse(node *Node, printFunc func(Item)) {
 		postOrderTraverse(node.left, printFunc)  // 先打印左子树
 		postOrderTraverse(node.right, printFunc) // 再打印右子树
 		printFunc(node.value)                    // 最后打印根结点
+	}
+}
+
+// 中序遍历：左子树 -> 根节点 -> 右子树  操作函數
+func (tree *ItemBinarySearchTree) PostOrderTraverse2(operationFunc func(nodeMe *Node)) {
+	tree.lock.RLock()
+	defer tree.lock.RUnlock()
+	postOrderTraverse2(tree.root, operationFunc)
+}
+func postOrderTraverse2(node *Node, operationFunc func(nodeMe *Node)) {
+	if node != nil {
+		postOrderTraverse2(node.left, operationFunc)  // 先打印左子树
+		postOrderTraverse2(node.right, operationFunc) // 再打印右子树
+		operationFunc(node)                           // 最后打印根结点
 	}
 }
 
@@ -216,6 +250,33 @@ func inOrderTraverse(node *Node, printFunc func(Item)) {
 		printFunc(node.value)                  // 再打印根结点
 		inOrderTraverse(node.right, printFunc) // 最后打印右子树
 	}
+}
+
+//层级遍历
+func (tree *ItemBinarySearchTree) LevelOrderTranverse(printFunc func(Item)) {
+	tree.lock.RLock()
+	defer tree.lock.RUnlock()
+	levelOrderTraverse(tree.root, printFunc)
+}
+func levelOrderTraverse(node *Node, printFunc func(Item)) {
+	if node == nil {
+		return
+	}
+	var q NodeItemQueue
+	q.New()
+	q.Enqueue(node)
+	for !q.IsEmpty() {
+		if nodeTemp := q.Dequeue(); nodeTemp != nil {
+			printFunc(nodeTemp.value)
+			if nodeTemp.left != nil {
+				q.Enqueue(nodeTemp.left)
+			}
+			if nodeTemp.right != nil {
+				q.Enqueue(nodeTemp.right)
+			}
+		}
+	}
+
 }
 
 // 打印树结构

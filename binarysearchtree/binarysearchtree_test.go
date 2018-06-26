@@ -7,73 +7,103 @@ import (
 	"strconv"
 )
 
-var tree ItemBinarySearchTree
-
 func initTree(tree *ItemBinarySearchTree) {
-	tree.Insert(8, "8")
-	tree.Insert(4, "4")
-	tree.Insert(10, "10")
-	tree.Insert(2, "2")
-	tree.Insert(6, "6")
-	tree.Insert(1, "1")
-	tree.Insert(3, "3")
-	tree.Insert(5, "5")
-	tree.Insert(7, "7")
-	tree.Insert(9, "9")
-	tree.Insert(14, "14")
-	tree.Insert(12, "12")
-	tree.Insert(13, "13")
-	tree.Insert(11, "11")
+	array1 := [...]int{8, 4, 10, 2, 6, 1, 3, 5, 7, 9, 14, 12, 13, 11}
+	for _, item := range array1 {
+		tree.Insert(item, strconv.Itoa(item))
+	}
 }
 
 func TestInsert(t *testing.T) {
-	initTree(&tree)
-	tree.String()
-	tree.Insert(11, "11")
-	tree.String()
+	var treeLocal ItemBinarySearchTree
+
+	initTree(&treeLocal)
+	treeLocal.String()
+
+	fmt.Println("------TestInsert after init--------")
+	treeLocal.String()
+	if result := treeLocal.Insert(11, "11"); result != nil {
+		t.Errorf("Insert(11) failed,expected return:%v, actual:%v", nil, result)
+	}
+	fmt.Println("------TestInsert after Insert(11)--------")
+	treeLocal.String()
+	if result := treeLocal.Insert(20, "20"); result == nil || result.key != 14 {
+		t.Errorf("Insert(20) failed,expected return:%d, actual:%d", 14, result.key)
+	}
+	fmt.Println("------TestInsert after Insert(20)--------")
+	treeLocal.String()
 }
 
 func TestPreOrderTraverse(t *testing.T) {
+	var treeLocal ItemBinarySearchTree
+
+	initTree(&treeLocal)
+
 	traverse := ""
-	tree.PreOrderTraverse(func(value Item) {
+	treeLocal.PreOrderTraverse(func(value Item) {
 		traverse += fmt.Sprintf("%s\t", value)
 	})
-	println(traverse)
+	fmt.Println(traverse)
 }
 
 func TestInOrderTraverse(t *testing.T) {
+	var treeLocal ItemBinarySearchTree
+
+	initTree(&treeLocal)
 	traverse := ""
-	tree.InOrderTraverse(func(value Item) {
+	treeLocal.InOrderTraverse(func(value Item) {
 		traverse += fmt.Sprintf("%s\t", value)
 	})
-	println(traverse)
+	fmt.Println(traverse)
 }
 
 func TestPostOrderTraverse(t *testing.T) {
+	var treeLocal ItemBinarySearchTree
+
+	initTree(&treeLocal)
 	traverse := ""
-	tree.PostOrderTraverse(func(value Item) {
+	treeLocal.PostOrderTraverse(func(value Item) {
 		traverse += fmt.Sprintf("%s\t", value)
 	})
-	println(traverse)
+	fmt.Println(traverse)
+}
+
+func TestLevelOrderTraverse(t *testing.T) {
+	var treeLocal ItemBinarySearchTree
+
+	initTree(&treeLocal)
+	traverse := ""
+	treeLocal.LevelOrderTranverse(func(value Item) {
+		traverse += fmt.Sprintf("%s\t", value)
+	})
+	fmt.Println(traverse)
 }
 
 func TestMin(t *testing.T) {
-	min := *tree.Min()
-	if fmt.Sprintf("%s", min) != "1" {
-		t.Errorf("Min() should return 1 but return %s", min)
+	var treeLocal ItemBinarySearchTree
+	initTree(&treeLocal)
+
+	min := treeLocal.Min()
+	if min == nil || fmt.Sprintf("%s", *min) != "1" {
+		t.Errorf("Min() should return 1 but return %v", min)
 	}
 }
 
 func TestMax(t *testing.T) {
-	max := *tree.Max()
+	var treeLocal ItemBinarySearchTree
+	initTree(&treeLocal)
+
+	max := *treeLocal.Max()
 	if fmt.Sprintf("%s", max) != "14" {
 		t.Errorf("Max() should return 14 but return %s", max)
 	}
 }
 
 func TestSearch(t *testing.T) {
-	for i := 1; i <= 11; i++ {
-		if !tree.Search(i) {
+	var treeLocal ItemBinarySearchTree
+	initTree(&treeLocal)
+	for i := 1; i <= 14; i++ {
+		if !treeLocal.Search(i) {
 			t.Errorf("Search() can't find %d", i)
 		}
 	}
@@ -118,21 +148,21 @@ func TestRemove(t *testing.T) {
 
 	fmt.Println("----删除最右边的-----")
 	//删除最右边的
-	max_value_s := fmt.Sprintf("%s", *treeLocal.Max())
+	maxValue_s := fmt.Sprintf("%s", *treeLocal.Max())
 
-	if max_value, error := strconv.Atoi(max_value_s); error != nil {
-		t.Errorf("max_value_s:%v", max_value_s)
+	if maxValue, error := strconv.Atoi(maxValue_s); error != nil {
+		t.Errorf("maxValue_s:%v", maxValue_s)
 	} else {
-		node_removed, newNode = treeLocal.Remove(max_value)
+		node_removed, newNode = treeLocal.Remove(maxValue)
 		treeLocal.String()
 		assert.Equal(t, newNode.key, 12, fmt.Sprintf("remove can not return expected newNode:%d, actual:%d", 12, newNode.key))
-		assert.Equal(t, node_removed.key, max_value, fmt.Sprintf("remove can not return expected node_removed which has value:%d, actual:%d", max_value, node_removed.key))
-		max_value_s = fmt.Sprintf("%s", *treeLocal.Max())
-		if max_value2, error := strconv.Atoi(max_value_s); error != nil {
-			t.Errorf("max_value_s:%v", max_value_s)
+		assert.Equal(t, node_removed.key, maxValue, fmt.Sprintf("remove can not return expected node_removed which has value:%d, actual:%d", maxValue, node_removed.key))
+		maxValue_s = fmt.Sprintf("%s", *treeLocal.Max())
+		if maxValue2, error := strconv.Atoi(maxValue_s); error != nil {
+			t.Errorf("maxValue_s:%v", maxValue_s)
 		} else {
-			if max_value2 != max_value-1 {
-				t.Errorf("Remove(1) failed,expected max_value2:%s, actual:%s", max_value-1, max_value2)
+			if maxValue2 != maxValue-1 {
+				t.Errorf("Remove(1) failed,expected maxValue2:%s, actual:%s", maxValue-1, maxValue2)
 			}
 		}
 	}
