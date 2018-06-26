@@ -28,6 +28,14 @@ func (node *Node) Equal(target *Node) bool {
 	}
 }
 
+func (node *Node) SelfEqual(target *Node) bool {
+	if node == nil || target == nil {
+		return node == nil && target == nil
+	} else {
+		return node.key == target.key && node.value == target.value
+	}
+}
+
 //释放
 func (tree *ItemBinarySearchTree) Destroy() {
 	if tree == nil {
@@ -312,10 +320,37 @@ func (tree *ItemBinarySearchTree) equal(target *ItemBinarySearchTree) bool {
 //同构
 //给定两棵树T1和T2.如果T1可以通过若干次左右孩子互换就变成T2，则我们称两棵树是同构的。
 func (tree *ItemBinarySearchTree) Isomorphic(target *ItemBinarySearchTree) bool {
+	tree.lock.RLock()
+	target.lock.RLock()
+	defer tree.lock.RUnlock()
+	defer target.lock.RUnlock()
+	var l1 *ItemBinarySearchTree
+	var l2 *ItemBinarySearchTree
+	var r1 *ItemBinarySearchTree
+	var r2 *ItemBinarySearchTree
+
 	if tree == nil || target == nil {
 		return tree == nil && target == nil
 	}
-	return tree.root.Equal(target.root) //比较
+	if result := tree.root.SelfEqual(target.root); !result {
+		return false
+	} else if tree.root.left == nil && target.root.left == nil {
+		return r1.Isomorphic(r2)
+	} else if tree.root.left != nil && tree.root.left.SelfEqual(target.root.left) {
+		l1.root = tree.root.left
+		l2.root = target.root.left
+		r1.root = tree.root.right
+		r2.root = target.root.right
+		return l1.Isomorphic(l2) && r1.Isomorphic(r2)
+	} else if tree.root.left.SelfEqual(target.root.right) && tree.root.right.SelfEqual(target.root.left) {
+		l1.root = tree.root.left
+		l2.root = target.root.left
+		r1.root = tree.root.right
+		r2.root = target.root.right
+		return l1.Isomorphic(r2) && r1.Isomorphic(l2)
+	} else {
+		return false
+	}
 
 }
 
