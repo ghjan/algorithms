@@ -77,14 +77,14 @@ func search(node *Node, key int) bool {
 
 // 删除节点
 //返回被删除的结点
-func (tree *ItemBinarySearchTree) Remove(key int) (removedNode, newNode *Node) {
+func (tree *ItemBinarySearchTree) Remove(key int) (*Node, *Node) {
 	tree.lock.Lock()
 	defer tree.lock.Unlock()
 	return remove(nil, tree.root, key, true)
 }
 
 // 递归删除节点
-func remove(parent, node *Node, key int, is_left bool) (removedNode, newNode *Node) {
+func remove(parent, node *Node, key int, isLeft bool) (*Node, *Node) {
 	// 要删除的节点不存在
 	if node == nil {
 		return nil, nil
@@ -104,17 +104,17 @@ func remove(parent, node *Node, key int, is_left bool) (removedNode, newNode *No
 	// 要删除的节点是叶子节点，直接删除
 	// if key == node.key {
 	if node.left == nil && node.right == nil {
-		process_remove(parent, nil, is_left)
+		processRemove(parent, nil, isLeft)
 		return node, nil
 	}
 
 	// 要删除的节点只有一个节点，删除自身
 	if node.left == nil {
-		process_remove(parent, node.right, is_left)
+		processRemove(parent, node.right, isLeft)
 		return node, node.right
 	}
 	if node.right == nil {
-		process_remove(parent, node.left, is_left)
+		processRemove(parent, node.left, isLeft)
 		return node, node.left
 	}
 
@@ -129,14 +129,14 @@ func remove(parent, node *Node, key int, is_left bool) (removedNode, newNode *No
 		}
 	}
 	// 使用右子树的最左节点替换当前节点，即删除当前节点
-	node_remo := *node
+	nodeRem := *node
 	node.key, node.value = mostLeftNode.key, mostLeftNode.value
-	_, mostLeftNode.right = remove(node, node.right, mostLeftNode.key, false)
-	return &node_remo, mostLeftNode
+	_, mostLeftNode.right = remove(node, node.right, mostLeftNode.key, false) //在当前结点的右边删除mostLeftNode
+	return &nodeRem, mostLeftNode
 }
-func process_remove(parent, node *Node, is_left bool) {
+func processRemove(parent, node *Node, isLeft bool) {
 	if parent != nil {
-		if is_left {
+		if isLeft {
 			parent.left = node
 		} else {
 			parent.right = node
