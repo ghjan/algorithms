@@ -168,3 +168,20 @@ func TestRemove(t *testing.T) {
 	}
 
 }
+
+func TestEqual(t *testing.T) {
+	var treeLocal ItemBinarySearchTree
+
+	initTree(&treeLocal)
+
+	var treeGenerated ItemBinarySearchTree
+
+	treeLocal.PreOrderTraverse(func(value Item) {
+		if v, err := strconv.Atoi(fmt.Sprintf("%s", value)); err != nil {
+			t.Errorf("value:%s", value)
+		} else {
+			treeGenerated.Insert(v, value)
+		}
+	})
+	assert.Equal(t, treeLocal.equal(&treeGenerated), true, fmt.Sprintf("two trees are expected to be equal , but actually they are not equal"))
+}

@@ -20,6 +20,14 @@ type ItemBinarySearchTree struct {
 	lock sync.RWMutex
 }
 
+func (node *Node) Equal(target *Node) bool {
+	if node == nil || target == nil {
+		return node == nil && target == nil
+	} else {
+		return node.key == target.key && node.value == target.value && node.left.Equal(target.left) && node.right.Equal(target.right)
+	}
+}
+
 //释放
 func (tree *ItemBinarySearchTree) Destroy() {
 	if tree == nil {
@@ -196,7 +204,7 @@ func (tree *ItemBinarySearchTree) Max() *Item {
 	}
 }
 
-// 先序遍历：根节点 -> 左子树 -> 右子树
+// 先序遍历(打印函数)：根节点 -> 左子树 -> 右子树
 func (tree *ItemBinarySearchTree) PreOrderTraverse(printFunc func(Item)) {
 	tree.lock.RLock()
 	defer tree.lock.RUnlock()
@@ -210,7 +218,21 @@ func preOrderTraverse(node *Node, printFunc func(Item)) {
 	}
 }
 
-// 中序遍历：左子树 -> 根节点 -> 右子树 打印函數
+// 先序遍历2(操作函數)：根节点 -> 左子树 -> 右子树
+func (tree *ItemBinarySearchTree) PreOrderTraverse2(operationFunc func(nodeMe *Node)) {
+	tree.lock.RLock()
+	defer tree.lock.RUnlock()
+	preOrderTraverse2(tree.root, operationFunc)
+}
+func preOrderTraverse2(node *Node, operationFunc func(nodeMe *Node)) {
+	if node != nil {
+		operationFunc(node)                          // 先打印根结点
+		preOrderTraverse2(node.left, operationFunc)  // 再打印左子树
+		preOrderTraverse2(node.right, operationFunc) // 最后打印右子树
+	}
+}
+
+// 后序遍历（打印函數）：左子树 -> 根节点 -> 右子树
 func (tree *ItemBinarySearchTree) PostOrderTraverse(printFunc func(Item)) {
 	tree.lock.RLock()
 	defer tree.lock.RUnlock()
@@ -224,7 +246,7 @@ func postOrderTraverse(node *Node, printFunc func(Item)) {
 	}
 }
 
-// 中序遍历：左子树 -> 根节点 -> 右子树  操作函數
+// 后序遍历2（操作函數）：左子树 -> 根节点 -> 右子树
 func (tree *ItemBinarySearchTree) PostOrderTraverse2(operationFunc func(nodeMe *Node)) {
 	tree.lock.RLock()
 	defer tree.lock.RUnlock()
@@ -238,7 +260,7 @@ func postOrderTraverse2(node *Node, operationFunc func(nodeMe *Node)) {
 	}
 }
 
-// 后续遍历：左子树 -> 右子树 -> 根结点
+// 中续遍历：左子树 -> 右子树 -> 根结点
 func (tree *ItemBinarySearchTree) InOrderTraverse(printFunc func(Item)) {
 	tree.lock.RLock()
 	defer tree.lock.RUnlock()
@@ -276,6 +298,24 @@ func levelOrderTraverse(node *Node, printFunc func(Item)) {
 			}
 		}
 	}
+
+}
+
+//相等
+func (tree *ItemBinarySearchTree) equal(target *ItemBinarySearchTree) bool {
+	if tree == nil || target == nil {
+		return tree == nil && target == nil
+	}
+	return tree.root.Equal(target.root) //比较
+}
+
+//同构
+//给定两棵树T1和T2.如果T1可以通过若干次左右孩子互换就变成T2，则我们称两棵树是同构的。
+func (tree *ItemBinarySearchTree) Isomorphic(target *ItemBinarySearchTree) bool {
+	if tree == nil || target == nil {
+		return tree == nil && target == nil
+	}
+	return tree.root.Equal(target.root) //比较
 
 }
 
