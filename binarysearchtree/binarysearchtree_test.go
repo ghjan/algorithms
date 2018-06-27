@@ -1,10 +1,12 @@
 package binarysearchtree
 
 import (
-	"testing"
 	"fmt"
-	"github.com/stretchr/testify/assert"
+	"math/rand"
 	"strconv"
+	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func initTree(tree *ItemBinarySearchTree) {
@@ -186,7 +188,7 @@ func TestEqual(t *testing.T) {
 	assert.Equal(t, treeLocal.equal(&treeGenerated), true, fmt.Sprintf("two trees are expected to be equal , but actually they are not equal"))
 }
 
-func TestIsomorphic(t *testing.T){
+func TestIsomorphic(t *testing.T) {
 	var treeLocal ItemBinarySearchTree
 
 	initTree(&treeLocal)
@@ -200,6 +202,21 @@ func TestIsomorphic(t *testing.T){
 			treeGenerated.Insert(v, value)
 		}
 	})
+	fmt.Println("----------TestIsomorphic 1st part-----------")
+	treeLocal.String()
+	fmt.Println("-------treeGenerated---------")
+	treeGenerated.String()
+	assert.Equal(t, treeLocal.Isomorphic(&treeGenerated), true, fmt.Sprintf("two trees are expected to be isomorphic , but actually they are not isomorphic"))
+
+	treeGenerated.PreOrderTraverse2(func(nodeMe *Node) {
+		if nodeMe != nil && rand.Intn(20)/2 == 0 { //随机交换左右子树
+			nodeMe.left, nodeMe.right = nodeMe.right, nodeMe.left
+		}
+	})
+	fmt.Println("----------TestIsomorphic 2nd part-----------")
+	treeLocal.String()
+	fmt.Println("-------treeGenerated---------")
+	treeGenerated.String()
 	assert.Equal(t, treeLocal.Isomorphic(&treeGenerated), true, fmt.Sprintf("two trees are expected to be isomorphic , but actually they are not isomorphic"))
 
 }

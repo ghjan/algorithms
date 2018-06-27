@@ -324,30 +324,33 @@ func (tree *ItemBinarySearchTree) Isomorphic(target *ItemBinarySearchTree) bool 
 	target.lock.RLock()
 	defer tree.lock.RUnlock()
 	defer target.lock.RUnlock()
-	var l1 *ItemBinarySearchTree
-	var l2 *ItemBinarySearchTree
-	var r1 *ItemBinarySearchTree
-	var r2 *ItemBinarySearchTree
+	var l1 ItemBinarySearchTree
+	var l2 ItemBinarySearchTree
+	var r1 ItemBinarySearchTree
+	var r2 ItemBinarySearchTree
 
 	if tree == nil || target == nil {
 		return tree == nil && target == nil
-	}
-	if result := tree.root.SelfEqual(target.root); !result {
+	} else if tree.root == nil || target.root == nil {
+		return tree.root == nil && target.root == nil
+	} else if result := tree.root.SelfEqual(target.root); !result {
 		return false
 	} else if tree.root.left == nil && target.root.left == nil {
-		return r1.Isomorphic(r2)
+		r1.root = tree.root.right
+		r2.root = target.root.right
+		return r1.Isomorphic(&r2)
 	} else if tree.root.left != nil && tree.root.left.SelfEqual(target.root.left) {
 		l1.root = tree.root.left
 		l2.root = target.root.left
 		r1.root = tree.root.right
 		r2.root = target.root.right
-		return l1.Isomorphic(l2) && r1.Isomorphic(r2)
+		return l1.Isomorphic(&l2) && r1.Isomorphic(&r2)
 	} else if tree.root.left.SelfEqual(target.root.right) && tree.root.right.SelfEqual(target.root.left) {
 		l1.root = tree.root.left
 		l2.root = target.root.left
 		r1.root = tree.root.right
 		r2.root = target.root.right
-		return l1.Isomorphic(r2) && r1.Isomorphic(l2)
+		return l1.Isomorphic(&r2) && r1.Isomorphic(&l2)
 	} else {
 		return false
 	}
