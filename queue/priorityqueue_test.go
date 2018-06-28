@@ -23,17 +23,17 @@ func TestPriorityQueue(t *testing.T) {
 	c := 100
 	pq := NewPriorityQueue(c)
 
-	for i := 0; i < c+1; i++ {
+	for i := 0; i < c; i++ {
 		heap.Push(&pq, &QItem{Value: i, Priority: i})
 	}
-	equal(t, pq.Len(), c+1)
 	equal(t, cap(pq), c*2)
+	equal(t, pq.Len(), c*2)
 
-	for i := 0; i < c+1; i++ {
+	for i := 0; i < c; i++ {
 		item := heap.Pop(&pq)
 		equal(t, item.(*QItem).Value.(int), i)
 	}
-	equal(t, cap(pq), c/4)
+	equal(t, pq.Len(), c)
 }
 
 func TestUnsortedInsert(t *testing.T) {
@@ -46,14 +46,14 @@ func TestUnsortedInsert(t *testing.T) {
 		ints = append(ints, v)
 		heap.Push(&pq, &QItem{Value: i, Priority: v})
 	}
-	equal(t, pq.Len(), c)
-	equal(t, cap(pq), c)
+	equal(t, pq.Len(), 2*c)
+	equal(t, cap(pq), 2*c)
 
 	sort.Sort(sort.IntSlice(ints))
 
 	for i := 0; i < c; i++ {
 		item, _ := pq.PeekAndShift(ints[len(ints)-1])
-		equal(t, item.Priority, int64(ints[i]))
+		equal(t, item.Priority, ints[i])
 	}
 }
 

@@ -1,8 +1,11 @@
 package queue
 
 import "container/heap"
+
 /*
 优先队列（Priority Queue）：特殊的“队列”，取出元素的顺序是依照元素的优先权（关键字）大小，而不是元素进入队列的先后顺序
+这里利用了最小堆
+https://blog.csdn.net/u012233832/article/details/79634048
  */
 type QItem struct {
 	Value    interface{}
@@ -22,17 +25,25 @@ func (pg PriorityQueue) Len() int {
 }
 
 func (pg PriorityQueue) Less(i, j int) bool {
-	return pg[i].Priority < pg[j].Priority
+	return pg[j] == nil || (pg[i] != nil && pg[j] != nil && pg[i].Priority < pg[j].Priority)
 }
 
 func (pg PriorityQueue) Swap(i, j int) {
 	pg[i], pg[j] = pg[j], pg[i]
-	pg[i].Index = i
-	pg[j].Index = j
+	if pg[i] != nil {
+		pg[i].Index = i
+	}
+	if pg[j] != nil {
+		pg[j].Index = j
+	}
 }
 
-// add x as element Len()
+// add x as element Len() 放在最后
 func (pg *PriorityQueue) Push(x interface{}) {
+	item := x.(*QItem)
+	if item == nil {
+		return
+	}
 	n := len(*pg)
 	c := cap(*pg)
 	if n+1 > c {
@@ -41,12 +52,11 @@ func (pg *PriorityQueue) Push(x interface{}) {
 		*pg = npg
 	}
 	*pg = (*pg)[0:n+1]
-	item := x.(*QItem)
 	item.Index = n
 	(*pg)[n] = item
 }
 
-// remove and return element Len() - 1.
+// remove and return element Len() - 1.  把最后一个拿走
 func (pg *PriorityQueue) Pop() interface{} {
 	n := len(*pg)
 	c := cap(*pg)
@@ -56,11 +66,14 @@ func (pg *PriorityQueue) Pop() interface{} {
 		*pg = npg
 	}
 	item := (*pg)[n-1]
-	item.Index = -1
+	if item != nil {
+		item.Index = -1
+	}
 	*pg = (*pg)[0:n-1]
 	return item
 }
 
+//
 func (pg *PriorityQueue) PeekAndShift(max int) (*QItem, int) {
 	if pg.Len() == 0 {
 		return nil, 0
