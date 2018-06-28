@@ -47,8 +47,7 @@ func TestMakeSortedNodes(t *testing.T) {
 func TestMakeHuffManTree(t *testing.T) {
 	str := "111223"
 	priorityMap := makePriorityMap(str)
-	sortedNodes := makeSortedNodes(priorityMap)
-	hfmTree := makeHuffmanTree(sortedNodes)
+	hfmTree := GetHuffmanTree(priorityMap)
 	if hfmTree.Root.Weight != 6 {
 		t.Error("Can not make a hfmTree, root is:", hfmTree.Root.Left, hfmTree.Root.Right)
 	}
@@ -58,6 +57,6 @@ func TestTraverse(t *testing.T) {
 	str := "111223"
 	encoding := Encode(str)
 	if encoding['1'] != "1" || encoding['2'] != "01" || encoding['3'] != "00" {
-		t.Error("Can not inOrderTraverse in pre order, first element is:", encoding)
+		t.Error("Can not InOrderTraverse in pre order, first element is:", encoding)
 	}
 }

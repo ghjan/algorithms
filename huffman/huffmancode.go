@@ -12,15 +12,15 @@ type Node struct {
 	Right  *Node
 }
 
-// inOrderTraverse visit the whole substree from this node
-func (n Node) inOrderTraverse(code string, visit func(rune, string)) {
+// InOrderTraverse visit the whole substree from this node
+func (n Node) InOrderTraverse(code string, visit func(rune, string)) {
 	if leftNode := n.Left; leftNode != nil {
-		leftNode.inOrderTraverse(code+"0", visit) // left 0
+		leftNode.InOrderTraverse(code+"0", visit) // left 0
 	} else {
 		visit(n.Value, code)
 		return
 	}
-	n.Right.inOrderTraverse(code+"1", visit) // right 1
+	n.Right.InOrderTraverse(code+"1", visit) // right 1
 }
 
 //NodeHeap, implements heap.interface, 存储Node的最小堆（按照Node.Weight排序）
@@ -31,11 +31,11 @@ type Tree struct {
 	Root *Node
 }
 
-// encode inOrderTraverse from the root of the tree and put the encoding result into a map
+// encode InOrderTraverse from the root of the tree and put the encoding result into a map
 func (tree Tree) encode() map[rune]string {
 	var initialCode string
 	encodeMap := make(map[rune]string)
-	tree.Root.inOrderTraverse(initialCode, func(value rune, code string) {
+	tree.Root.InOrderTraverse(initialCode, func(value rune, code string) {
 		encodeMap[value] = code
 	})
 	return encodeMap
@@ -110,4 +110,10 @@ func makeHuffmanTree(nodes NodeHeap) *Tree {
 		}
 	}
 	return hfmTree
+}
+
+func GetHuffmanTree(priorityMap map[rune]int) *Tree {
+	sortedNodes := makeSortedNodes(priorityMap)
+	return makeHuffmanTree(sortedNodes)
+
 }
