@@ -3,12 +3,12 @@ package graph
 import "sync"
 
 type NodeQueue struct {
-	nodes []Node
+	nodes []GNode
 	lock  sync.RWMutex
 }
 
 // 实现 BFS 遍历
-func (g *Graph) BFS(f func(node *Node)) {
+func (g *Graph) BFS(f func(node *GNode)) {
 	g.lock.RLock()
 	defer g.lock.RUnlock()
 
@@ -18,7 +18,7 @@ func (g *Graph) BFS(f func(node *Node)) {
 	head := g.nodes[0]
 	q.Enqueue(*head)
 	// 标识节点是否已经被访问过-已入队列
-	visited := make(map[*Node]bool)
+	visited := make(map[*GNode]bool)
 	visited[head] = true
 	// 遍历所有节点直到队列为空
 	for {
@@ -49,19 +49,19 @@ func NewNodeQueue() *NodeQueue {
 	q := NodeQueue{}
 	q.lock.Lock()
 	defer q.lock.Unlock()
-	q.nodes = []Node{}
+	q.nodes = []GNode{}
 	return &q
 }
 
 // 入队列
-func (q *NodeQueue) Enqueue(n Node) {
+func (q *NodeQueue) Enqueue(n GNode) {
 	q.lock.Lock()
 	defer q.lock.Unlock()
 	q.nodes = append(q.nodes, n)
 }
 
 // 出队列
-func (q *NodeQueue) Dequeue() *Node {
+func (q *NodeQueue) Dequeue() *GNode {
 	q.lock.Lock()
 	defer q.lock.Unlock()
 	node := q.nodes[0]
