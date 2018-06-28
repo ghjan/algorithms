@@ -1,9 +1,10 @@
 package queue
 
 import (
-	"testing"
-	"github.com/stretchr/testify/assert"
 	"fmt"
+	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 var queue ItemQueue
@@ -36,7 +37,7 @@ func TestDequeue(t *testing.T) {
 	item2 := queue.Dequeue()
 	assert.EqualValues(t, *item2, 2, fmt.Sprintf("Wrong value:%d, expected 2", item2))
 	item3 := queue.Dequeue()
-	assert.EqualValues(t, *item3, "3", fmt.Sprintf("Wrong value:%s, expected 3", item3))
+	assert.EqualValues(t, *item3, "3", fmt.Sprintf("Wrong value:%s, expected 3", *item3))
 	if size := len(queue.items); size != 0 {
 		t.Errorf("Wrong count, expected 0 and got %d", size)
 	}
