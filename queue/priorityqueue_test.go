@@ -1,13 +1,14 @@
 package queue
 
 import (
-	"testing"
 	"container/heap"
-	"sort"
 	"math/rand"
-	"reflect"
 	"path/filepath"
+	"reflect"
 	"runtime"
+	"sort"
+	"testing"
+	"fmt"
 )
 
 func equal(t *testing.T, act, exp interface{}) {
@@ -23,6 +24,8 @@ func TestPriorityQueue(t *testing.T) {
 	c := 100
 	pq := NewPriorityQueue(c)
 
+	fmt.Println("----先压入低优先级-----")
+	//先压入低优先级
 	for i := 0; i < c; i++ {
 		heap.Push(&pq, &QItem{Value: i, Priority: i})
 	}
@@ -34,6 +37,23 @@ func TestPriorityQueue(t *testing.T) {
 		equal(t, item.(*QItem).Value.(int), i)
 	}
 	equal(t, pq.Len(), c)
+
+	pq2 := NewPriorityQueue(c)
+
+	fmt.Println("----先压入高优先级-----")
+	//先压入高优先级
+	for i := c - 1; i >= 0; i-- {
+		heap.Push(&pq2, &QItem{Value: i, Priority: i})
+	}
+	equal(t, cap(pq2), c*2)
+	equal(t, pq2.Len(), c*2)
+
+	for i := 0; i < c; i++ {
+		item := heap.Pop(&pq2)
+		equal(t, item.(*QItem).Value.(int), i)
+	}
+	equal(t, pq2.Len(), c)
+
 }
 
 func TestUnsortedInsert(t *testing.T) {
@@ -49,11 +69,12 @@ func TestUnsortedInsert(t *testing.T) {
 	equal(t, pq.Len(), 2*c)
 	equal(t, cap(pq), 2*c)
 
-	sort.Sort(sort.IntSlice(ints))
+	//对ints里面保存的优先级进行排序 小-》大
+	sort.Sort(sort.IntSlice(ints)) //sort.IntSlice 完成了sort.interface
 
 	for i := 0; i < c; i++ {
-		item, _ := pq.PeekAndShift(ints[len(ints)-1])
-		equal(t, item.Priority, ints[i])
+		item, _ := pq.PeekAndShift(ints[len(ints)-1]) //每次取最小优先级
+		equal(t, item.Priority, ints[i])              //验证每次取出来的item的优先级最低（最小堆）
 	}
 }
 
