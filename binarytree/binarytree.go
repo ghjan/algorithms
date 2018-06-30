@@ -8,14 +8,18 @@ import (
 
 //Node 二叉树节点
 type Node struct {
-	data  rune
-	left  *Node
-	right *Node
+	Data  rune
+	Left  *Node
+	Right *Node
 }
 type SimpleNode struct {
 	Data  rune
 	Left  int
 	Right int
+}
+
+func (node Node) IsLeaf() bool {
+	return node.Left == nil && node.Right == nil
 }
 
 func (simpleNode SimpleNode) IsLeaf() bool {
@@ -31,14 +35,14 @@ func CreateTree(arr []int) BinaryTree {
 	d := make([]Node, 0)
 	for i, ar := range arr {
 		d = append(d, Node{})
-		d[i].data = rune(ar)
+		d[i].Data = rune(ar)
 	}
 	for i := 0; i < len(arr)/2; i++ {
 		if i*2+1 < len(d) {
-			d[i].left = &d[i*2+1]
+			d[i].Left = &d[i*2+1]
 		}
 		if i*2+2 < len(d) {
-			d[i].right = &d[i*2+2]
+			d[i].Right = &d[i*2+2]
 		}
 	}
 	return d
@@ -52,9 +56,9 @@ func InsertCode(node *Node, data rune, code string) (*Node, error) {
 		parent := current
 		isLeft := c == '0'
 		if isLeft {
-			current = current.left
+			current = current.Left
 		} else {
-			current = current.right
+			current = current.Right
 		}
 		if current == nil { //空，需要创建新节点
 			if index == len(code)-1 { // 叶子
@@ -63,15 +67,15 @@ func InsertCode(node *Node, data rune, code string) (*Node, error) {
 				current = &Node{rune(0), nil, nil}
 			}
 			if isLeft {
-				parent.left = current
+				parent.Left = current
 			} else {
-				parent.right = current
+				parent.Right = current
 			}
 		} else {
 			if index == len(code)-1 { //重复插入
 				return current, errors.New("重复插入")
 			} else {
-				if current.data != rune(0) {
+				if current.Data != rune(0) {
 					return nil, errors.New("歧义编码")
 				}
 			}
@@ -84,25 +88,25 @@ func InsertCode(node *Node, data rune, code string) (*Node, error) {
 func PreOrderTraverse(node *Node, operationFunc func(nodeMe *Node)) {
 	if node != nil {
 		operationFunc(node)                         // 打印根结点
-		PreOrderTraverse(node.left, operationFunc)  // 先打印左子树
-		PreOrderTraverse(node.right, operationFunc) // 再打印右子树
+		PreOrderTraverse(node.Left, operationFunc)  // 先打印左子树
+		PreOrderTraverse(node.Right, operationFunc) // 再打印右子树
 	}
 }
 
 //中序遍历
 func InOrderTraverse(node *Node, operationFunc func(nodeMe *Node)) {
 	if node != nil {
-		InOrderTraverse(node.left, operationFunc)  // 先打印左子树
+		InOrderTraverse(node.Left, operationFunc)  // 先打印左子树
 		operationFunc(node)                        // 打印根结点
-		InOrderTraverse(node.right, operationFunc) // 再打印右子树
+		InOrderTraverse(node.Right, operationFunc) // 再打印右子树
 	}
 }
 
 // 后序遍历2操作函數）：左子树 -> 根节点 -> 右子树
 func PostOrderTraverse(node *Node, operationFunc func(nodeMe *Node)) {
 	if node != nil {
-		PostOrderTraverse(node.left, operationFunc)  // 先打印左子树
-		PostOrderTraverse(node.right, operationFunc) // 再打印右子树
+		PostOrderTraverse(node.Left, operationFunc)  // 先打印左子树
+		PostOrderTraverse(node.Right, operationFunc) // 再打印右子树
 		operationFunc(node)                          // 最后打印根结点
 	}
 }
@@ -118,11 +122,11 @@ func LevelOrderTraverse(node *Node, operationFunc func(*Node)) {
 	for !q.IsEmpty() {
 		if nodeTemp := q.Dequeue(); nodeTemp != nil {
 			operationFunc(nodeTemp)
-			if nodeTemp.left != nil {
-				q.Enqueue(nodeTemp.left)
+			if nodeTemp.Left != nil {
+				q.Enqueue(nodeTemp.Left)
 			}
-			if nodeTemp.right != nil {
-				q.Enqueue(nodeTemp.right)
+			if nodeTemp.Right != nil {
+				q.Enqueue(nodeTemp.Right)
 			}
 		}
 	}
