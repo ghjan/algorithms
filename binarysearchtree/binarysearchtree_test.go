@@ -75,7 +75,7 @@ func TestLevelOrderTraverse(t *testing.T) {
 
 	initTree(&treeLocal)
 	traverse := ""
-	treeLocal.LevelOrderTranverse(func(value Item) {
+	treeLocal.LevelOrderTraverse(func(value Item) {
 		traverse += fmt.Sprintf("%s\t", value)
 	})
 	fmt.Println(traverse)

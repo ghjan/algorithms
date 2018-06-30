@@ -283,7 +283,7 @@ func inOrderTraverse(node *Node, printFunc func(Item)) {
 }
 
 //层级遍历
-func (tree *ItemBinarySearchTree) LevelOrderTranverse(printFunc func(Item)) {
+func (tree *ItemBinarySearchTree) LevelOrderTraverse(printFunc func(Item)) {
 	tree.lock.RLock()
 	defer tree.lock.RUnlock()
 	levelOrderTraverse(tree.root, printFunc)
