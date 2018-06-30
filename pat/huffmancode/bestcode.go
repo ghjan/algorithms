@@ -27,7 +27,7 @@ func testBest(filename string) {
 	var hfmTree *huffman.Tree
 	countStudentsSubmited := 0
 	studentSubmitEncodeMap := make(map[rune]string)
-	result_string := ""
+	resultString := ""
 	for {
 		a, _, c := br.ReadLine()
 		if c == io.EOF {
@@ -50,12 +50,12 @@ func testBest(filename string) {
 				countStudentsSubmited++
 				if result, err := hfmTree.IsBestCode(studentSubmitEncodeMap, freqMap); err != nil {
 					//fmt.Println("NO") //fmt.Println(err)
-					result_string += "NO "
+					resultString += "NO "
 				} else {
 					if result {
-						result_string += "YES "
+						resultString += "YES "
 					} else {
-						result_string += "NO "
+						resultString += "NO "
 					}
 				}
 				countStudentsSubmited = 0
@@ -65,7 +65,7 @@ func testBest(filename string) {
 		//fmt.Println(string(a))
 		i++
 	}
-	fmt.Printf(strings.Replace(result_string, " ", "\n", 4))
+	fmt.Printf(strings.Replace(resultString, " ", "\n", 4))
 }
 
 func main() {

@@ -1,17 +1,30 @@
 package binarytree
 
-import "errors"
+import (
+	"errors"
+
+	"github.com/ghjan/algorithms/queue"
+)
 
 //Node 二叉树节点
 type Node struct {
 	data  rune
-	code  string
 	left  *Node
 	right *Node
+}
+type SimpleNode struct {
+	Data  rune
+	Left  int
+	Right int
+}
+
+func (simpleNode SimpleNode) IsLeaf() bool {
+	return simpleNode.Left == -1 && simpleNode.Right == -1
 }
 
 //BinaryTree 二叉树
 type BinaryTree []Node
+type SimpleBinaryTree []SimpleNode
 
 //创建二叉树
 func CreateTree(arr []int) BinaryTree {
@@ -45,9 +58,9 @@ func InsertCode(node *Node, data rune, code string) (*Node, error) {
 		}
 		if current == nil { //空，需要创建新节点
 			if index == len(code)-1 { // 叶子
-				current = &Node{data, code, nil, nil}
+				current = &Node{data, nil, nil}
 			} else { //非叶子
-				current = &Node{rune(0), "", nil, nil}
+				current = &Node{rune(0), nil, nil}
 			}
 			if isLeft {
 				parent.left = current
@@ -110,6 +123,26 @@ func LevelOrderTraverse(node *Node, operationFunc func(*Node)) {
 			}
 			if nodeTemp.right != nil {
 				q.Enqueue(nodeTemp.right)
+			}
+		}
+	}
+
+}
+
+//层级遍历
+func LevelOrderTraverseSimple(tree SimpleBinaryTree, rootNode int, operationFunc func(SimpleNode)) {
+	var q queue.ItemQueue
+	q.New()
+	q.Enqueue(tree[rootNode])
+	for !q.IsEmpty() {
+		if nodeTemp := q.Dequeue(); nodeTemp != nil {
+			nodeObj := (*nodeTemp).(SimpleNode)
+			operationFunc(nodeObj)
+			if nodeObj.Left != -1 {
+				q.Enqueue(tree[nodeObj.Left])
+			}
+			if nodeObj.Right != -1 {
+				q.Enqueue(tree[nodeObj.Right])
 			}
 		}
 	}

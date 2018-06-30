@@ -1,10 +1,17 @@
 package binarytree
 
 import (
-"fmt"
-"testing"
+	"fmt"
+	"io"
+	"testing"
 
-"github.com/stretchr/testify/assert"
+	"bufio"
+	"os"
+	"strconv"
+	"strings"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/ghjan/algorithms/set"
 )
 
 func initTree() BinaryTree {
@@ -48,4 +55,77 @@ func TestTraverse(t *testing.T) {
 	})
 	assert.Equal(t, "10 5 24 30 60 40 45 15 27 49 23 42 56 12 8 55 2 9 ", result, "")
 	fmt.Println(result)
+}
+
+func TestLevelOrderTraverse(t *testing.T) {
+	filename := strings.Join([]string{"E:/go-work/bin", "listleaves_case_1.txt"}, "/")
+
+	fi, err := os.Open(filename)
+	if err != nil {
+		fmt.Printf("Error: %s\n", err)
+		return
+	}
+	defer fi.Close()
+
+	br := bufio.NewReader(fi)
+	var n int
+	//binaryTree := make([]Node, 0)
+	var simpleBinaryTree SimpleBinaryTree
+	var rootNode int
+	var notRootSet set.ItemSet
+	for i := 0; ; i++ {
+		a, _, c := br.ReadLine()
+		if c == io.EOF {
+			break
+		}
+		if i == 0 {
+			n, _ = strconv.Atoi(string(a))
+			if n == 1 {
+				rootNode = 0
+			} else if n < 1 {
+				return
+			}
+			simpleBinaryTree = make([]SimpleNode, n)
+		} else //读取节点数据
+		{
+			sons := strings.Split(string(a), " ")
+			left := -1
+			right := -1
+			if sons[0] != "-" {
+				left, _ = strconv.Atoi(sons[0])
+			}
+			if sons[1] != "-" {
+				right, _ = strconv.Atoi(sons[1])
+			}
+			simpleBinaryTree[i-1] = SimpleNode{rune(i - 1), left, right}
+			if i == n { //最后一个节点数据
+				break
+			}
+			//if n > 1 && simpleBinaryTree[i-1].IsLeaf() {
+			//	notRootSet.Add(i - 1)
+			//}
+			if left >= 0 {
+				notRootSet.Add(left)
+			}
+			if right >= 0 {
+				notRootSet.Add(right)
+			}
+		}
+
+	}
+	result := ""
+
+	//获取root节点
+	for i := 0; i < n; i++ {
+		if !notRootSet.Has(i) {
+			rootNode = i
+			break
+		}
+	}
+	LevelOrderTraverseSimple(simpleBinaryTree, rootNode, func(node SimpleNode) {
+		if node.IsLeaf() {
+			result += fmt.Sprintf("%d ", node.Data)
+		}
+	})
+	fmt.Printf(strings.Trim(result, " "))
 }

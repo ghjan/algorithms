@@ -78,14 +78,13 @@ func TestBest(t *testing.T) {
 	defer fi.Close()
 
 	br := bufio.NewReader(fi)
-	i := 0
 	var n int
 	var freqMap map[rune]int
 	var hfmTree *Tree
 	countStudentsSubmited := 0
 	studentSubmitEncodeMap := make(map[rune]string)
-	result_string := ""
-	for {
+	resultString := ""
+	for i := 0; ; i++ {
 		a, _, c := br.ReadLine()
 		if c == io.EOF {
 			break
@@ -107,12 +106,12 @@ func TestBest(t *testing.T) {
 				countStudentsSubmited++
 				if result, err := hfmTree.IsBestCode(studentSubmitEncodeMap, freqMap); err != nil {
 					//fmt.Println("NO") //fmt.Println(err)
-					result_string += "NO "
+					resultString += "NO "
 				} else {
 					if result {
-						result_string += "YES "
+						resultString += "YES "
 					} else {
-						result_string += "NO "
+						resultString += "NO "
 					}
 				}
 				countStudentsSubmited = 0
@@ -120,8 +119,7 @@ func TestBest(t *testing.T) {
 			}
 		}
 		//fmt.Println(string(a))
-		i++
 	}
-	fmt.Printf(strings.Replace(result_string, " ", "\n", 4))
-	assert.Equal(t, "YES YES NO NO ", result_string)
+	fmt.Printf(strings.Replace(resultString, " ", "\n", 4))
+	assert.Equal(t, "YES YES NO NO ", resultString)
 }
