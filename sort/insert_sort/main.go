@@ -1,8 +1,8 @@
 package main
 
 import (
-	"algorithms"
 	"fmt"
+	"github.com/ghjan/algorithms"
 )
 
 func main() {

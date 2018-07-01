@@ -20,7 +20,7 @@ func initQueue() *NodeItemQueue {
 	}
 
 	if size := queueLocal.Size(); size != i {
-		fmt.Println("Error:Wrong count, expected %d and got %d", i, size)
+		fmt.Printf("Error:Wrong count, expected %d and got %d\n", i, size)
 	}
 	return &queueLocal
 }

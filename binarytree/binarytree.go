@@ -1,9 +1,9 @@
 package binarytree
 
 import (
-	"errors"
-
 	"github.com/ghjan/algorithms/queue"
+	"github.com/ghjan/algorithms/set"
+	"github.com/kataras/iris/core/errors"
 )
 
 //Node 二叉树节点
@@ -12,45 +12,59 @@ type Node struct {
 	Left  *Node
 	Right *Node
 }
-type SimpleNode struct {
-	Data  rune
-	Left  int
-	Right int
-}
 
-func (node Node) IsLeaf() bool {
-	return node.Left == nil && node.Right == nil
-}
-
-func (simpleNode SimpleNode) IsLeaf() bool {
-	return simpleNode.Left == -1 && simpleNode.Right == -1
-}
-
-//BinaryTree 二叉树
-type BinaryTree []Node
-type SimpleBinaryTree []SimpleNode
-
-//创建二叉树
-func CreateBinaryTree(arr []int) BinaryTree {
-	d := make([]Node, 0)
-	for i, ar := range arr {
-		d = append(d, Node{})
-		d[i].Data = rune(ar)
+//PreOrderTraverse 前序遍历
+func (node *Node) PreOrderTraverse(operationFunc func(nodeMe *Node)) {
+	if node != nil {
+		operationFunc(node)                        // 先打印根结点
+		node.Left.PreOrderTraverse(operationFunc)  // 再打印左子树
+		node.Right.PreOrderTraverse(operationFunc) // 最后打印右子树
 	}
-	for i := 0; i < len(arr)/2; i++ {
-		if i*2+1 < len(d) {
-			d[i].Left = &d[i*2+1]
-		}
-		if i*2+2 < len(d) {
-			d[i].Right = &d[i*2+2]
+}
+
+//InOrderTraverse 中序遍历
+func (node *Node) InOrderTraverse(operationFunc func(nodeMe *Node)) {
+	if node != nil {
+		node.Left.InOrderTraverse(operationFunc)  // 先打印左子树
+		operationFunc(node)                       // 再打印根结点
+		node.Right.InOrderTraverse(operationFunc) // 最后打印右子树
+	}
+}
+
+//PostOrderTraverse 后序遍历(操作函數）：左子树 -> 根节点 -> 右子树
+func (node *Node) PostOrderTraverse(operationFunc func(nodeMe *Node)) {
+	if node != nil {
+		node.Left.PostOrderTraverse(operationFunc)  // 先打印左子树
+		node.Right.PostOrderTraverse(operationFunc) // 再打印右子树
+		operationFunc(node)                         // 最后打印根结点
+	}
+}
+
+//LevelOrderTraverse 层级遍历
+func (node *Node) LevelOrderTraverse(operationFunc func(*Node)) {
+	if node == nil {
+		return
+	}
+	var q NodeItemQueue
+	q.New()
+	q.Enqueue(node)
+	for !q.IsEmpty() {
+		if nodeTemp := q.Dequeue(); nodeTemp != nil {
+			operationFunc(nodeTemp)
+			if nodeTemp.Left != nil {
+				q.Enqueue(nodeTemp.Left)
+			}
+			if nodeTemp.Right != nil {
+				q.Enqueue(nodeTemp.Right)
+			}
 		}
 	}
-	return d
+
 }
 
 //InsertCode 插入编码的节点
 // 返回false：重复插入
-func InsertCode(node *Node, data rune, code string) (*Node, error) {
+func (node *Node) InsertCode(data rune, code string) (*Node, error) {
 	current := node
 	for index, c := range code {
 		parent := current
@@ -84,54 +98,83 @@ func InsertCode(node *Node, data rune, code string) (*Node, error) {
 	return current, nil
 }
 
-//前序遍历
-func (node *Node) PreOrderTraverse(operationFunc func(nodeMe *Node)) {
-	if node != nil {
-		operationFunc(node)                        // 先打印根结点
-		node.Left.PreOrderTraverse(operationFunc)  // 再打印左子树
-		node.Right.PreOrderTraverse(operationFunc) // 最后打印右子树
-	}
+func (node Node) IsLeaf() bool {
+	return node.Left == nil && node.Right == nil
 }
 
-//中序遍历
-func (node *Node) InOrderTraverse(operationFunc func(nodeMe *Node)) {
-	if node != nil {
-		node.Left.InOrderTraverse(operationFunc)  // 先打印左子树
-		operationFunc(node)                       // 再打印根结点
-		node.Right.InOrderTraverse(operationFunc) // 最后打印右子树
-	}
-}
+//BinaryTree 二叉树
+type BinaryTree []Node
 
-// 后序遍历2操作函數）：左子树 -> 根节点 -> 右子树
-func (node *Node) PostOrderTraverse(operationFunc func(nodeMe *Node)) {
-	if node != nil {
-		node.Left.PostOrderTraverse(operationFunc)  // 先打印左子树
-		node.Right.PostOrderTraverse(operationFunc) // 再打印右子树
-		operationFunc(node)                         // 最后打印根结点
+//创建二叉树
+func CreateBinaryTree(arr []int) BinaryTree {
+	d := make([]Node, 0)
+	for i, ar := range arr {
+		d = append(d, Node{})
+		d[i].Data = rune(ar)
 	}
-}
-
-//层级遍历
-func (node *Node) LevelOrderTraverse(operationFunc func(*Node)) {
-	if node == nil {
-		return
-	}
-	var q NodeItemQueue
-	q.New()
-	q.Enqueue(node)
-	for !q.IsEmpty() {
-		if nodeTemp := q.Dequeue(); nodeTemp != nil {
-			operationFunc(nodeTemp)
-			if nodeTemp.Left != nil {
-				q.Enqueue(nodeTemp.Left)
-			}
-			if nodeTemp.Right != nil {
-				q.Enqueue(nodeTemp.Right)
-			}
+	for i := 0; i < len(arr)/2; i++ {
+		if i*2+1 < len(d) {
+			d[i].Left = &d[i*2+1]
+		}
+		if i*2+2 < len(d) {
+			d[i].Right = &d[i*2+2]
 		}
 	}
-
+	return d
 }
+
+//Root 二叉树的根节点
+func (tree BinaryTree) RootIndex() int {
+	rootIndex := -1
+	notRootSet := set.ItemSet{}
+	for _, node := range tree {
+		if node.Left != nil {
+			notRootSet.Add(*node.Left)
+		}
+		if node.Right != nil {
+			notRootSet.Add(*node.Right)
+		}
+	}
+	for index, node := range tree {
+		if !notRootSet.Has(node) {
+			rootIndex = index
+			break
+		}
+	}
+	return rootIndex
+}
+
+//PreOrderTraverse 前序遍历
+func (tree BinaryTree) PreOrderTraverse(operationFunc func(nodeMe *Node)) {
+	tree[tree.RootIndex()].PreOrderTraverse(operationFunc)
+}
+
+//InOrderTraverse 中序遍历
+func (tree BinaryTree) InOrderTraverse(operationFunc func(nodeMe *Node)) {
+	tree[tree.RootIndex()].InOrderTraverse(operationFunc)
+}
+
+//PostOrderTraverse 后序遍历(操作函數）：左子树 -> 根节点 -> 右子树
+func (tree BinaryTree) PostOrderTraverse(operationFunc func(nodeMe *Node)) {
+	tree[tree.RootIndex()].PostOrderTraverse(operationFunc)
+}
+
+//LevelOrderTraverse 层级遍历
+func (tree BinaryTree) LevelOrderTraverse(operationFunc func(nodeMe *Node)) {
+	tree[tree.RootIndex()].LevelOrderTraverse(operationFunc)
+}
+
+type SimpleNode struct {
+	Data  rune
+	Left  int
+	Right int
+}
+
+func (simpleNode SimpleNode) IsLeaf() bool {
+	return simpleNode.Left == -1 && simpleNode.Right == -1
+}
+
+type SimpleBinaryTree []SimpleNode
 
 //层级遍历
 func (tree SimpleBinaryTree) LevelOrderTraverse(rootNode int, operationFunc func(SimpleNode)) {

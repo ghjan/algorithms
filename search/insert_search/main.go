@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"algorithms"
+	"github.com/ghjan/algorithms"
 )
 
 func main() {

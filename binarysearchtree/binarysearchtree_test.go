@@ -187,7 +187,7 @@ func TestRemove(t *testing.T) {
 			t.Errorf("maxValue_s:%v", maxValue_s)
 		} else {
 			if maxValue2 != maxValue-1 {
-				t.Errorf("Remove(1) failed,expected maxValue2:%s, actual:%s", maxValue-1, maxValue2)
+				t.Errorf("Remove(1) failed,expected maxValue2:%d, actual:%d", maxValue-1, maxValue2)
 			}
 		}
 	}

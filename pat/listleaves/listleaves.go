@@ -87,7 +87,7 @@ func test1() {
 			break
 		}
 	}
-	binarytree.LevelOrderTraverseSimple(simpleBinaryTree, rootNode, func(node binarytree.SimpleNode) {
+	simpleBinaryTree.LevelOrderTraverse(rootNode, func(node binarytree.SimpleNode) {
 		if node.IsLeaf() {
 			result += fmt.Sprintf("%d ", node.Data)
 		}

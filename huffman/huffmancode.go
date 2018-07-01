@@ -59,10 +59,11 @@ func (tree Tree) encode() map[rune]string {
 
 //IsBestCode 是否最佳编码
 func (tree *Tree) IsBestCode(encodeMap map[rune]string, freqMap map[rune]int) (bool, error) {
-	var resultTree binarytree.BinaryTree = make([]binarytree.Node, len(encodeMap))
+	var resultTree binarytree.BinaryTree
+	resultTree = make([]binarytree.Node, len(encodeMap))
 	weight := 0
 	for k, v := range encodeMap {
-		if _, err := binarytree.InsertCode(&resultTree[0], k, v); err != nil {
+		if _, err := resultTree[0].InsertCode(k, v); err != nil {
 			return false, err
 		} else {
 			weight += freqMap[k] * len(v)
