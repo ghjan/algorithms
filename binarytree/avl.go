@@ -9,7 +9,7 @@ import (
 
 //AvlTreeNode avl树节点
 type AvlTreeNode struct {
-	key    int
+	Key    int
 	height int //高度：当前结点到叶子节点的距离 只有一个root节点高度为0
 	depth  int //深度:当前节点到root的距离， root本身的深度是0
 	left   *AvlTreeNode
@@ -18,7 +18,7 @@ type AvlTreeNode struct {
 
 //NewAVLTreeNode 产生一个新节点
 func NewAVLTreeNode(key int) *AvlTreeNode {
-	return &AvlTreeNode{key: key}
+	return &AvlTreeNode{Key: key}
 }
 
 //Height avl树节点的高度
@@ -117,44 +117,44 @@ func rightLeftRotation(k *AvlTreeNode) *AvlTreeNode {
 	return rightRightRotation(k)
 }
 
-//Insert insert a key to avl
+//Insert insert a Key to avl
 func (avlNode *AvlTreeNode) Insert(key int) (*AvlTreeNode, error) {
 	var err error
 	if avlNode == nil {
 		avlNode = NewAVLTreeNode(key)
-	} else if key < avlNode.key {
+	} else if key < avlNode.Key {
 		avlNode.left, err = avlNode.left.Insert(key)
 		if err == nil && avlNode.left.Height()-avlNode.right.Height() == 2 {
-			if key < avlNode.left.key { //LL
+			if key < avlNode.left.Key { //LL
 				avlNode = leftLeftRotation(avlNode)
 			} else { // LR
 				avlNode = leftRightRotation(avlNode)
 			}
 		}
-	} else if key > avlNode.key {
+	} else if key > avlNode.Key {
 		avlNode.right, err = avlNode.right.Insert(key)
 		if err == nil && (avlNode.right.Height()-avlNode.left.Height()) == 2 {
-			if key < avlNode.right.key { // RL
+			if key < avlNode.right.Key { // RL
 				avlNode = rightLeftRotation(avlNode)
 			} else {
-				//fmt.Println("right right", key)
+				//fmt.Println("right right", Key)
 				avlNode = rightRightRotation(avlNode)
 			}
 		}
-	} else if key == avlNode.key {
-		return avlNode, errors.New(fmt.Sprintf("the key %d has existed!", key))
+	} else if key == avlNode.Key {
+		return avlNode, errors.New(fmt.Sprintf("the Key %d has existed!", key))
 	}
 	//notice: update height(may be this insert no rotation, so you should update height)
 	avlNode.height = max(avlNode.left.Height(), avlNode.right.Height()) + 1
 	return avlNode, nil
 }
 
-//DisplayAsc display avl tree  key by asc
+//DisplayAsc display avl tree  Key by asc
 func (avlNode *AvlTreeNode) DisplayAsc() []int {
 	return appendValues([]int{}, avlNode)
 }
 
-//DisplayDesc display avl tree key by desc
+//DisplayDesc display avl tree Key by desc
 func (avlNode *AvlTreeNode) DisplayDesc() []int {
 	return appendValues2([]int{}, avlNode)
 }
@@ -162,7 +162,7 @@ func (avlNode *AvlTreeNode) DisplayDesc() []int {
 func appendValues(values []int, avl *AvlTreeNode) []int {
 	if avl != nil {
 		values = appendValues(values, avl.left)
-		values = append(values, avl.key)
+		values = append(values, avl.Key)
 		values = appendValues(values, avl.right)
 	}
 	return values
@@ -171,7 +171,7 @@ func appendValues(values []int, avl *AvlTreeNode) []int {
 func appendValues2(values []int, avl *AvlTreeNode) []int {
 	if avl != nil {
 		values = appendValues2(values, avl.right)
-		values = append(values, avl.key)
+		values = append(values, avl.Key)
 		values = appendValues2(values, avl.left)
 	}
 	return values
