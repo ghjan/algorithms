@@ -2,18 +2,41 @@ package binarysearchtree
 
 import (
 	"fmt"
+	"io"
 	"math/rand"
 	"strconv"
 	"testing"
+
+	"bufio"
+	"os"
+	"strings"
 
 	"github.com/stretchr/testify/assert"
 )
 
 func initTree(tree *ItemBinarySearchTree) {
-	array1 := [...]int{8, 4, 10, 2, 6, 1, 3, 5, 7, 9, 14, 12, 13, 11}
-	for _, item := range array1 {
-		tree.Insert(item, strconv.Itoa(item))
-	}
+	array1 := []int{8, 4, 10, 2, 6, 1, 3, 5, 7, 9, 14, 12, 13, 11}
+	tree.FactoryFromArray(array1)
+}
+
+func TestFactory(t *testing.T) {
+	var treeLocal ItemBinarySearchTree
+
+	fmt.Println("---3, 1, 4, 2---------")
+	array1 := []int{3, 1, 4, 2}
+	treeLocal.FactoryFromArray(array1)
+	treeLocal.LevelOrderTraverse(func(item Item) {
+		fmt.Print(item)
+	})
+	treeLocal.Destroy()
+	fmt.Println()
+	fmt.Println("-----2, 1-------")
+	array2 := []int{2, 1}
+	treeLocal.FactoryFromArray(array2)
+	treeLocal.LevelOrderTraverse(func(item Item) {
+		fmt.Print(item)
+	})
+
 }
 
 func TestInsert(t *testing.T) {
@@ -185,7 +208,7 @@ func TestEqual(t *testing.T) {
 			treeGenerated.Insert(v, value)
 		}
 	})
-	assert.Equal(t, treeLocal.equal(&treeGenerated), true, fmt.Sprintf("two trees are expected to be equal , but actually they are not equal"))
+	assert.Equal(t, treeLocal.Equal(&treeGenerated), true, fmt.Sprintf("two trees are expected to be Equal , but actually they are not Equal"))
 }
 
 func TestIsomorphic(t *testing.T) {
@@ -219,4 +242,59 @@ func TestIsomorphic(t *testing.T) {
 	treeGenerated.String()
 	assert.Equal(t, treeLocal.Isomorphic(&treeGenerated), true, fmt.Sprintf("two trees are expected to be isomorphic , but actually they are not isomorphic"))
 
+}
+
+func TestSameTree(t *testing.T) {
+	f := "bst_sametree_case_1.txt"
+	filename := strings.Join([]string{"E:/go-work/bin", f}, "/")
+
+	var treeLocal ItemBinarySearchTree
+	var treeGenerated ItemBinarySearchTree
+
+	fi, err := os.Open(filename)
+	if err != nil {
+		fmt.Printf("Error: %s\n", err)
+		return
+	}
+	defer fi.Close()
+
+	br := bufio.NewReader(fi)
+	var N, L int
+	begin := true
+	index := 0
+	for i := 0; ; i++ {
+		a, _, c := br.ReadLine()
+		if c == io.EOF {
+			break
+		}
+		if begin { // n is the total number of keys to be inserted.
+			numbers := strings.Split(string(a), " ")
+			if len(numbers) >= 2 {
+				N, _ = strconv.Atoi(string(numbers[0]))
+				L, _ = strconv.Atoi(string(numbers[1]))
+				begin = false
+				index = 0
+			} else {
+				break
+			}
+		} else {
+			array1 := strings.Split(string(a), " ")
+			if index == 0 { // 初始插入序列
+				treeLocal.FactoryFromArray2(array1[:N])
+			} else if index > 0 && index <= L { //L个需要检查的序列
+				treeGenerated.FactoryFromArray2(array1[:N])
+				if treeLocal.Equal(&treeGenerated) {
+					fmt.Println("YES")
+				} else {
+					fmt.Println("NO")
+				}
+				treeGenerated.Destroy()
+				if index == L { //已经是最后一个需要检查的序列
+					treeLocal.Destroy()
+					begin = true
+				}
+			}
+			index++
+		}
+	}
 }

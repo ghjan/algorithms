@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"sync"
 	"github.com/cheekybits/genny/generic"
+	"strconv"
 )
 
 type Item generic.Type
@@ -36,6 +37,19 @@ func (node *Node) SelfEqual(target *Node) bool {
 	}
 }
 
+func (tree *ItemBinarySearchTree) FactoryFromArray(arr []int) {
+	for _, item := range arr {
+		tree.Insert(item, strconv.Itoa(item))
+	}
+}
+
+func (tree *ItemBinarySearchTree) FactoryFromArray2(arr []string) {
+	for _, item := range arr {
+		intValue, _ := strconv.Atoi(item)
+		tree.Insert(intValue, item)
+	}
+}
+
 //释放
 func (tree *ItemBinarySearchTree) Destroy() {
 	if tree == nil {
@@ -46,6 +60,7 @@ func (tree *ItemBinarySearchTree) Destroy() {
 			nodeMe = nil
 		})
 	}
+	tree.root = nil
 }
 
 // 向树中插入元素
@@ -310,7 +325,7 @@ func levelOrderTraverse(node *Node, printFunc func(Item)) {
 }
 
 //相等
-func (tree *ItemBinarySearchTree) equal(target *ItemBinarySearchTree) bool {
+func (tree *ItemBinarySearchTree) Equal(target *ItemBinarySearchTree) bool {
 	if tree == nil || target == nil {
 		return tree == nil && target == nil
 	}
