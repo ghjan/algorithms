@@ -31,7 +31,7 @@ type BinaryTree []Node
 type SimpleBinaryTree []SimpleNode
 
 //创建二叉树
-func CreateTree(arr []int) BinaryTree {
+func CreateBinaryTree(arr []int) BinaryTree {
 	d := make([]Node, 0)
 	for i, ar := range arr {
 		d = append(d, Node{})
@@ -85,34 +85,34 @@ func InsertCode(node *Node, data rune, code string) (*Node, error) {
 }
 
 //前序遍历
-func PreOrderTraverse(node *Node, operationFunc func(nodeMe *Node)) {
+func (node *Node) PreOrderTraverse(operationFunc func(nodeMe *Node)) {
 	if node != nil {
-		operationFunc(node)                         // 打印根结点
-		PreOrderTraverse(node.Left, operationFunc)  // 先打印左子树
-		PreOrderTraverse(node.Right, operationFunc) // 再打印右子树
+		operationFunc(node)                        // 先打印根结点
+		node.Left.PreOrderTraverse(operationFunc)  // 再打印左子树
+		node.Right.PreOrderTraverse(operationFunc) // 最后打印右子树
 	}
 }
 
 //中序遍历
-func InOrderTraverse(node *Node, operationFunc func(nodeMe *Node)) {
+func (node *Node) InOrderTraverse(operationFunc func(nodeMe *Node)) {
 	if node != nil {
-		InOrderTraverse(node.Left, operationFunc)  // 先打印左子树
-		operationFunc(node)                        // 打印根结点
-		InOrderTraverse(node.Right, operationFunc) // 再打印右子树
+		node.Left.InOrderTraverse(operationFunc)  // 先打印左子树
+		operationFunc(node)                       // 再打印根结点
+		node.Right.InOrderTraverse(operationFunc) // 最后打印右子树
 	}
 }
 
 // 后序遍历2操作函數）：左子树 -> 根节点 -> 右子树
-func PostOrderTraverse(node *Node, operationFunc func(nodeMe *Node)) {
+func (node *Node) PostOrderTraverse(operationFunc func(nodeMe *Node)) {
 	if node != nil {
-		PostOrderTraverse(node.Left, operationFunc)  // 先打印左子树
-		PostOrderTraverse(node.Right, operationFunc) // 再打印右子树
-		operationFunc(node)                          // 最后打印根结点
+		node.Left.PostOrderTraverse(operationFunc)  // 先打印左子树
+		node.Right.PostOrderTraverse(operationFunc) // 再打印右子树
+		operationFunc(node)                         // 最后打印根结点
 	}
 }
 
 //层级遍历
-func LevelOrderTraverse(node *Node, operationFunc func(*Node)) {
+func (node *Node) LevelOrderTraverse(operationFunc func(*Node)) {
 	if node == nil {
 		return
 	}
@@ -134,7 +134,7 @@ func LevelOrderTraverse(node *Node, operationFunc func(*Node)) {
 }
 
 //层级遍历
-func LevelOrderTraverseSimple(tree SimpleBinaryTree, rootNode int, operationFunc func(SimpleNode)) {
+func (tree SimpleBinaryTree) LevelOrderTraverse(rootNode int, operationFunc func(SimpleNode)) {
 	var q queue.ItemQueue
 	q.New()
 	q.Enqueue(tree[rootNode])

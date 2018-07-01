@@ -1,26 +1,80 @@
 package binarytree
 
-import "fmt"
+import (
+	"fmt"
 
-type avlTreeNode struct {
-	key   int
-	high  int
-	left  *avlTreeNode
-	right *avlTreeNode
+	"github.com/ghjan/algorithms/queue"
+	"github.com/kataras/iris/core/errors"
+)
+
+//AvlTreeNode avl树节点
+type AvlTreeNode struct {
+	key    int
+	height int //高度：当前结点到叶子节点的距离 只有一个root节点高度为0
+	depth  int //深度:当前节点到root的距离， root本身的深度是0
+	left   *AvlTreeNode
+	right  *AvlTreeNode
 }
 
-func NewAVLTreeNode(value int) *avlTreeNode {
-	return &avlTreeNode{key: value}
+//NewAVLTreeNode 产生一个新节点
+func NewAVLTreeNode(key int) *AvlTreeNode {
+	return &AvlTreeNode{key: key}
 }
 
-func highTree(p *avlTreeNode) int {
-	if p == nil {
+//Height avl树节点的高度
+func (avlNode *AvlTreeNode) Height() int {
+	if avlNode == nil {
 		return -1
 	} else {
-		return p.high
+		return avlNode.height
 	}
 }
 
+//Depth avl树节点的深度
+func (avlNode *AvlTreeNode) Depth() int {
+	if avlNode == nil {
+		return -1
+	} else {
+		return avlNode.depth
+	}
+}
+
+//ProcessDepth 处理avlNode下面所有节点的深度  root.ProcessDepth(0)
+func (avlNode *AvlTreeNode) ProcessDepth(depth int) {
+	if avlNode == nil {
+		return
+	}
+	avlNode.depth = depth
+	if avlNode.left != nil {
+		avlNode.left.ProcessDepth(depth + 1)
+	}
+	if avlNode.right != nil {
+		avlNode.right.ProcessDepth(depth + 1)
+	}
+}
+
+//层级遍历
+func (avlNode *AvlTreeNode) LevelOrderTraverse(operationFunc func(*AvlTreeNode)) {
+	if avlNode == nil {
+		return
+	}
+	var q queue.ItemQueue
+	q.New()
+	q.Enqueue(*avlNode)
+	for !q.IsEmpty() {
+		if nodeTemp := q.Dequeue(); nodeTemp != nil {
+			nodeObj := (*nodeTemp).(AvlTreeNode)
+			operationFunc(&nodeObj)
+			if nodeObj.left != nil {
+				q.Enqueue(*nodeObj.left)
+			}
+			if nodeObj.right != nil {
+				q.Enqueue(*nodeObj.right)
+			}
+		}
+	}
+
+}
 func max(a, b int) int {
 	if a > b {
 		return a
@@ -29,93 +83,96 @@ func max(a, b int) int {
 	}
 }
 
-// look LL
-func leftLeftRotation(k *avlTreeNode) *avlTreeNode {
-	var kl *avlTreeNode
+// look LL kl和k之间的变化 kl上来 k作为kl的right kl原先的right放到k的左边
+func leftLeftRotation(k *AvlTreeNode) *AvlTreeNode {
+	var kl *AvlTreeNode
 	kl = k.left
 	k.left = kl.right
 	kl.right = k
-	k.high = max(highTree(k.left), highTree(k.right)) + 1
-	kl.high = max(highTree(kl.left), k.high) + 1
+	k.height = max(k.left.Height(), k.right.Height()) + 1
+	kl.height = max(kl.left.Height(), k.height) + 1
 	return kl
 }
 
-//look RR
-func rightRightRotation(k *avlTreeNode) *avlTreeNode {
-	var kr *avlTreeNode
+//look RR k和kr之间的变化， kr上来，k作为kr的left， kr原先的left放到k的右边
+func rightRightRotation(k *AvlTreeNode) *AvlTreeNode {
+	var kr *AvlTreeNode
 	kr = k.right
 	k.right = kr.left
 	kr.left = k
-	k.high = max(highTree(k.left), highTree(k.right)) + 1
-	kr.high = max(k.high, highTree(kr.right)) + 1
+	k.height = max(k.left.Height(), k.right.Height()) + 1
+	kr.height = max(k.height, kr.right.Height()) + 1
 	return kr
 }
 
-func leftRightRotation(k *avlTreeNode) *avlTreeNode {
+//LR 先对左边做rightright 后leftleft
+func leftRightRotation(k *AvlTreeNode) *AvlTreeNode {
 	k.left = rightRightRotation(k.left)
 	return leftLeftRotation(k)
 }
 
-func rightLeftRotation(k *avlTreeNode) *avlTreeNode {
+//RL 先对右边做leftleft 后rightright
+func rightLeftRotation(k *AvlTreeNode) *AvlTreeNode {
 	k.right = leftLeftRotation(k.right)
 	return rightRightRotation(k)
 }
 
-//insert to avl
-func Insert(avl *avlTreeNode, key int) *avlTreeNode {
-	if avl == nil {
-		avl = NewAVLTreeNode(key)
-	} else if key < avl.key {
-		avl.left = Insert(avl.left, key)
-		if highTree(avl.left)-highTree(avl.right) == 2 {
-			if key < avl.left.key { //LL
-				avl = leftLeftRotation(avl)
+//Insert insert a key to avl
+func (avlNode *AvlTreeNode) Insert(key int) (*AvlTreeNode, error) {
+	var err error
+	if avlNode == nil {
+		avlNode = NewAVLTreeNode(key)
+	} else if key < avlNode.key {
+		avlNode.left, err = avlNode.left.Insert(key)
+		if err == nil && avlNode.left.Height()-avlNode.right.Height() == 2 {
+			if key < avlNode.left.key { //LL
+				avlNode = leftLeftRotation(avlNode)
 			} else { // LR
-				avl = leftRightRotation(avl)
+				avlNode = leftRightRotation(avlNode)
 			}
 		}
-	} else if key > avl.key {
-		avl.right = Insert(avl.right, key)
-		if (highTree(avl.right) - highTree(avl.left)) == 2 {
-			if key < avl.right.key { // RL
-				avl = rightLeftRotation(avl)
+	} else if key > avlNode.key {
+		avlNode.right, err = avlNode.right.Insert(key)
+		if err == nil && (avlNode.right.Height()-avlNode.left.Height()) == 2 {
+			if key < avlNode.right.key { // RL
+				avlNode = rightLeftRotation(avlNode)
 			} else {
-				fmt.Println("right right", key)
-				avl = rightRightRotation(avl)
+				//fmt.Println("right right", key)
+				avlNode = rightRightRotation(avlNode)
 			}
 		}
-	} else if key == avl.key {
-		fmt.Println("the key", key, "has existed!")
+	} else if key == avlNode.key {
+		return avlNode, errors.New(fmt.Sprintf("the key %d has existed!", key))
 	}
-	//notice: update high(may be this insert no rotation, so you should update high)
-	avl.high = max(highTree(avl.left), highTree(avl.right)) + 1
-	return avl
+	//notice: update height(may be this insert no rotation, so you should update height)
+	avlNode.height = max(avlNode.left.Height(), avlNode.right.Height()) + 1
+	return avlNode, nil
 }
 
-//display avl tree  key by asc
-func DisplayAsc(avl *avlTreeNode) []int {
-	return AppendValues([]int{}, avl)
+//DisplayAsc display avl tree  key by asc
+func (avlNode *AvlTreeNode) DisplayAsc() []int {
+	return appendValues([]int{}, avlNode)
 }
 
-func AppendValues(values []int, avl *avlTreeNode) []int {
+//DisplayDesc display avl tree key by desc
+func (avlNode *AvlTreeNode) DisplayDesc() []int {
+	return appendValues2([]int{}, avlNode)
+}
+
+func appendValues(values []int, avl *AvlTreeNode) []int {
 	if avl != nil {
-		values = AppendValues(values, avl.left)
+		values = appendValues(values, avl.left)
 		values = append(values, avl.key)
-		values = AppendValues(values, avl.right)
+		values = appendValues(values, avl.right)
 	}
 	return values
 }
 
-//display avl tree key by desc
-func DisplayDesc(avl *avlTreeNode) []int {
-	return AppendValues2([]int{}, avl)
-}
-
-func AppendValues2(values []int, avl *avlTreeNode) []int {
+func appendValues2(values []int, avl *AvlTreeNode) []int {
 	if avl != nil {
-		values = AppendValues2(values, avl.right)
+		values = appendValues2(values, avl.right)
 		values = append(values, avl.key)
-		values = AppendValues2(values, avl.left)
+		values = appendValues2(values, avl.left)
 	}
 	return values
 }
