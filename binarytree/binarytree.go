@@ -144,6 +144,25 @@ func (tree BinaryTree) RootIndex() int {
 	return rootIndex
 }
 
+func (tree BinaryTree) Isomorphic(T2 BinaryTree, R1, R2 *Node) bool {
+	if (R1 == nil) || (R2 == nil) { //只要有一个是nil,就检查是否都nil
+		return (R1 == nil) && (R2 == nil)
+	} else if R1.Data != R2.Data { //节点本身不一样，就不算同构
+		return false
+	} else if (R1.Left == nil) && (R2.Left == nil) {
+		//如果左边全部是nil，那么就只要检查是否右子树同构
+		return tree.Isomorphic(T2, R1.Right, R2.Right)
+	} else if ((R1.Left != nil) && (R2.Left != nil)) &&
+		((R1.Left.Data) == (R2.Left.Data)) { //如果左边都不是nil，而且left本身相等，那么检查左子树同构和右子树同构
+		return tree.Isomorphic(T2, R1.Left, R2.Left) && tree.Isomorphic(T2, R1.Right, R2.Right)
+	} else if (R1.Left.Data == R2.Right.Data) &&
+		(R1.Right.Data == R2.Left.Data) { //如果左子树和右子树元素相同，而且右子树和左子树元素相同，那么就检查左子树和右子树是否同构
+		return (tree.Isomorphic(T2, R1.Left, R2.Right)) && (tree.Isomorphic(T2, R1.Right, R2.Left))
+	} else { //其他情况都非同构
+		return false
+	}
+}
+
 //PreOrderTraverse 前序遍历
 func (tree BinaryTree) PreOrderTraverse(operationFunc func(nodeMe *Node)) {
 	tree[tree.RootIndex()].PreOrderTraverse(operationFunc)
