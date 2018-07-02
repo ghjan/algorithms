@@ -214,3 +214,75 @@ func TestLevelOrderTraverse(t *testing.T) {
 	fmt.Printf(result)
 	assert.Equal(t, "4 1 5", result)
 }
+
+func TestBinaryTree_Isomorphic(t *testing.T) {
+	fileNames := [...]string{"binarytree_isomophic_case_1.txt", "binarytree_isomophic_case_2.txt"}
+	for _, f := range fileNames {
+		filename := strings.Join([]string{"E:/go-work/bin", f}, "/")
+		test1(filename)
+		fmt.Println()
+	}
+}
+
+func test1(filename string) {
+
+	fi, err := os.Open(filename)
+	if err != nil {
+		fmt.Printf("Error: %s\n", err)
+		return
+	}
+	defer fi.Close()
+
+	br := bufio.NewReader(fi)
+	var N int
+	var tree, tree2 BinaryTree
+	begin := true
+	index := 0
+	for i := 0; ; i++ {
+		a, _, c := br.ReadLine()
+		if c == io.EOF {
+			break
+		}
+		if begin { // n is the total number of keys to be inserted.
+			if N, err = strconv.Atoi(string(a)); N > 0 && err == nil {
+				if index == 0 {
+					tree = CreateNewTree(N)
+					begin = false
+				} else {
+					tree2 = CreateNewTree(N)
+				}
+			} else {
+				break
+			}
+		} else {
+			if nodeInfo := strings.Split(string(a), " "); len(nodeInfo) >= 3 {
+				data, _ := strconv.Atoi(nodeInfo[0])
+				leftIndex := -1
+				rightIndex := -1
+				if nodeInfo[1] != "-" {
+					leftIndex, _ = strconv.Atoi(nodeInfo[1])
+				}
+				if nodeInfo[2] != "-" {
+					rightIndex, _ = strconv.Atoi(nodeInfo[2])
+				}
+				if index < N {
+					tree.Insert(rune(data), index%N, leftIndex, rightIndex)
+				} else {
+					tree2.Insert(rune(data), index%N, leftIndex, rightIndex)
+				}
+			}
+			index ++
+			if index == N {
+				begin = true
+			}
+		}
+	}
+	root1 := tree.RootIndex()
+	root2 := tree2.RootIndex()
+	if tree.Isomorphic(tree2, &tree[root1], &tree2[root2]) {
+		fmt.Println("Yes")
+	} else {
+		fmt.Println("No")
+	}
+
+}

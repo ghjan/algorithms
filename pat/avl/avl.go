@@ -29,12 +29,6 @@ func test1(filename string) {
 		}
 		if i == 0 { // n is the total number of keys to be inserted.
 			n, _ = strconv.Atoi(string(a))
-			//if n == 1 {
-			//	rootNode = 0
-			//} else if n < 1 {
-			//	return
-			//}
-			//simpleBinaryTree = make([]SimpleNode, n)
 		} else //读取节点数据
 		{
 			data := strings.Split(string(a), " ")

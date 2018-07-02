@@ -123,6 +123,26 @@ func CreateBinaryTree(arr []int) BinaryTree {
 	return d
 }
 
+func CreateNewTree(cap int) BinaryTree {
+	var tree BinaryTree
+	tree = make([]Node, cap)
+	return tree
+}
+func (tree BinaryTree) Insert(data rune, index, left, right int) {
+	if index < 0 {
+		return
+	}
+	var leftNode *Node = nil
+	var rightNode *Node = nil
+	if left > 0 {
+		leftNode = &tree[left]
+	}
+	if right > 0 {
+		rightNode = &tree[right]
+	}
+	tree[index] = Node{data, leftNode, rightNode}
+}
+
 //Root 二叉树的根节点
 func (tree BinaryTree) RootIndex() int {
 	rootIndex := -1
