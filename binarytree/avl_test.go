@@ -45,8 +45,9 @@ func TestAvl(t *testing.T) {
 }
 
 func TestAvlRoot(t *testing.T) {
-	filename := strings.Join([]string{"E:/go-work/bin", "avl_case_1.txt"}, "/")
-
+	f := "avl_case_1.txt"
+	GOPATH := os.Getenv("GOPATH")
+	filename := strings.Join([]string{GOPATH, "bin", f}, "/")
 	fi, err := os.Open(filename)
 	if err != nil {
 		fmt.Printf("Error: %s\n", err)

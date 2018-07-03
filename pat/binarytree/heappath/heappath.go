@@ -64,7 +64,8 @@ func TestHeap_Path(filename string) {
 }
 
 func main() {
-	filename := strings.Join([]string{"E:/go-work/bin", "heappath_case_1.txt"}, "/")
-
+	GOPATH := os.Getenv("GOPATH")
+	f := "heappath_case_1.txt"
+	filename := strings.Join([]string{GOPATH, "bin", f}, "/")
 	TestHeap_Path(filename)
 }

@@ -64,8 +64,9 @@ func test1(filename string) {
 }
 
 func main() {
+	GOPATH := os.Getenv("GOPATH")
 	f := "bst_sametree_case_1.txt"
-	filename := strings.Join([]string{"E:/go-work/bin", f}, "/")
+	filename := strings.Join([]string{GOPATH, "bin", f}, "/")
 	test1(filename)
 
 }

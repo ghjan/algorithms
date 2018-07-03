@@ -246,7 +246,8 @@ func TestIsomorphic(t *testing.T) {
 
 func TestSameTree(t *testing.T) {
 	f := "bst_sametree_case_1.txt"
-	filename := strings.Join([]string{"E:/go-work/bin", f}, "/")
+	GOPATH := os.Getenv("GOPATH")
+	filename := strings.Join([]string{GOPATH, "bin", f}, "/")
 
 	var treeLocal ItemBinarySearchTree
 	var treeGenerated ItemBinarySearchTree

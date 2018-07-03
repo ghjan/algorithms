@@ -56,8 +56,9 @@ func test1(fileName string) {
 }
 
 func main() {
+	GOPATH := os.Getenv("GOPATH")
 	f := "completebst_case_1.txt"
-	fileName := strings.Join([]string{"E:/go-work/bin", f}, "/")
-	test1(fileName)
+	filename := strings.Join([]string{GOPATH, "bin", f}, "/")
+	test1(filename)
 
 }

@@ -48,8 +48,9 @@ func test1(filename string) {
 
 func main() {
 	fileNames := [...]string{"avl_case_1.txt", "avl_case_2.txt"}
+	GOPATH := os.Getenv("GOPATH")
 	for _, f := range fileNames {
-		filename := strings.Join([]string{"E:/go-work/bin", f}, "/")
+		filename := strings.Join([]string{GOPATH, "bin", f}, "/")
 		test1(filename)
 		fmt.Println()
 	}

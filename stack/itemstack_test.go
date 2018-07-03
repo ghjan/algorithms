@@ -48,10 +48,12 @@ var pre, in []int
 var post []int
 
 func TestStack_Operation(t *testing.T) {
+	GOPATH := os.Getenv("GOPATH")
 	f := "treeranverseagain_case_1.txt"
-	fileName := strings.Join([]string{"E:/go-work/bin", f}, "/")
+	filename := strings.Join([]string{GOPATH, "bin", f}, "/")
+
 	result := ""
-	if N, err := readData(fileName); err == nil {
+	if N, err := readData(filename); err == nil {
 		solve(0, 0, 0, N)
 		for i := 0; i < N; i++ {
 			result += fmt.Sprintf("%d ", post[i])

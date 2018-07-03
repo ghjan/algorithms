@@ -58,7 +58,9 @@ func TestTraverse(t *testing.T) {
 }
 
 func TestLevelOrderTraverseSimple(t *testing.T) {
-	filename := strings.Join([]string{"E:/go-work/bin", "listleaves_case_1.txt"}, "/")
+	GOPATH := os.Getenv("GOPATH")
+	f := "listleaves_case_1.txt"
+	filename := strings.Join([]string{GOPATH, "bin", f}, "/")
 
 	fi, err := os.Open(filename)
 	if err != nil {
@@ -133,8 +135,9 @@ func TestLevelOrderTraverseSimple(t *testing.T) {
 }
 
 func TestLevelOrderTraverse(t *testing.T) {
-	filename := strings.Join([]string{"E:/go-work/bin", "listleaves_case_1.txt"}, "/")
-
+	GOPATH := os.Getenv("GOPATH")
+	f := "listleaves_case_1.txt"
+	filename := strings.Join([]string{GOPATH, "bin", f}, "/")
 	fi, err := os.Open(filename)
 	if err != nil {
 		fmt.Printf("Error: %s\n", err)

@@ -68,6 +68,8 @@ func test1(filename string) {
 }
 
 func main() {
-	filename := strings.Join([]string{"E:/go-work/bin", "filetransfer_case_1.txt"}, "/")
+	GOPATH := os.Getenv("GOPATH")
+	f := "filetransfer_case_1.txt"
+	filename := strings.Join([]string{GOPATH, "bin", f}, "/")
 	test1(filename)
 }

@@ -54,8 +54,9 @@ func TestIntSet_CheckNetwork(t *testing.T) {
 }
 
 func TestNetworkComponent(t *testing.T) {
-	filename := strings.Join([]string{"E:/go-work/bin", "filetransfer_case_1.txt"}, "/")
-
+	GOPATH := os.Getenv("GOPATH")
+	f := "filetransfer_case_1.txt"
+	filename := strings.Join([]string{GOPATH, "bin", f}, "/")
 	fi, err := os.Open(filename)
 	if err != nil {
 		fmt.Printf("Error: %s\n", err)

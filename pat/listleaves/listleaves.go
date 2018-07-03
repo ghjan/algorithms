@@ -23,7 +23,9 @@ func getCurrentDirectory() string {
 }
 
 func test1() {
-	filename := strings.Join([]string{"E:/go-work/bin", "listleaves_case_1.txt"}, "/")
+	GOPATH := os.Getenv("GOPATH")
+	f := "listleaves_case_1.txt"
+	filename := strings.Join([]string{GOPATH, "bin", f}, "/")
 
 	fi, err := os.Open(filename)
 	if err != nil {

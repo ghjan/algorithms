@@ -69,6 +69,8 @@ func testBest(filename string) {
 }
 
 func main() {
-	filePath := strings.Join([]string{"E:/go-work/bin", "huffmancode_case_1.txt"}, "/")
-	testBest(filePath)
+	GOPATH := os.Getenv("GOPATH")
+	f := "huffmancode_case_1.txt"
+	filename := strings.Join([]string{GOPATH, "bin", f}, "/")
+	testBest(filename)
 }

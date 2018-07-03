@@ -69,7 +69,9 @@ func TestTraverse(t *testing.T) {
 }
 
 func TestBest(t *testing.T) {
-	filename := strings.Join([]string{"E:/go-work/bin", "huffmancode_case_1.txt"}, "/")
+	GOPATH := os.Getenv("GOPATH")
+	f := "huffmancode_case_1.txt"
+	filename := strings.Join([]string{GOPATH, "bin", f}, "/")
 	fi, err := os.Open(filename)
 	if err != nil {
 		fmt.Printf("Error: %s\n", err)
