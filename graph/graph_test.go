@@ -66,31 +66,19 @@ func TestBFS(t *testing.T) {
 func TestGraph_Unweighted(t *testing.T) {
 	g := initGraphDirection()
 	g.String()
-	dist := make(map[GNode]int)
-	path := make(map[GNode]*GNode)
-	var Q GNodeQueue
-
-	Q.New()
-	for _, node := range g.nodes {
-		if node == nil {
-			continue
-		}
-		dist[*node] = -1
-		path[*node] = nil
-	}
 
 	source := g.nodes[0]
 
-	g.UnweightedShortestPath(*source, dist, path, Q)
+	path := g.Unweighted(*source)
 	target := g.nodes[3]
 
-	result := GetPath(path, source, target)
+	result := g.GetPath(path, source, target)
 	fmt.Printf("shortest path from %d to %d:%s\n", source.value, target.value, result)
 
 	assert.Equal(t, "1 2 4 ", result, fmt.Sprintf("expected path is:%s, actual is:%s", "1 2 4 ", result))
 
 	target = g.nodes[7]
-	result = GetPath(path, source, target)
+	result = g.GetPath(path, source, target)
 	fmt.Printf("shortest path from %d to %d:%s\n", source.value, target.value, result)
 
 	assert.Equal(t, "1 5 8 ", result, fmt.Sprintf("expected path is:%s, actual is:%s", "1 5 8 ", result))

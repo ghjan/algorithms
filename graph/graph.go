@@ -77,10 +77,24 @@ func (g *Graph) String() {
 	fmt.Println(str)
 }
 
-//UnweightedShortestPath 无权单源最短路径
-func (g *Graph) UnweightedShortestPath(S GNode, dist map[GNode]int, path map[GNode]*GNode, Q GNodeQueue) {
+//Unweighted 无权单源最短路径
+func (g *Graph) Unweighted(S GNode) map[GNode]*GNode {
 	g.lock.RLock()
+	defer g.lock.RUnlock()
 
+	dist := make(map[GNode]int)
+	path := make(map[GNode]*GNode)
+
+	for _, node := range g.nodes {
+		if node == nil {
+			continue
+		}
+		dist[*node] = -1
+		path[*node] = nil
+	}
+	var Q GNodeQueue
+
+	Q.New()
 	Q.Enqueue(S)
 	dist[S] = 0 // source
 	for !Q.IsEmpty() {
@@ -94,6 +108,30 @@ func (g *Graph) UnweightedShortestPath(S GNode, dist map[GNode]int, path map[GNo
 			}
 		}
 	}
-	g.lock.RUnlock()
+	return path
 
+}
+
+//GetPath 获得从source到target的路径
+func (g *Graph) GetPath(path map[GNode]*GNode, source *GNode, target *GNode) string {
+	if path == nil || len(path) == 0 {
+		path = g.Unweighted(*source)
+	}
+	var stack GNodeStack
+	stack.New()
+	stack.Push(*target)
+	for pathPrev := path[*target]; pathPrev != nil; pathPrev = path[*pathPrev] {
+		if pathPrev == nil {
+			break
+		}
+		stack.Push(*pathPrev)
+	}
+	result := ""
+	for node := stack.Pop(); node != nil; node = stack.Pop() {
+		result += fmt.Sprintf("%d ", node.value)
+		if stack.IsEmpty() {
+			break
+		}
+	}
+	return result
 }

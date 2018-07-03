@@ -2,7 +2,6 @@ package graph
 
 import (
 	"sync"
-	"fmt"
 )
 
 type GNodeStack struct {
@@ -38,24 +37,4 @@ func (s *GNodeStack) Pop() *GNode {
 //IsEmpty 是否为空栈
 func (s *GNodeStack) IsEmpty() bool {
 	return len(s.items) == 0
-}
-
-func GetPath(path map[GNode]*GNode, source *GNode, target *GNode) string {
-	var stack GNodeStack
-	stack.New()
-	stack.Push(*target)
-	for pathPrev := path[*target]; pathPrev != nil; pathPrev = path[*pathPrev] {
-		if pathPrev == nil {
-			break
-		}
-		stack.Push(*pathPrev)
-	}
-	result := ""
-	for node := stack.Pop(); node != nil; node = stack.Pop() {
-		result += fmt.Sprintf("%d ", node.value)
-		if stack.IsEmpty() {
-			break
-		}
-	}
-	return result
 }
