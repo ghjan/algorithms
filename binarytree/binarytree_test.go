@@ -10,8 +10,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/stretchr/testify/assert"
 	"github.com/ghjan/algorithms/set"
+	"github.com/stretchr/testify/assert"
 )
 
 func initTree() BinaryTree {
@@ -216,9 +216,12 @@ func TestLevelOrderTraverse(t *testing.T) {
 }
 
 func TestBinaryTree_Isomorphic(t *testing.T) {
-	fileNames := [...]string{"binarytree_isomophic_case_1.txt", "binarytree_isomophic_case_2.txt"}
+	fileNames := [...]string{"binarytree_isomophic_case_1.txt"} //"binarytree_isomophic_case_2.txt"
+
+	GOPATH := os.Getenv("GOPATH")
+
 	for _, f := range fileNames {
-		filename := strings.Join([]string{"E:/go-work/bin", f}, "/")
+		filename := strings.Join([]string{GOPATH, "bin", f}, "/")
 		test1(filename)
 		fmt.Println()
 	}
@@ -247,16 +250,17 @@ func test1(filename string) {
 			if N, err = strconv.Atoi(string(a)); N > 0 && err == nil {
 				if index == 0 {
 					tree = CreateNewTree(N)
-					begin = false
 				} else {
 					tree2 = CreateNewTree(N)
 				}
+				begin = false
 			} else {
+				fmt.Printf("N:%d", N)
+				fmt.Println(err)
 				break
 			}
 		} else {
 			if nodeInfo := strings.Split(string(a), " "); len(nodeInfo) >= 3 {
-				data, _ := strconv.Atoi(nodeInfo[0])
 				leftIndex := -1
 				rightIndex := -1
 				if nodeInfo[1] != "-" {
@@ -266,12 +270,12 @@ func test1(filename string) {
 					rightIndex, _ = strconv.Atoi(nodeInfo[2])
 				}
 				if index < N {
-					tree.Insert(rune(data), index%N, leftIndex, rightIndex)
+					tree.Insert(rune(nodeInfo[0][0]), index%N, leftIndex, rightIndex)
 				} else {
-					tree2.Insert(rune(data), index%N, leftIndex, rightIndex)
+					tree2.Insert(rune(nodeInfo[0][0]), index%N, leftIndex, rightIndex)
 				}
 			}
-			index ++
+			index++
 			if index == N {
 				begin = true
 			}
