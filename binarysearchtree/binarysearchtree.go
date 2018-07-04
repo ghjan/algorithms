@@ -106,14 +106,14 @@ func insertNode(node, newNode *Node) *Node {
 
 // 搜索序号
 // 返回true说明找到了
-func (tree *ItemBinarySearchTree) Search(key int) bool {
+func (tree *ItemBinarySearchTree) Search(key int)  (*Node, bool) {
 	tree.lock.RLock()
 	defer tree.lock.RUnlock()
 	return search(tree.root, key)
 }
-func search(node *Node, key int) bool {
+func search(node *Node, key int) (*Node, bool) {
 	if node == nil {
-		return false
+		return nil, false
 	}
 	// 向左搜索更小的值
 	if key < node.key {
@@ -123,7 +123,7 @@ func search(node *Node, key int) bool {
 	if key > node.key {
 		return search(node.right, key)
 	}
-	return true // key == node.key
+	return node, true // key == node.key
 }
 
 // 删除节点

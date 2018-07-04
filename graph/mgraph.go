@@ -37,25 +37,26 @@ func (gg *MGraph) initMGraph(vexs []VertexType) {
 }
 
 //深度遍历
-func (gg *MGraph) DFS() {
+func (gg *MGraph) DFS(operationFunc func(i int)) {
 	visit := make([]bool, gg.vexNum, gg.vexNum)
-	fmt.Println(visit)
+	//fmt.Println(visit)
 	visit[0] = true
-	gg.dfs(&visit, 0)
+	gg.dfs(&visit, 0, operationFunc)
 }
 
-func (gg *MGraph) dfs(visit *[]bool, i int) {
-	fmt.Println(gg.vexs[i])
+func (gg *MGraph) dfs(visit *[]bool, i int, operationFunc func(i int)) {
+	//fmt.Println(gg.vexs[i])
+	operationFunc(i)
 	for j := 0; j < gg.vexNum; j++ {
 		if gg.matrix[i][j] != MAX_VALUE && !(*visit)[j] {
 			(*visit)[j] = true
-			gg.dfs(visit, j)
+			gg.dfs(visit, j, operationFunc)
 		}
 	}
 }
 
 //广度遍历
-func (gg *MGraph) BFS() {
+func (gg *MGraph) BFS(operationFunc func(v VertexType)) {
 	listQ := list.New()
 	visit := make([]bool, gg.vexNum, gg.vexNum)
 
@@ -65,7 +66,8 @@ func (gg *MGraph) BFS() {
 
 	for listQ.Len() > 0 {
 		index := listQ.Front()
-		fmt.Println(gg.vexs[index.Value.(int)])
+		//fmt.Println(gg.vexs[index.Value.(int)])
+		operationFunc(gg.vexs[index.Value.(int)])
 		for i := 0; i < gg.vexNum; i++ {
 			if !visit[i] && gg.matrix[index.Value.(int)][i] != MAX_VALUE {
 				visit[i] = true

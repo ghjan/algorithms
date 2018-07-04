@@ -128,8 +128,12 @@ func TestSearch(t *testing.T) {
 	var treeLocal ItemBinarySearchTree
 	initTree(&treeLocal)
 	for i := 1; i <= 14; i++ {
-		if !treeLocal.Search(i) {
+		if node, success := treeLocal.Search(i); !success {
 			t.Errorf("Search() can't find %d", i)
+		}else{
+			//fmt.Printf("node found:%v\n", node)
+			assert.Equal(t, i, node.key)
+			assert.Equal(t, strconv.Itoa(i), node.value)
 		}
 	}
 }

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"testing"
 	"github.com/stretchr/testify/assert"
+	"strings"
 )
 
 func initMGraph() MGraph {
@@ -34,14 +35,28 @@ func initMGraph() MGraph {
 }
 
 func TestMGraph_DFS(t *testing.T) {
+	fmt.Println("--------TestMGraph_DFS--------")
 	gg := initMGraph()
-	gg.PrintMatrix(len(gg.vexs))
-	gg.DFS()
+	//gg.PrintMatrix(len(gg.vexs))
+	vexs := ""
+	gg.DFS(func(i int) {
+		vexs += fmt.Sprintf("%s ", gg.vexs[i])
+	})
+	vexs = strings.TrimRight(vexs, " ")
+	assert.Equal(t, "A B D C F E G", vexs)
+	fmt.Println(vexs)
 }
 
 func TestMGraph_BFS(t *testing.T) {
+	fmt.Println("--------TestMGraph_BFS--------")
 	gg := initMGraph()
-	gg.BFS()
+	vexs := ""
+	gg.BFS(func(v VertexType) {
+		vexs += fmt.Sprintf("%s ", v)
+	})
+	vexs = strings.TrimRight(vexs, " ")
+	assert.Equal(t, "A B D E C F G", vexs)
+	fmt.Println(vexs)
 }
 
 func TestMGraph_Dijkstra(t *testing.T) {
