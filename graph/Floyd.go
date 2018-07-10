@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strconv"
 
-	stack2 "github.com/ghjan/algorithms/stack"
+	"github.com/ghjan/algorithms/stack"
 )
 
 //Floyd 邻接矩阵存储 - 多源最短路算法 Floyd算法
@@ -47,7 +47,7 @@ func (mg *MGraph) GetPathFloyd(path [][]int, start, target int) (string, error) 
 			return "", err
 		}
 	}
-	var stack stack2.ItemStack
+	var stack stack.ItemStack
 	stack.New()
 	stack.Push(target)
 	for pathPrev := path[start][target]; pathPrev > 0; pathPrev = path[start][pathPrev] {

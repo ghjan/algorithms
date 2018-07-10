@@ -78,7 +78,7 @@ func (mg *MGraph) Prim(start int) {
 //			mg.matrix[i][j] = MAX_VALUE
 //		}
 //	}
-//	InitMGraph(&mg)
+//	CreateMGraph(&mg)
 //	fmt.Println(mg.vexs)
 //	BFS(&mg)
 //	DFS(&mg)

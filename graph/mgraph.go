@@ -32,13 +32,17 @@ type MGraph struct {
 
 //PrintMatrix 显示矩阵
 func (mg MGraph) PrintMatrix(l int) {
+	mg.lock.RLock()
+	defer mg.lock.RUnlock()
 	for i := 0; i < l; i++ {
 		fmt.Println(mg.matrix[i])
 	}
 }
 
-//InitMGraph 初始化 边的权重全部设置为MaxIntValue
+//CreateMGraph 初始化 边的权重全部设置为MaxIntValue
 func (mg *MGraph) InitMGraph(vexs []VertexType) {
+	mg.lock.Lock()
+	defer mg.lock.Unlock()
 	mg.vexs = vexs
 	mg.vexNum = len(vexs)
 	for i := 0; i < mg.vexNum; i++ {
@@ -60,7 +64,7 @@ func (mg *MGraph) AddEdge(u, v, weight int) error {
 	defer mg.lock.Unlock()
 	// 首次建立图
 	if len(mg.matrix) == 0 {
-		return errors.New("Please use InitMGraph at first.")
+		return errors.New("Please use CreateMGraph at first.")
 	}
 	mg.matrix[u][v] = weight // 建立 u->v 的边
 	mg.matrix[v][u] = weight // 由于是无向图，同时存在 v->u 的边
@@ -73,7 +77,7 @@ func (mg *MGraph) AddEdgeDirection(u, v, weight int) error {
 	defer mg.lock.Unlock()
 	// 首次建立图
 	if len(mg.matrix) == 0 {
-		return errors.New("Please use InitMGraph at first.")
+		return errors.New("Please use CreateMGraph at first.")
 	}
 	mg.matrix[u][v] = weight // 建立 u->v 的边
 	return nil
@@ -81,6 +85,8 @@ func (mg *MGraph) AddEdgeDirection(u, v, weight int) error {
 
 //DFS 深度遍历
 func (mg *MGraph) DFS(operationFunc func(i int)) {
+	mg.lock.RLock()
+	defer mg.lock.RUnlock()
 	visit := make([]bool, mg.vexNum, mg.vexNum)
 	//fmt.Println(visit)
 	visit[0] = true
@@ -100,6 +106,8 @@ func (mg *MGraph) dfs(visit *[]bool, i int, operationFunc func(i int)) {
 
 //BFS 广度遍历
 func (mg *MGraph) BFS(operationFunc func(v VertexType)) {
+	mg.lock.RLock()
+	defer mg.lock.RUnlock()
 	listQ := list.New()
 	visit := make([]bool, mg.vexNum, mg.vexNum)
 
@@ -122,6 +130,8 @@ func (mg *MGraph) BFS(operationFunc func(v VertexType)) {
 }
 
 func (mg *MGraph) getPosition(ch VertexType) int {
+	mg.lock.RLock()
+	defer mg.lock.RUnlock()
 	for i := 0; i < mg.vexNum; i++ {
 		if mg.vexs[i] == ch {
 			return i
