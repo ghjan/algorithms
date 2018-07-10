@@ -1,7 +1,5 @@
 package graph
 
-import "fmt"
-
 //Dijkstra 邻接矩阵存储 - 有权图的单源最短路算法 Dijkstra算法
 func (gg *MGraph) Dijkstra(start int) ([]int, []int) {
 
@@ -17,8 +15,8 @@ func (gg *MGraph) Dijkstra(start int) ([]int, []int) {
 	for i := 0; i < gg.vexNum; i++ {
 		k := 0
 		min := MaxIntValue
-		fmt.Println("-----------")
-		fmt.Println(dist, ss)
+		// fmt.Println("-----------")
+		// fmt.Println(dist, ss)
 		//find next 贪心
 		for j := 0; j < len(dist); j++ {
 			if ss[j] == false && dist[j] != MaxIntValue && dist[j] < min {
