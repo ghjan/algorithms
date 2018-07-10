@@ -3,8 +3,16 @@ package graph
 import (
 	"container/list"
 	"fmt"
+	stack2 "github.com/ghjan/algorithms/stack"
+	"strconv"
 )
 
+/*
+邻接矩阵存储 - 有权图的单源最短路算法 Dijkstra算法
+邻接矩阵存储 - 有权图的单源最短路算法
+邻接矩阵存储 - 多源最短路算法 Floyd
+邻接矩阵存储 - Prim最小生成树算法
+ */
 const (
 	MAX_VALUE int = int(^uint(0) >> 1)
 )
@@ -85,4 +93,54 @@ func (gg *MGraph) getPosition(ch VertexType) int {
 		}
 	}
 	return -1
+}
+
+//GetPathDijkstra 获得到start到target的路径
+func (g *MGraph) GetPathDijkstra(path []int, start, target int) string {
+	if path == nil || len(path) == 0 {
+		_, path := g.Dijkstra(start)
+		return g.GetPathDijkstra(path, start, target)
+	}
+	var stack stack2.ItemStack
+	stack.New()
+	stack.Push(target)
+	for pathPrev := path[target]; pathPrev > 0; pathPrev = path[pathPrev] {
+		if pathPrev < 0 {
+			break
+		}
+		stack.Push(pathPrev)
+	}
+	result := strconv.Itoa(start) + " "
+	for node := stack.Pop(); node != nil; node = stack.Pop() {
+		result += fmt.Sprintf("%d ", (*node).(int))
+		if stack.IsEmpty() {
+			break
+		}
+	}
+	return result
+}
+
+//GetPathDijkstra 获得start到target的路径
+func (g *MGraph) GetPathFloyd(path [][]int, start, target int) string {
+	if path == nil || len(path) == 0 {
+		_, path := g.Dijkstra(start)
+		return g.GetPathDijkstra(path, start, target)
+	}
+	var stack stack2.ItemStack
+	stack.New()
+	stack.Push(target)
+	for pathPrev := path[start][target]; pathPrev > 0; pathPrev = path[start][pathPrev] {
+		if pathPrev < 0 {
+			break
+		}
+		stack.Push(pathPrev)
+	}
+	result := strconv.Itoa(start) + " "
+	for node := stack.Pop(); node != nil; node = stack.Pop() {
+		result += fmt.Sprintf("%d ", (*node).(int))
+		if stack.IsEmpty() {
+			break
+		}
+	}
+	return result
 }

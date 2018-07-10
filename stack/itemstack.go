@@ -33,3 +33,8 @@ func (s *ItemStack) Pop() *Item {
 	s.lock.Unlock()
 	return &item
 }
+
+//IsEmpty 是否为空栈
+func (s *ItemStack) IsEmpty() bool {
+	return len(s.items) == 0
+}

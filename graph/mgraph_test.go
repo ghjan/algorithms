@@ -5,6 +5,7 @@ import (
 	"testing"
 	"github.com/stretchr/testify/assert"
 	"strings"
+	"strconv"
 )
 
 func initMGraph() MGraph {
@@ -62,14 +63,53 @@ func TestMGraph_BFS(t *testing.T) {
 func TestMGraph_Dijkstra(t *testing.T) {
 	gg := initMGraph()
 	start := 0
-	dist := gg.Dijkstra(start)
+	dist, path := gg.Dijkstra(start)
 
 	for i := 0; i < gg.vexNum; i++ {
-		fmt.Printf("shortest %s->%s = %d\n", gg.vexs[start], gg.vexs[i], dist[i])
+		fmt.Printf("shortest %s->%s = %d;", gg.vexs[start], gg.vexs[i], dist[i])
+		realPath := strings.Split(gg.GetPathDijkstra(path, start, i), " ")
+		for _, rp := range realPath {
+			if index, err := strconv.Atoi(rp); index >= 0 && index < gg.vexNum && err == nil {
+				fmt.Printf("%s", gg.vexs[index])
+			}
+		}
+		fmt.Println()
 	}
 	assert.Equal(t, 0, dist[0])
+	assert.Equal(t, 2, dist[1])
+	assert.Equal(t, 3, dist[2])
+	assert.Equal(t, 1, dist[3])
 	assert.Equal(t, 3, dist[4])
 	assert.Equal(t, 6, dist[5])
+	assert.Equal(t, 5, dist[6])
+}
+
+func TestMGraph_Floyd(t *testing.T) {
+	gg := initMGraph()
+	start := 0
+	if dist, path, err := gg.Floyd(); err == nil {
+		for i := 0; i < gg.vexNum; i++ {
+			fmt.Printf("shortest %s->%s = %d;", gg.vexs[start], gg.vexs[i], dist[i])
+			realPath := strings.Split(gg.GetPathFloyd(path, start, i), " ")
+			for _, rp := range realPath {
+				if index, err := strconv.Atoi(rp); index >= 0 && index < gg.vexNum && err == nil {
+					fmt.Printf("%s", gg.vexs[index])
+				}
+			}
+			fmt.Println()
+		}
+		assert.Equal(t, 0, dist[start][0])
+		assert.Equal(t, 2, dist[start][1])
+		assert.Equal(t, 3, dist[start][2])
+		assert.Equal(t, 1, dist[start][3])
+		assert.Equal(t, 3, dist[start][4])
+		assert.Equal(t, 6, dist[start][5])
+		assert.Equal(t, 5, dist[start][6])
+
+	}else{
+		fmt.Println(err)
+	}
+
 }
 
 func TestMGraph_Prim(t *testing.T) {

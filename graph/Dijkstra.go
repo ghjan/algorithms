@@ -2,14 +2,16 @@ package graph
 
 import "fmt"
 
-func (gg *MGraph) Dijkstra(start int) []int {
+//Dijkstra 邻接矩阵存储 - 有权图的单源最短路算法 Dijkstra算法
+func (gg *MGraph) Dijkstra(start int) ([]int, []int) {
 
 	var dist = make([]int, gg.vexNum) //路径长度数组
 	var ss = make([]bool, gg.vexNum)  //最短路径节点集合
+	var path = make([]int, gg.vexNum) //路径数组
 
 	//init
 	dist = gg.matrix[start]
-	ss[start] = true //find start to start
+	ss[start] = true //find start to start as true
 	dist[start] = 0  //start to start length
 
 	for i := 0; i < gg.vexNum; i++ {
@@ -34,10 +36,11 @@ func (gg *MGraph) Dijkstra(start int) []int {
 				weight := min + gg.matrix[k][u]
 				if weight < dist[u] {
 					dist[u] = weight
+					path[u] = k
 				}
 			}
 		}
 
 	}
-	return dist
+	return dist, path
 }
