@@ -4,6 +4,7 @@ import (
 	"fmt"
 )
 
+//Prim 邻接矩阵存储 - Prim最小生成树算法
 func (gg *MGraph) Prim(start int) {
 	index := 0
 	sum := 0
@@ -11,8 +12,8 @@ func (gg *MGraph) Prim(start int) {
 	var weights [][]int //[[0 0] [0 5] [0 3] [0 9] [0 9]]
 	for i := 0; i < gg.vexNum; i++ {
 		sl := make([]int, 0, gg.vexNum)
-		for j := 0; j <2 ; j++ {
-			sl = append(sl, MAX_VALUE)
+		for j := 0; j < 2; j++ {
+			sl = append(sl, MaxIntValue)
 		}
 		weights = append(weights, sl)
 	}
@@ -35,7 +36,7 @@ func (gg *MGraph) Prim(start int) {
 			continue
 		}
 
-		min := MAX_VALUE
+		min := MaxIntValue
 		next := 0
 		for j := 0; j < gg.vexNum; j++ {
 			if weights[j][1] != 0 && weights[j][1] < min {

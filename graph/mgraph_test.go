@@ -2,10 +2,11 @@ package graph
 
 import (
 	"fmt"
-	"testing"
-	"github.com/stretchr/testify/assert"
-	"strings"
 	"strconv"
+	"strings"
+	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func initMGraph() MGraph {
@@ -89,7 +90,7 @@ func TestMGraph_Floyd(t *testing.T) {
 	start := 0
 	if dist, path, err := gg.Floyd(); err == nil {
 		for i := 0; i < gg.vexNum; i++ {
-			fmt.Printf("shortest %s->%s = %d;", gg.vexs[start], gg.vexs[i], dist[i])
+			fmt.Printf("shortest %s->%s = %d;", gg.vexs[start], gg.vexs[i], dist[start][i])
 			realPath := strings.Split(gg.GetPathFloyd(path, start, i), " ")
 			for _, rp := range realPath {
 				if index, err := strconv.Atoi(rp); index >= 0 && index < gg.vexNum && err == nil {
@@ -106,7 +107,7 @@ func TestMGraph_Floyd(t *testing.T) {
 		assert.Equal(t, 6, dist[start][5])
 		assert.Equal(t, 5, dist[start][6])
 
-	}else{
+	} else {
 		fmt.Println(err)
 	}
 

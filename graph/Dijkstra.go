@@ -16,12 +16,12 @@ func (gg *MGraph) Dijkstra(start int) ([]int, []int) {
 
 	for i := 0; i < gg.vexNum; i++ {
 		k := 0
-		min := MAX_VALUE
+		min := MaxIntValue
 		fmt.Println("-----------")
 		fmt.Println(dist, ss)
 		//find next 贪心
 		for j := 0; j < len(dist); j++ {
-			if ss[j] == false && dist[j] != MAX_VALUE && dist[j] < min {
+			if ss[j] == false && dist[j] != MaxIntValue && dist[j] < min {
 				min = dist[j]
 				k = j
 			}
@@ -32,7 +32,7 @@ func (gg *MGraph) Dijkstra(start int) ([]int, []int) {
 
 		//update dist length
 		for u := 0; u < gg.vexNum; u++ {
-			if gg.matrix[k][u] != MAX_VALUE && ss[u] == false {
+			if gg.matrix[k][u] != MaxIntValue && ss[u] == false {
 				weight := min + gg.matrix[k][u]
 				if weight < dist[u] {
 					dist[u] = weight
