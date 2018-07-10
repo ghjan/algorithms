@@ -50,13 +50,15 @@ func initGraphDirection() Graph {
 	return g
 }
 
-func TestAdd(t *testing.T) {
+func TestGraph_Add(t *testing.T) {
+	fmt.Println("--------TestGraph_Add--------")
 	g := initGraph()
 
 	g.String()
 }
 
-func TestBFS(t *testing.T) {
+func TestGraph_BFS(t *testing.T) {
+	fmt.Println("--------TestGraph_BFS--------")
 	g := initGraph()
 	g.BFS(func(node *GNode) {
 		fmt.Printf("[Current Traverse GNode]: %v\n", node)
@@ -64,6 +66,7 @@ func TestBFS(t *testing.T) {
 }
 
 func TestGraph_Unweighted(t *testing.T) {
+	fmt.Println("--------TestGraph_Unweighted--------")
 	g := initGraphDirection()
 	g.String()
 

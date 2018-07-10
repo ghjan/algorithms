@@ -5,32 +5,32 @@ import (
 )
 
 //Prim 邻接矩阵存储 - Prim最小生成树算法
-func (gg *MGraph) Prim(start int) {
+func (mg *MGraph) Prim(start int) {
 	index := 0
 	sum := 0
-	prims := make([]VertexType, gg.vexNum, gg.vexNum)
+	prims := make([]VertexType, mg.vexNum, mg.vexNum)
 	var weights [][]int //[[0 0] [0 5] [0 3] [0 9] [0 9]]
-	for i := 0; i < gg.vexNum; i++ {
-		sl := make([]int, 0, gg.vexNum)
+	for i := 0; i < mg.vexNum; i++ {
+		sl := make([]int, 0, mg.vexNum)
 		for j := 0; j < 2; j++ {
 			sl = append(sl, MaxIntValue)
 		}
 		weights = append(weights, sl)
 	}
 
-	prims[index] = gg.vexs[start]
+	prims[index] = mg.vexs[start]
 	index++
 
 	//next vex
-	for i := 0; i < gg.vexNum; i++ {
+	for i := 0; i < mg.vexNum; i++ {
 		weights[i][0] = start               //k
-		weights[i][1] = gg.matrix[start][i] //v
+		weights[i][1] = mg.matrix[start][i] //v
 	}
 
 	//delete vex
 	weights[start][1] = 0
 
-	for i := 0; i < gg.vexNum; i++ {
+	for i := 0; i < mg.vexNum; i++ {
 		//fmt.Println(weights)
 		if start == i {
 			continue
@@ -38,25 +38,25 @@ func (gg *MGraph) Prim(start int) {
 
 		min := MaxIntValue
 		next := 0
-		for j := 0; j < gg.vexNum; j++ {
+		for j := 0; j < mg.vexNum; j++ {
 			if weights[j][1] != 0 && weights[j][1] < min {
 				min = weights[j][1]
 				next = j
 			}
 		}
 
-		fmt.Println(gg.vexs[weights[next][0]], gg.vexs[next], "权重", weights[next][1])
+		fmt.Println(mg.vexs[weights[next][0]], mg.vexs[next], "权重", weights[next][1])
 		sum += weights[next][1]
-		prims[index] = gg.vexs[next]
+		prims[index] = mg.vexs[next]
 		index++
 
 		//delete vex
 		weights[next][1] = 0
 
 		//update
-		for j := 0; j < gg.vexNum; j++ {
-			if weights[j][1] != 0 && gg.matrix[next][j] < weights[j][1] {
-				weights[j][1] = gg.matrix[next][j]
+		for j := 0; j < mg.vexNum; j++ {
+			if weights[j][1] != 0 && mg.matrix[next][j] < weights[j][1] {
+				weights[j][1] = mg.matrix[next][j]
 				weights[j][0] = next
 			}
 		}
@@ -68,22 +68,22 @@ func (gg *MGraph) Prim(start int) {
 
 //func main() {
 //	fmt.Println("Prim")
-//	var gg MGraph
+//	var mg MGraph
 //	var vexs = []string{"B", "A", "C", "D", "E"}
-//	gg.vexNum = 5
-//	gg.vexs = vexs
+//	mg.vexNum = 5
+//	mg.vexs = vexs
 //
 //	for i := 0; i < len(vexs); i++ {
 //		for j := 0; j < len(vexs); j++ {
-//			gg.matrix[i][j] = MAX_VALUE
+//			mg.matrix[i][j] = MAX_VALUE
 //		}
 //	}
-//	initMGraph(&gg)
-//	fmt.Println(gg.vexs)
-//	BFS(&gg)
-//	DFS(&gg)
+//	InitMGraph(&mg)
+//	fmt.Println(mg.vexs)
+//	BFS(&mg)
+//	DFS(&mg)
 //
-//	//listgg := list.New()
-//	prim(&gg, 0)
-//	PrintMatrix(gg, len(vexs))
+//	//listmg := list.New()
+//	prim(&mg, 0)
+//	PrintMatrix(mg, len(vexs))
 //}

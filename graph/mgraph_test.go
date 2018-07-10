@@ -12,7 +12,7 @@ import (
 func initMGraph() MGraph {
 	var gg MGraph
 	var vexs = []VertexType{"A", "B", "C", "D", "E", "F", "G"}
-	gg.initMGraph(vexs)
+	gg.InitMGraph(vexs)
 
 	gg.matrix[0][1] = 2
 	gg.matrix[0][3] = 1
@@ -62,6 +62,7 @@ func TestMGraph_BFS(t *testing.T) {
 }
 
 func TestMGraph_Dijkstra(t *testing.T) {
+	fmt.Println("--------TestMGraph_Dijkstra--------")
 	gg := initMGraph()
 	start := 0
 	dist, path := gg.Dijkstra(start)
@@ -86,18 +87,24 @@ func TestMGraph_Dijkstra(t *testing.T) {
 }
 
 func TestMGraph_Floyd(t *testing.T) {
+	fmt.Println("--------TestMGraph_Floyd--------")
 	gg := initMGraph()
 	start := 0
 	if dist, path, err := gg.Floyd(); err == nil {
 		for i := 0; i < gg.vexNum; i++ {
 			fmt.Printf("shortest %s->%s = %d;", gg.vexs[start], gg.vexs[i], dist[start][i])
-			realPath := strings.Split(gg.GetPathFloyd(path, start, i), " ")
-			for _, rp := range realPath {
-				if index, err := strconv.Atoi(rp); index >= 0 && index < gg.vexNum && err == nil {
-					fmt.Printf("%s", gg.vexs[index])
+			if realPath, err := gg.GetPathFloyd(path, start, i); err == nil {
+				realPath := strings.Split(realPath, " ")
+				for _, rp := range realPath {
+					if index, err := strconv.Atoi(rp); index >= 0 && index < gg.vexNum && err == nil {
+						fmt.Printf("%s", gg.vexs[index])
+					}
 				}
+				fmt.Println()
+			} else {
+				fmt.Println(err)
 			}
-			fmt.Println()
+
 		}
 		assert.Equal(t, 0, dist[start][0])
 		assert.Equal(t, 2, dist[start][1])
