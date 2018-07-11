@@ -121,8 +121,25 @@ func TestMGraph_Floyd(t *testing.T) {
 }
 
 func TestMGraph_Prim(t *testing.T) {
-	gg := initMGraph()
+	mg := initMGraph()
 	start := 0
-	gg.Prim(start)
-	gg.PrintMatrix(gg.vexNum)
+	//mst, sum, parent, err 分别表示最小生成树，加权和，边的起始点数组，错误信息
+	if mst, sum, parent, err := mg.Prim(start); err == nil {
+		for _, vert := range mst {
+			minV := mg.getPosition(vert)
+			fmt.Println(mg.vexs[parent[minV]], vert, "权重", mg.matrix[parent[minV]][minV])
+		}
+		fmt.Println("sum:", sum)
+		fmt.Println(mst)
+		assert.Equal(t, 12, sum)
+		expected := make([]VertexType, mg.vexNum, mg.vexNum)
+		arr := strings.Split("A D B C E G F", " ")
+		for i := 0; i < mg.vexNum; i++ {
+			expected[i] = VertexType(arr[i])
+		}
+		assert.Equal(t, expected, mst)
+	} else {
+		assert.Equal(t, "", err)
+	}
+
 }
