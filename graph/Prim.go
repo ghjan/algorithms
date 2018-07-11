@@ -85,5 +85,5 @@ func (mg *MGraph) Prim(start int) {
 //
 //	//listmg := list.New()
 //	prim(&mg, 0)
-//	PrintMatrix(mg, len(vexs))
+//	PrintWeight(mg, len(vexs))
 //}

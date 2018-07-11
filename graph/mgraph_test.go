@@ -39,7 +39,7 @@ func initMGraph() MGraph {
 func TestMGraph_DFS(t *testing.T) {
 	fmt.Println("--------TestMGraph_DFS--------")
 	gg := initMGraph()
-	//gg.PrintMatrix(len(gg.vexs))
+	//gg.PrintWeight(len(gg.vexs))
 	vexs := ""
 	gg.DFS(func(i int) {
 		vexs += fmt.Sprintf("%s ", gg.vexs[i])
