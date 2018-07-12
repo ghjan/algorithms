@@ -206,7 +206,7 @@ func TestGraph_TopologicalSort(t *testing.T) {
 	fmt.Println("----------TestGraph_TopologicalSort-------------")
 
 	graph := initGraph(true) //环图
-	if result, err := graph.TopologicalSort(nil); err == nil {
+	if result, _, err := graph.TopologicalSort(nil); err == nil {
 		assert.Equal(t, 0, len(result))
 	} else {
 		assert.Error(t, err)
@@ -215,7 +215,7 @@ func TestGraph_TopologicalSort(t *testing.T) {
 	graph = initGraph2(true)
 
 	sortedString := ""
-	if result, err := graph.TopologicalSort(func(vertexIndex int, isSectionEnd bool) {
+	if result, inVertexes, err := graph.TopologicalSort(func(vertexIndex int, isSectionEnd bool) {
 		if isSectionEnd {
 			sortedString += ";"
 			fmt.Println()
@@ -225,6 +225,10 @@ func TestGraph_TopologicalSort(t *testing.T) {
 			fmt.Printf("%s ", vertex.Label)
 		}
 	}); err == nil {
+		expectedIn := []string{"", "0", "3", "0 1", "1 3", "2 3 6", "3 4"}
+		for i := 0; i < len(graph.Vertices); i++ {
+			assert.Equal(t, expectedIn[i], strings.TrimRight(inVertexes[i], " "))
+		}
 		assert.Equal(t, "A B D C E G F", strings.TrimRight(sortedString, " "))
 		assert.Equal(t, len(graph.Vertices), len(result))
 	} else {

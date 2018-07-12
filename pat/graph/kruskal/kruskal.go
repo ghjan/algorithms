@@ -7,6 +7,7 @@ import (
 	"github.com/ghjan/algorithms/queue"
 	"github.com/ghjan/algorithms/set"
 	"github.com/ghjan/algorithms/stack"
+	"strconv"
 )
 
 /*
@@ -351,9 +352,9 @@ func (graph *Graph) getWeightByLabelAndPrevVertex(label string, prevVertex *Vert
 }
 
 //TopologicalSort 拓扑排序 (使用队列优化过的）
-func (graph *Graph) TopologicalSort(operationFunc func(vertex int, isSectionEnd bool)) ([]int, error) {
+func (graph *Graph) TopologicalSort(operationFunc func(vertex int, isSectionEnd bool)) ([]int, []string, error) {
 	var result []int
-
+	inVertexes := make([]string, len(graph.Vertices), len(graph.Vertices)) //存放每个节点的前驱节点
 	graph.inDegreeMap = make(map[string]int)
 	for _, v := range graph.Vertices {
 		graph.inDegreeMap[v.Label] = 0
@@ -361,6 +362,7 @@ func (graph *Graph) TopologicalSort(operationFunc func(vertex int, isSectionEnd 
 	for _, v := range graph.Vertices {
 		for _, e := range v.Edges {
 			graph.inDegreeMap[graph.Vertices[e.ToVertex].Label]++
+			inVertexes[e.ToVertex] += strconv.Itoa(e.FromVertex) + " "
 		}
 	}
 	que := queue.ItemQueue{}
@@ -386,9 +388,9 @@ func (graph *Graph) TopologicalSort(operationFunc func(vertex int, isSectionEnd 
 	}
 
 	if count != len(graph.Vertices) {
-		return nil, errors.New("图中有回路")
+		return nil, nil, errors.New("图中有回路")
 	}
-	return result, nil
+	return result, inVertexes, nil
 }
 
 func (graph *Graph) getZeroInDegreeVertices() []*Vertex {
@@ -539,4 +541,30 @@ func (graph Graph) Kruskal() (int, []*Edge) {
 		TotalWeight = -1 /* 设置错误标记，表示生成树不存在 */
 	}
 	return TotalWeight, MST
+}
+
+//Earliest 整个工期有多长
+func (graph Graph) Earliest() ([]int, []int, error) {
+	earliest := make([]int, len(graph.Vertices), len(graph.Vertices))
+	var topSort []int
+	sortedString := ""
+	if result, inVertexes, err := graph.TopologicalSort(func(vertexIndex int, isSectionEnd bool) {
+		if isSectionEnd {
+			sortedString += ";"
+			fmt.Println()
+		} else {
+			vertex := graph.Vertices[vertexIndex]
+			sortedString += vertex.Label + " "
+			topSort = append(topSort, vertexIndex)
+			fmt.Printf("%s ", vertex.Label)
+		}
+	}); err == nil {
+		fmt.Println(result)
+		for i := 0; i < len(graph.Vertices); i++ {
+			fmt.Println(inVertexes[i])
+		}
+		return earliest, topSort, nil
+	} else {
+		return nil, nil, err
+	}
 }
