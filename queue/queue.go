@@ -34,6 +34,20 @@ func (q *ItemQueue) Dequeue() *Item {
 	return &item
 }
 
+// 出队列
+func (q *ItemQueue) Remove() {
+	q.lock.Lock()
+	defer q.lock.Unlock()
+	if len(q.items) > 0 {
+		q.items = q.items[1:len(q.items)]
+	}
+}
+
+//Peek 获取队列的第一个元素，不移除 和Front函数同义
+func (q *ItemQueue) Peek() *Item {
+	return q.Front()
+}
+
 // 获取队列的第一个元素，不移除
 func (q *ItemQueue) Front() *Item {
 	q.lock.Lock()
