@@ -13,6 +13,11 @@ import (
 	"github.com/ghjan/algorithms/pat/graph/kruskal"
 )
 
+/*
+公路村村通
+https://pintia.cn/problem-sets/951072707007700992/problems/987660874267004928
+ */
+
 func buildVilGraph(filename string) kruskal.Graph {
 
 	graph := kruskal.Graph{}
