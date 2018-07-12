@@ -14,7 +14,7 @@ func (mg *MGraph) Prim(start int) ([]VertexType, int, []int, error) {
 	parent, dist := initDist(mg, start)
 
 	//将初始点收录进MST
-	mst[index] = mg.vexs[start]
+	mst[index] = mg.vexes[start]
 	index++
 
 	dist[start] = 0 //delete vex start（权重为0表示不再考虑）
@@ -30,7 +30,7 @@ func (mg *MGraph) Prim(start int) ([]VertexType, int, []int, error) {
 			break
 		}
 		sum += dist[minV]
-		mst[index] = mg.vexs[minV]
+		mst[index] = mg.vexes[minV]
 		index++
 		dist[minV] = 0 //delete vex minV
 

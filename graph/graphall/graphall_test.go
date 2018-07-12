@@ -76,12 +76,15 @@ func initGraph2(directed bool) *Graph {
 func TestGraph_KruskalMinimumSpanningTree(t *testing.T) {
 	fmt.Println("----------TestGraph_KruskalMinimumSpanningTree-------------")
 	graph := initGraph(false)
-	resultEdges := graph.KruskalMinimumSpanningTree()
+	MST := graph.KruskalMinimumSpanningTree()
 	weightString := ""
-	for _, edge := range resultEdges {
+	totalWeight := 0
+	for _, edge := range MST {
+		totalWeight += edge.Weight
 		weightString += strconv.Itoa(edge.Weight) + " "
 		fmt.Printf("%s->%s(%d)\n", edge.FromVertex.Label, edge.ToVertex.Label, edge.Weight)
 	}
+	assert.Equal(t, 12, totalWeight)
 	assert.Equal(t, "1 1 2 2 2 4", strings.TrimRight(weightString, " "))
 }
 
@@ -132,4 +135,19 @@ func TestGraph_TopologicalSort(t *testing.T) {
 	})
 	assert.Equal(t, len(graph.Vertices), len(result))
 
+}
+
+func TestGraph_PrimMinimumSpanningTree(t *testing.T) {
+	fmt.Println("----------TestGraph_PrimMinimumSpanningTree-------------")
+	graph := initGraph(false)
+	MST := graph.PrimMinimumSpanningTree(graph.Vertices[0])
+	weightString := ""
+	totalWeight := 0
+	for _, edge := range MST {
+		totalWeight += edge.Weight
+		weightString += strconv.Itoa(edge.Weight) + " "
+		fmt.Printf("%s->%s(%d)\n", edge.FromVertex.Label, edge.ToVertex.Label, edge.Weight)
+	}
+	assert.Equal(t, 12, totalWeight)
+	assert.Equal(t, "1 2 2 2 4 1", strings.TrimRight(weightString, " "))
 }

@@ -97,20 +97,17 @@ func (graph *Graph) DepthFirstSearch(startVertex *Vertex, operationFunc func(ver
 
 //PrimMinimumSpanningTree Prim最小生成树算法
 func (graph *Graph) PrimMinimumSpanningTree(startVertex *Vertex) []*Edge {
-	treeEdges := []*Edge{}
+	var MST []*Edge
 	startVertex.isVisited = true
 	for len(graph.getVisitedVertices()) < len(graph.Vertices) {
 		minWeightEdge := getMinWeightEdgeInUnvisitedVertices(graph.getVisitedVertices())
 		if minWeightEdge != nil {
-			treeEdges = append(treeEdges, minWeightEdge)
+			MST = append(MST, minWeightEdge)
 		}
 		minWeightEdge.ToVertex.isVisited = true
 	}
 	graph.clearVerticesVisitHistory()
-	return treeEdges
-	//for _, edge := range treeEdges {
-	//	fmt.Printf("%s->%s(%d)\n", edge.FromVertex.Label, edge.ToVertex.Label, edge.Weight)
-	//}
+	return MST
 
 }
 

@@ -23,7 +23,7 @@ type VertexType string
 
 //MGraph 邻接矩阵存储的有权图
 type MGraph struct {
-	vexs    []VertexType //顶点集合
+	vexes   []VertexType //顶点集合
 	vexNum  int          //顶点数量
 	edgeNum int          //边数量
 	matrix  [][]int      //邻接矩阵 保存路径长度(权重）
@@ -40,11 +40,11 @@ func (mg MGraph) PrintMatrix(l int) {
 }
 
 //CreateMGraph 初始化 边的权重全部设置为MaxIntValue
-func (mg *MGraph) InitMGraph(vexs []VertexType) {
+func (mg *MGraph) InitMGraph(vexes []VertexType) {
 	mg.lock.Lock()
 	defer mg.lock.Unlock()
-	mg.vexs = vexs
-	mg.vexNum = len(vexs)
+	mg.vexes = vexes
+	mg.vexNum = len(vexes)
 	for i := 0; i < mg.vexNum; i++ {
 		var sl []int
 		for j := 0; j < mg.vexNum; j++ {
@@ -94,7 +94,7 @@ func (mg *MGraph) DFS(operationFunc func(i int)) {
 }
 
 func (mg *MGraph) dfs(visit *[]bool, i int, operationFunc func(i int)) {
-	//fmt.Println(mg.vexs[i])
+	//fmt.Println(mg.vexes[i])
 	operationFunc(i)
 	for j := 0; j < mg.vexNum; j++ {
 		if mg.matrix[i][j] != MaxIntValue && !(*visit)[j] {
@@ -117,8 +117,8 @@ func (mg *MGraph) BFS(operationFunc func(v VertexType)) {
 
 	for listQ.Len() > 0 {
 		index := listQ.Front()
-		//fmt.Println(mg.vexs[index.Value.(int)])
-		operationFunc(mg.vexs[index.Value.(int)])
+		//fmt.Println(mg.vexes[index.Value.(int)])
+		operationFunc(mg.vexes[index.Value.(int)])
 		for i := 0; i < mg.vexNum; i++ {
 			if !visit[i] && mg.matrix[index.Value.(int)][i] != MaxIntValue {
 				visit[i] = true
@@ -133,7 +133,7 @@ func (mg *MGraph) getPosition(ch VertexType) int {
 	mg.lock.RLock()
 	defer mg.lock.RUnlock()
 	for i := 0; i < mg.vexNum; i++ {
-		if mg.vexs[i] == ch {
+		if mg.vexes[i] == ch {
 			return i
 		}
 	}

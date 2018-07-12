@@ -18,7 +18,7 @@ const MaxInt = 999999999
 type Vertex struct {
 	Label     string
 	Edges     []*Edge
-	isVisited bool
+	IsVisited bool
 }
 
 //Edge 边类型
@@ -32,7 +32,7 @@ type Edge struct {
 //Graph 图类型
 type Graph struct {
 	Vertices    []*Vertex //顶点数组
-	edgeNum     int       //边数量
+	EdgeNum     int       //边数量
 	inDegreeMap map[string]int
 }
 
@@ -40,7 +40,7 @@ type Graph struct {
 func (graph *Graph) AddEdge(indexFrom, indexTo, weight int, isUsed bool) error {
 	fromVertex := graph.Vertices[indexFrom]
 	fromVertex.Edges = append(fromVertex.Edges, &Edge{indexFrom, indexTo, weight, isUsed})
-	graph.edgeNum++
+	graph.EdgeNum++
 	return nil
 }
 
@@ -52,17 +52,17 @@ func (graph *Graph) BreadthFirstSearch(startVertex int, operationFunc func(verte
 	var vertexes []int
 	operationFunc(startVertex)
 	vertexes = append(vertexes, startVertex)
-	graph.Vertices[startVertex].isVisited = true
+	graph.Vertices[startVertex].IsVisited = true
 	que := &queue.ItemQueue{}
 	que.Enqueue(startVertex)
 	for que.Size() > 0 { // Visit the nearest vertices that haven't been visited.
 		vertexIndex := (*que.Peek()).(int)
 		vertexObj := graph.Vertices[vertexIndex]
 		for _, edge := range vertexObj.Edges {
-			if !graph.Vertices[edge.ToVertex].isVisited {
+			if !graph.Vertices[edge.ToVertex].IsVisited {
 				operationFunc(edge.ToVertex)
 				vertexes = append(vertexes, edge.ToVertex)
-				graph.Vertices[edge.ToVertex].isVisited = true
+				graph.Vertices[edge.ToVertex].IsVisited = true
 				que.Enqueue(edge.ToVertex)
 			}
 		}
@@ -81,17 +81,17 @@ func (graph *Graph) DepthFirstSearch(startVertex int, operationFunc func(vertex 
 	var vertexs []int
 	operationFunc(startVertex)
 	vertexs = append(vertexs, startVertex)
-	graph.Vertices[startVertex].isVisited = true
+	graph.Vertices[startVertex].IsVisited = true
 	stk := &stack.ItemStack{}
 	stk.Push(startVertex)
 	for stk.Size() > 0 { // Visit the the vertices by edges that hasn't been visited, until the path ends.
 		vertexIndex := (*stk.Peek()).(int)
 		vertexObj := graph.Vertices[vertexIndex]
 		edge := graph.findEdgeWithUnvistedToVertex(vertexObj)
-		if edge != nil && !graph.Vertices[edge.ToVertex].isVisited {
+		if edge != nil && !graph.Vertices[edge.ToVertex].IsVisited {
 			operationFunc(edge.ToVertex)
 			vertexs = append(vertexs, edge.ToVertex)
-			graph.Vertices[edge.ToVertex].isVisited = true
+			graph.Vertices[edge.ToVertex].IsVisited = true
 			stk.Push(edge.ToVertex)
 		} else {
 			stk.Pop()
@@ -105,20 +105,16 @@ func (graph *Graph) DepthFirstSearch(startVertex int, operationFunc func(vertex 
 //返回：构成最小生成树的那些边
 func (graph *Graph) PrimMinimumSpanningTree(startVertex *Vertex) []*Edge {
 	var MST []*Edge
-	startVertex.isVisited = true
+	startVertex.IsVisited = true
 	for len(graph.getVisitedVertices()) < len(graph.Vertices) {
 		minWeightEdge := graph.getMinWeightEdgeInUnvisitedVertices(graph.getVisitedVertices())
 		if minWeightEdge != nil {
 			MST = append(MST, minWeightEdge)
 		}
-		graph.Vertices[minWeightEdge.ToVertex].isVisited = true
+		graph.Vertices[minWeightEdge.ToVertex].IsVisited = true
 	}
 	graph.clearVerticesVisitHistory()
 	return MST
-	//for _, edge := range MST {
-	//	fmt.Printf("%s->%s(%d)\n", edge.FromVertex.Label, graph.Vertices[edge.ToVertex].Label, edge.Weight)
-	//}
-
 }
 
 //getMinWeightEdgeInUnvisitedVertices 获取最小权重的边（未访问过的到达顶点）
@@ -126,7 +122,7 @@ func (graph Graph) getMinWeightEdgeInUnvisitedVertices(vertices []*Vertex) *Edge
 	var minWeightEdge *Edge
 	for _, vertex := range vertices {
 		for _, edge := range vertex.Edges {
-			if !graph.Vertices[edge.ToVertex].isVisited {
+			if !graph.Vertices[edge.ToVertex].IsVisited {
 				if minWeightEdge == nil || minWeightEdge.Weight > edge.Weight {
 					minWeightEdge = edge
 				}
@@ -138,7 +134,7 @@ func (graph Graph) getMinWeightEdgeInUnvisitedVertices(vertices []*Vertex) *Edge
 
 func (graph *Graph) findEdgeWithUnvistedToVertex(vertex *Vertex) *Edge {
 	for _, edge := range vertex.Edges {
-		if !graph.Vertices[edge.ToVertex].isVisited {
+		if !graph.Vertices[edge.ToVertex].IsVisited {
 			return edge
 		}
 	}
@@ -206,7 +202,7 @@ func getOppositeEdgeInEdges(edges []*Edge, edge *Edge) *Edge {
 func (graph *Graph) hasUsedEdgeBetweenVertices(start, end int) bool {
 	que := &queue.ItemQueue{}
 	v1 := graph.Vertices[start]
-	v1.isVisited = true
+	v1.IsVisited = true
 	for _, edge := range v1.Edges { //所有v1开始的已经使用过的边的到达节点
 		if edge.isUsed {
 			que.Enqueue(edge.ToVertex) //仅仅对字符串进行队列操作
@@ -219,12 +215,12 @@ func (graph *Graph) hasUsedEdgeBetweenVertices(start, end int) bool {
 			return true
 		} else {
 			for _, e := range realVertex.Edges {
-				if e.isUsed && !graph.Vertices[e.ToVertex].isVisited {
+				if e.isUsed && !graph.Vertices[e.ToVertex].IsVisited {
 					que.Enqueue(e.ToVertex)
 				}
 			}
 		}
-		realVertex.isVisited = true
+		realVertex.IsVisited = true
 		que.Remove()
 	}
 	graph.clearVerticesVisitHistory()
@@ -266,7 +262,7 @@ func (graph *Graph) DijkstraShortestPath(startVertex *Vertex, endVertex *Vertex)
 				prevVertexMap[toVertex.Label] = nearestVertex
 			}
 		}
-		nearestVertex.isVisited = true
+		nearestVertex.IsVisited = true
 	}
 	graph.clearVerticesVisitHistory()
 	for label, vertex := range prevVertexMap {
@@ -290,7 +286,7 @@ func (graph *Graph) getNearestVertex(startVertex *Vertex, distanceMap map[string
 	distance := -1
 	index := -1
 	for i, v := range graph.Vertices {
-		if !v.isVisited {
+		if !v.IsVisited {
 			if distance == -1 || distance > distanceMap[v.Label] {
 				distance = distanceMap[v.Label]
 				index = i
@@ -368,7 +364,7 @@ func (graph *Graph) TopologicalSort() {
 		topVertices := graph.getZeroInDegreeVertices()
 		for _, v := range topVertices { // Visit the zero-in-degree-vertex, and decrease the next vertices' in-degree.
 			fmt.Printf("%s ", v.Label)
-			v.isVisited = true
+			v.IsVisited = true
 			for _, edge := range v.Edges {
 				graph.inDegreeMap[graph.Vertices[edge.ToVertex].Label]--
 			}
@@ -381,7 +377,7 @@ func (graph *Graph) TopologicalSort() {
 func (graph *Graph) getZeroInDegreeVertices() []*Vertex {
 	var vertices []*Vertex
 	for _, v := range graph.Vertices {
-		if graph.inDegreeMap[v.Label] == 0 && !v.isVisited {
+		if graph.inDegreeMap[v.Label] == 0 && !v.IsVisited {
 			vertices = append(vertices, v)
 		}
 	}
@@ -391,7 +387,7 @@ func (graph *Graph) getZeroInDegreeVertices() []*Vertex {
 func (graph *Graph) getVisitedVertices() []*Vertex {
 	var vertices []*Vertex
 	for _, vertex := range graph.Vertices {
-		if vertex.isVisited {
+		if vertex.IsVisited {
 			vertices = append(vertices, vertex)
 		}
 	}
@@ -400,7 +396,7 @@ func (graph *Graph) getVisitedVertices() []*Vertex {
 
 func (graph *Graph) clearVerticesVisitHistory() {
 	for _, v := range graph.Vertices {
-		v.isVisited = false
+		v.IsVisited = false
 	}
 }
 
