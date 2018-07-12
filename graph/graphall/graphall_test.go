@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func initGraph() *Graph {
+func initGraph(directed bool) *Graph {
 	vertexLablels := []string{"A", "B", "C", "D", "E", "F", "G"}
 	graph := &Graph{}
 	for _, vertexLabel := range vertexLablels {
@@ -25,7 +25,9 @@ func initGraph() *Graph {
 			if indexTo, err := strconv.Atoi(edgeInfoSlice[1]); err == nil {
 				if weight, err := strconv.Atoi(edgeInfoSlice[2]); err == nil {
 					graph.AddEdge(indexFrom, indexTo, weight, false)
-					graph.AddEdge(indexTo, indexFrom, weight, false)
+					if !directed {
+						graph.AddEdge(indexTo, indexFrom, weight, false)
+					}
 				}
 			}
 		}
@@ -40,18 +42,20 @@ func initGraph() *Graph {
 }
 
 func TestGraph_KruskalMinimumSpanningTree(t *testing.T) {
-	graph := initGraph()
+	fmt.Println("----------TestGraph_KruskalMinimumSpanningTree-------------")
+	graph := initGraph(false)
 	resultEdges := graph.KruskalMinimumSpanningTree()
+	weightString := ""
 	for _, edge := range resultEdges {
-		if edge.isUsed {
-			fmt.Printf("%s->%s(%d)\n", edge.FromVertex.Label, edge.ToVertex.Label, edge.Weight)
-		}
+		weightString += strconv.Itoa(edge.Weight) + " "
+		fmt.Printf("%s->%s(%d)\n", edge.FromVertex.Label, edge.ToVertex.Label, edge.Weight)
 	}
-	graph.clearEdgesUseHistory()
+	assert.Equal(t, "1 1 2 2 2 4", strings.TrimRight(weightString, " "))
 }
 
 func TestGraph_DepthFirstSearch(t *testing.T) {
-	graph := initGraph()
+	fmt.Println("----------TestGraph_DepthFirstSearch-------------")
+	graph := initGraph(true)
 	vertexes := graph.DepthFirstSearch(graph.Vertices[0])
 	vertexesLabelString := ""
 	for _, vertex := range vertexes {
@@ -60,12 +64,12 @@ func TestGraph_DepthFirstSearch(t *testing.T) {
 	}
 	expectedVertexLabel := "A B D C F E G"
 	assert.Equal(t, expectedVertexLabel, strings.TrimLeft(vertexesLabelString, " "))
-	graph.clearVerticesVisitHistory()
 
 }
 
 func TestGraph_BreadthFirstSearch(t *testing.T) {
-	graph := initGraph()
+	fmt.Println("----------TestGraph_BreadthFirstSearch-------------")
+	graph := initGraph(true)
 	vertexes := graph.BreadthFirstSearch(graph.Vertices[0])
 	vertexesLabelString := ""
 	for _, vertex := range vertexes {
@@ -74,5 +78,4 @@ func TestGraph_BreadthFirstSearch(t *testing.T) {
 	}
 	expectedVertexLabel := "A B D E C F G"
 	assert.Equal(t, expectedVertexLabel, strings.TrimLeft(vertexesLabelString, " "))
-	graph.clearVerticesVisitHistory()
 }

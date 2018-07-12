@@ -31,19 +31,14 @@ type Graph struct {
 	inDegreeMap map[string]int
 }
 
-//AddEdge 增加边(无向图）
+//AddEdge 增加边
 func (graph *Graph) AddEdge(indexFrom, indexTo, weight int, isUsed bool) error {
-	// 首次建立图
-	//mg.matrix[u][v] = weight // 建立 u->v 的边
-	//mg.matrix[v][u] = weight // 由于是无向图，同时存在 v->u 的边
-
 	fromVertex := graph.Vertices[indexFrom]
 	toVertex := graph.Vertices[indexTo]
 	fromVertex.Edges = append(fromVertex.Edges, &Edge{fromVertex, toVertex, weight, isUsed})
 
 	return nil
 }
-
 
 //BreadthFirstSearch 广度优先遍历
 func (graph *Graph) BreadthFirstSearch(startVertex *Vertex) []*Vertex {
@@ -68,6 +63,7 @@ func (graph *Graph) BreadthFirstSearch(startVertex *Vertex) []*Vertex {
 		}
 		queue.Remove()
 	}
+	graph.clearVerticesVisitHistory()
 	return vertexs
 
 }
@@ -95,11 +91,12 @@ func (graph *Graph) DepthFirstSearch(startVertex *Vertex) []*Vertex {
 			stack.Pop()
 		}
 	}
+	graph.clearVerticesVisitHistory()
 	return vertexs
 }
 
 //PrimMinimumSpanningTree Prim最小生成树算法
-func (graph *Graph) PrimMinimumSpanningTree(startVertex *Vertex) {
+func (graph *Graph) PrimMinimumSpanningTree(startVertex *Vertex) ([]*Edge) {
 	treeEdges := []*Edge{}
 	startVertex.isVisited = true
 	for len(graph.getVisitedVertices()) < len(graph.Vertices) {
@@ -110,9 +107,11 @@ func (graph *Graph) PrimMinimumSpanningTree(startVertex *Vertex) {
 		minWeightEdge.ToVertex.isVisited = true
 	}
 	graph.clearVerticesVisitHistory()
-	for _, edge := range treeEdges {
-		fmt.Printf("%s->%s(%d)\n", edge.FromVertex.Label, edge.ToVertex.Label, edge.Weight)
-	}
+	return treeEdges
+	//for _, edge := range treeEdges {
+	//	fmt.Printf("%s->%s(%d)\n", edge.FromVertex.Label, edge.ToVertex.Label, edge.Weight)
+	//}
+
 }
 
 //getMinWeightEdgeInUnvisitedVertices 获取最小权重的边（未访问过的到达顶点）
@@ -161,7 +160,7 @@ func (graph *Graph) KruskalMinimumSpanningTree() []*Edge {
 				}
 				treeCount--
 			} else { // There's a ring, remove the edge and its opposite edge.
-				fmt.Println("There's a ring, remove the edge and its opposite edge")
+				fmt.Printf("There's a ring, remove the edge and its opposite edge,%s-%s\n", minWeightUnUsedEdge.FromVertex.Label, minWeightUnUsedEdge.ToVertex.Label)
 				treeEdges = removeEdgeInEdges(treeEdges, minWeightUnUsedEdge)
 				treeEdges = removeEdgeInEdges(treeEdges, oppositeEdge)
 				resultEdges = removeEdgeInEdges(resultEdges, minWeightUnUsedEdge)
@@ -169,6 +168,7 @@ func (graph *Graph) KruskalMinimumSpanningTree() []*Edge {
 			}
 		}
 	}
+	graph.clearEdgesUseHistory()
 	return resultEdges
 }
 
@@ -201,17 +201,17 @@ func (graph *Graph) hasUsedEdgeBetweenVertices(v1 *Vertex, v2 *Vertex) bool {
 	v1.isVisited = true
 	for _, edge := range v1.Edges { //所有v1开始的已经使用过的边的到达节点
 		if edge.isUsed {
-			queue.Enqueue(*edge.ToVertex)
+			queue.Enqueue(edge.ToVertex.Label) //仅仅对字符串进行队列操作
 		}
 	}
 	for queue.Size() > 0 {
-		vertex := convertToVertex(*queue.Peek())
+		vertex := graph.getVertexByLabel((*queue.Peek()).(string))
 		if vertex == v2 {
 			return true
 		} else {
 			for _, e := range vertex.Edges {
 				if e.isUsed && !e.ToVertex.isVisited {
-					queue.Enqueue(*e.ToVertex)
+					queue.Enqueue(e.ToVertex.Label)
 				}
 			}
 		}
