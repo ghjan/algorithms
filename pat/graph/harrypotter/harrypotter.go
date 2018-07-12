@@ -49,6 +49,42 @@ func (mg *HarryGraph) CreateMGraph(vexNum int) {
 	}
 }
 
+func buildMGraph(filename string) HarryGraph {
+	fi, err := os.Open(filename)
+	if err != nil {
+		fmt.Printf("Error: %s\n", err)
+		return HarryGraph{}
+	}
+	defer fi.Close()
+
+	br := bufio.NewReader(fi)
+	i := 0
+	var n, m int
+	var mg HarryGraph
+	for {
+		a, _, c := br.ReadLine()
+		if c == io.EOF {
+			break
+		}
+		if i == 0 { //顶点数量， 边数量
+			array := strings.Split(string(a), " ")
+			n, _ = strconv.Atoi(array[0])
+			m, _ = strconv.Atoi(array[1])
+			mg.CreateMGraph(n)
+		} else if i <= m { //边的数据输入 start, end, weight
+			array2 := strings.Split(string(a), " ")
+			start, _ := strconv.Atoi(array2[0])
+			end, _ := strconv.Atoi(array2[1])
+			weight, _ := strconv.Atoi(array2[2])
+			mg.AddEdge(start-1, end-1, WeightType(weight))
+		} else {
+			break
+		}
+		i++
+	}
+	return mg
+}
+
 //AddEdge 增加边(无向图）
 func (mg *HarryGraph) AddEdge(u, v int, weight WeightType) error {
 	mg.lock.Lock()
@@ -90,42 +126,6 @@ func (mg *HarryGraph) Floyd() ([][]WeightType, error) {
 
 	}
 	return D, nil
-}
-
-func buildMGraph(filename string) HarryGraph {
-	fi, err := os.Open(filename)
-	if err != nil {
-		fmt.Printf("Error: %s\n", err)
-		return HarryGraph{}
-	}
-	defer fi.Close()
-
-	br := bufio.NewReader(fi)
-	i := 0
-	var n, m int
-	var mg HarryGraph
-	for {
-		a, _, c := br.ReadLine()
-		if c == io.EOF {
-			break
-		}
-		if i == 0 { //顶点数量， 边数量
-			array := strings.Split(string(a), " ")
-			n, _ = strconv.Atoi(array[0])
-			m, _ = strconv.Atoi(array[1])
-			mg.CreateMGraph(n)
-		} else if i <= m { //边的数据输入 start, end, weight
-			array2 := strings.Split(string(a), " ")
-			start, _ := strconv.Atoi(array2[0])
-			end, _ := strconv.Atoi(array2[1])
-			weight, _ := strconv.Atoi(array2[2])
-			mg.AddEdge(start-1, end-1, WeightType(weight))
-		} else {
-			break
-		}
-		i++
-	}
-	return mg
 }
 
 //findMaxDist 找到第i个顶点到其他顶点的最长距离
