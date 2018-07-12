@@ -56,26 +56,28 @@ func TestGraph_KruskalMinimumSpanningTree(t *testing.T) {
 func TestGraph_DepthFirstSearch(t *testing.T) {
 	fmt.Println("----------TestGraph_DepthFirstSearch-------------")
 	graph := initGraph(true)
-	vertexes := graph.DepthFirstSearch(graph.Vertices[0])
 	vertexesLabelString := ""
-	for _, vertex := range vertexes {
+	vertexes := graph.DepthFirstSearch(graph.Vertices[0], func(vertex *Vertex) {
 		vertexesLabelString += " " + vertex.Label
-		fmt.Printf("%s ", vertex.Label)
-	}
+	})
 	expectedVertexLabel := "A B D C F E G"
 	assert.Equal(t, expectedVertexLabel, strings.TrimLeft(vertexesLabelString, " "))
-
+	for _, vertex := range vertexes {
+		fmt.Printf("%s ", vertex.Label)
+	}
 }
 
 func TestGraph_BreadthFirstSearch(t *testing.T) {
 	fmt.Println("----------TestGraph_BreadthFirstSearch-------------")
 	graph := initGraph(true)
-	vertexes := graph.BreadthFirstSearch(graph.Vertices[0])
 	vertexesLabelString := ""
+	vertexes := graph.BreadthFirstSearch(graph.Vertices[0], func(vertex *Vertex) {
+		vertexesLabelString += " " + vertex.Label
+	})
+	expectedVertexLabel := "A B D E C F G"
+	assert.Equal(t, expectedVertexLabel, strings.TrimLeft(vertexesLabelString, " "))
 	for _, vertex := range vertexes {
 		vertexesLabelString += " " + vertex.Label
 		fmt.Printf("%s ", vertex.Label)
 	}
-	expectedVertexLabel := "A B D E C F G"
-	assert.Equal(t, expectedVertexLabel, strings.TrimLeft(vertexesLabelString, " "))
 }

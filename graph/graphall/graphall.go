@@ -41,12 +41,12 @@ func (graph *Graph) AddEdge(indexFrom, indexTo, weight int, isUsed bool) error {
 }
 
 //BreadthFirstSearch 广度优先遍历
-func (graph *Graph) BreadthFirstSearch(startVertex *Vertex) []*Vertex {
+func (graph *Graph) BreadthFirstSearch(startVertex *Vertex, operationFunc func(vertex *Vertex)) []*Vertex {
 	if graph.Vertices == nil || len(graph.Vertices) == 0 {
 		panic("Graph has no vertex.")
 	}
 	vertexs := []*Vertex{}
-	//fmt.Printf("%s ", startVertex.Label)
+	operationFunc(startVertex)
 	vertexs = append(vertexs, startVertex)
 	startVertex.isVisited = true
 	queue := &queue.ItemQueue{}
@@ -55,7 +55,7 @@ func (graph *Graph) BreadthFirstSearch(startVertex *Vertex) []*Vertex {
 		vertex := convertToVertex(*queue.Peek())
 		for _, edge := range vertex.Edges {
 			if !edge.ToVertex.isVisited {
-				//fmt.Printf("%s ", edge.ToVertex.Label)
+				operationFunc(edge.ToVertex)
 				vertexs = append(vertexs, edge.ToVertex)
 				edge.ToVertex.isVisited = true
 				queue.Enqueue(*edge.ToVertex)
@@ -69,12 +69,12 @@ func (graph *Graph) BreadthFirstSearch(startVertex *Vertex) []*Vertex {
 }
 
 //DepthFirstSearch 深度优先遍历
-func (graph *Graph) DepthFirstSearch(startVertex *Vertex) []*Vertex {
+func (graph *Graph) DepthFirstSearch(startVertex *Vertex, operationFunc func(vertex *Vertex)) []*Vertex {
 	if graph.Vertices == nil || len(graph.Vertices) == 0 {
 		panic("Graph has no vertex.")
 	}
 	vertexs := []*Vertex{}
-	//fmt.Printf("%s ", startVertex.Label)
+	operationFunc(startVertex)
 	vertexs = append(vertexs, startVertex)
 	startVertex.isVisited = true
 	stack := &stack.ItemStack{}
@@ -83,7 +83,7 @@ func (graph *Graph) DepthFirstSearch(startVertex *Vertex) []*Vertex {
 		vertex := convertToVertex(*stack.Peek())
 		edge := graph.findEdgeWithUnvistedToVertex(vertex)
 		if edge != nil && !edge.ToVertex.isVisited {
-			//fmt.Printf("%s ", edge.ToVertex.Label)
+			operationFunc(edge.ToVertex)
 			vertexs = append(vertexs, edge.ToVertex)
 			edge.ToVertex.isVisited = true
 			stack.Push(*edge.ToVertex)
