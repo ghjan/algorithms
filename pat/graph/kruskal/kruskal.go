@@ -1,12 +1,16 @@
-package graphall
+package kruskal
 
 import (
 	"fmt"
 
 	"github.com/ghjan/algorithms/queue"
+	"github.com/ghjan/algorithms/set"
 	"github.com/ghjan/algorithms/stack"
 )
 
+/*
+使用并查集和边的最小堆优化过的kruskal算法
+*/
 //MaxInt 大整数
 const MaxInt = 999999999
 
@@ -19,76 +23,78 @@ type Vertex struct {
 
 //Edge 边类型
 type Edge struct {
-	FromVertex *Vertex
-	ToVertex   *Vertex
+	FromVertex int
+	ToVertex   int
 	Weight     int
 	isUsed     bool
 }
 
 //Graph 图类型
 type Graph struct {
-	Vertices    []*Vertex
+	Vertices    []*Vertex //顶点数组
+	edgeNum     int       //边数量
 	inDegreeMap map[string]int
 }
 
 //AddEdge 增加边
 func (graph *Graph) AddEdge(indexFrom, indexTo, weight int, isUsed bool) error {
 	fromVertex := graph.Vertices[indexFrom]
-	toVertex := graph.Vertices[indexTo]
-	fromVertex.Edges = append(fromVertex.Edges, &Edge{fromVertex, toVertex, weight, isUsed})
-
+	fromVertex.Edges = append(fromVertex.Edges, &Edge{indexFrom, indexTo, weight, isUsed})
+	graph.edgeNum++
 	return nil
 }
 
 //BreadthFirstSearch 广度优先遍历
-func (graph *Graph) BreadthFirstSearch(startVertex *Vertex, operationFunc func(vertex *Vertex)) []*Vertex {
+func (graph *Graph) BreadthFirstSearch(startVertex int, operationFunc func(vertex int)) []int {
 	if graph.Vertices == nil || len(graph.Vertices) == 0 {
 		panic("Graph has no vertex.")
 	}
-	vertexs := []*Vertex{}
+	var vertexes []int
 	operationFunc(startVertex)
-	vertexs = append(vertexs, startVertex)
-	startVertex.isVisited = true
-	queue := &queue.ItemQueue{}
-	queue.Enqueue(*startVertex)
-	for queue.Size() > 0 { // Visit the nearest vertices that haven't been visited.
-		vertex := convertToVertex(*queue.Peek())
-		for _, edge := range vertex.Edges {
-			if !edge.ToVertex.isVisited {
+	vertexes = append(vertexes, startVertex)
+	graph.Vertices[startVertex].isVisited = true
+	que := &queue.ItemQueue{}
+	que.Enqueue(startVertex)
+	for que.Size() > 0 { // Visit the nearest vertices that haven't been visited.
+		vertexIndex := (*que.Peek()).(int)
+		vertexObj := graph.Vertices[vertexIndex]
+		for _, edge := range vertexObj.Edges {
+			if !graph.Vertices[edge.ToVertex].isVisited {
 				operationFunc(edge.ToVertex)
-				vertexs = append(vertexs, edge.ToVertex)
-				edge.ToVertex.isVisited = true
-				queue.Enqueue(*edge.ToVertex)
+				vertexes = append(vertexes, edge.ToVertex)
+				graph.Vertices[edge.ToVertex].isVisited = true
+				que.Enqueue(edge.ToVertex)
 			}
 		}
-		queue.Remove()
+		que.Remove()
 	}
 	graph.clearVerticesVisitHistory()
-	return vertexs
+	return vertexes
 
 }
 
 //DepthFirstSearch 深度优先遍历
-func (graph *Graph) DepthFirstSearch(startVertex *Vertex, operationFunc func(vertex *Vertex)) []*Vertex {
+func (graph *Graph) DepthFirstSearch(startVertex int, operationFunc func(vertex int)) []int {
 	if graph.Vertices == nil || len(graph.Vertices) == 0 {
 		panic("Graph has no vertex.")
 	}
-	vertexs := []*Vertex{}
+	var vertexs []int
 	operationFunc(startVertex)
 	vertexs = append(vertexs, startVertex)
-	startVertex.isVisited = true
-	stack := &stack.ItemStack{}
-	stack.Push(*startVertex)
-	for stack.Size() > 0 { // Visit the the vertices by edges that hasn't been visited, until the path ends.
-		vertex := convertToVertex(*stack.Peek())
-		edge := graph.findEdgeWithUnvistedToVertex(vertex)
-		if edge != nil && !edge.ToVertex.isVisited {
+	graph.Vertices[startVertex].isVisited = true
+	stk := &stack.ItemStack{}
+	stk.Push(startVertex)
+	for stk.Size() > 0 { // Visit the the vertices by edges that hasn't been visited, until the path ends.
+		vertexIndex := (*stk.Peek()).(int)
+		vertexObj := graph.Vertices[vertexIndex]
+		edge := graph.findEdgeWithUnvistedToVertex(vertexObj)
+		if edge != nil && !graph.Vertices[edge.ToVertex].isVisited {
 			operationFunc(edge.ToVertex)
 			vertexs = append(vertexs, edge.ToVertex)
-			edge.ToVertex.isVisited = true
-			stack.Push(*edge.ToVertex)
+			graph.Vertices[edge.ToVertex].isVisited = true
+			stk.Push(edge.ToVertex)
 		} else {
-			stack.Pop()
+			stk.Pop()
 		}
 	}
 	graph.clearVerticesVisitHistory()
@@ -96,30 +102,31 @@ func (graph *Graph) DepthFirstSearch(startVertex *Vertex, operationFunc func(ver
 }
 
 //PrimMinimumSpanningTree Prim最小生成树算法
-func (graph *Graph) PrimMinimumSpanningTree(startVertex *Vertex) ([]*Edge) {
-	treeEdges := []*Edge{}
+//返回：构成最小生成树的那些边
+func (graph *Graph) PrimMinimumSpanningTree(startVertex *Vertex) []*Edge {
+	var MST []*Edge
 	startVertex.isVisited = true
 	for len(graph.getVisitedVertices()) < len(graph.Vertices) {
-		minWeightEdge := getMinWeightEdgeInUnvisitedVertices(graph.getVisitedVertices())
+		minWeightEdge := graph.getMinWeightEdgeInUnvisitedVertices(graph.getVisitedVertices())
 		if minWeightEdge != nil {
-			treeEdges = append(treeEdges, minWeightEdge)
+			MST = append(MST, minWeightEdge)
 		}
-		minWeightEdge.ToVertex.isVisited = true
+		graph.Vertices[minWeightEdge.ToVertex].isVisited = true
 	}
 	graph.clearVerticesVisitHistory()
-	return treeEdges
-	//for _, edge := range treeEdges {
-	//	fmt.Printf("%s->%s(%d)\n", edge.FromVertex.Label, edge.ToVertex.Label, edge.Weight)
+	return MST
+	//for _, edge := range MST {
+	//	fmt.Printf("%s->%s(%d)\n", edge.FromVertex.Label, graph.Vertices[edge.ToVertex].Label, edge.Weight)
 	//}
 
 }
 
 //getMinWeightEdgeInUnvisitedVertices 获取最小权重的边（未访问过的到达顶点）
-func getMinWeightEdgeInUnvisitedVertices(vertices []*Vertex) *Edge {
+func (graph Graph) getMinWeightEdgeInUnvisitedVertices(vertices []*Vertex) *Edge {
 	var minWeightEdge *Edge
 	for _, vertex := range vertices {
 		for _, edge := range vertex.Edges {
-			if !edge.ToVertex.isVisited {
+			if !graph.Vertices[edge.ToVertex].isVisited {
 				if minWeightEdge == nil || minWeightEdge.Weight > edge.Weight {
 					minWeightEdge = edge
 				}
@@ -131,7 +138,7 @@ func getMinWeightEdgeInUnvisitedVertices(vertices []*Vertex) *Edge {
 
 func (graph *Graph) findEdgeWithUnvistedToVertex(vertex *Vertex) *Edge {
 	for _, edge := range vertex.Edges {
-		if !edge.ToVertex.isVisited {
+		if !graph.Vertices[edge.ToVertex].isVisited {
 			return edge
 		}
 	}
@@ -139,6 +146,7 @@ func (graph *Graph) findEdgeWithUnvistedToVertex(vertex *Vertex) *Edge {
 }
 
 //KruskalMinimumSpanningTree Kruskal最小生成树算法
+//返回：构成最小生成树的那些边
 func (graph *Graph) KruskalMinimumSpanningTree() []*Edge {
 	var treeEdges, MST []*Edge
 	for _, vertex := range graph.Vertices {
@@ -159,7 +167,7 @@ func (graph *Graph) KruskalMinimumSpanningTree() []*Edge {
 				}
 				treeCount--
 			} else { // There's a ring, remove the edge and its opposite edge.
-				fmt.Printf("There's a ring, remove the edge and its opposite edge,%s-%s\n", minWeightUnUsedEdge.FromVertex.Label, minWeightUnUsedEdge.ToVertex.Label)
+				fmt.Printf("There's a ring, remove the edge and its opposite edge,%s-%s\n", graph.Vertices[minWeightUnUsedEdge.FromVertex].Label, graph.Vertices[minWeightUnUsedEdge.ToVertex].Label)
 				treeEdges = removeEdgeInEdges(treeEdges, minWeightUnUsedEdge)
 				treeEdges = removeEdgeInEdges(treeEdges, oppositeEdge)
 				MST = removeEdgeInEdges(MST, minWeightUnUsedEdge)
@@ -195,27 +203,29 @@ func getOppositeEdgeInEdges(edges []*Edge, edge *Edge) *Edge {
 }
 
 //hasUsedEdgeBetweenVertices 是否在顶点间已经存在使用过的路径
-func (graph *Graph) hasUsedEdgeBetweenVertices(v1 *Vertex, v2 *Vertex) bool {
-	queue := &queue.ItemQueue{}
+func (graph *Graph) hasUsedEdgeBetweenVertices(start, end int) bool {
+	que := &queue.ItemQueue{}
+	v1 := graph.Vertices[start]
 	v1.isVisited = true
 	for _, edge := range v1.Edges { //所有v1开始的已经使用过的边的到达节点
 		if edge.isUsed {
-			queue.Enqueue(edge.ToVertex.Label) //仅仅对字符串进行队列操作
+			que.Enqueue(edge.ToVertex) //仅仅对字符串进行队列操作
 		}
 	}
-	for queue.Size() > 0 {
-		vertex := graph.getVertexByLabel((*queue.Peek()).(string))
-		if vertex == v2 {
+	for que.Size() > 0 {
+		vertexIndex := (*que.Peek()).(int)
+		realVertex := graph.Vertices[vertexIndex]
+		if vertexIndex == end {
 			return true
 		} else {
-			for _, e := range vertex.Edges {
-				if e.isUsed && !e.ToVertex.isVisited {
-					queue.Enqueue(e.ToVertex.Label)
+			for _, e := range realVertex.Edges {
+				if e.isUsed && !graph.Vertices[e.ToVertex].isVisited {
+					que.Enqueue(e.ToVertex)
 				}
 			}
 		}
-		vertex.isVisited = true
-		queue.Remove()
+		realVertex.isVisited = true
+		que.Remove()
 	}
 	graph.clearVerticesVisitHistory()
 	return false
@@ -249,7 +259,7 @@ func (graph *Graph) DijkstraShortestPath(startVertex *Vertex, endVertex *Vertex)
 			break
 		}
 		for _, edge := range nearestVertex.Edges { // Update distance map.
-			toVertex := edge.ToVertex
+			toVertex := graph.Vertices[edge.ToVertex]
 			distance := distanceMap[nearestVertex.Label] + edge.Weight
 			if distance < distanceMap[toVertex.Label] {
 				distanceMap[toVertex.Label] = distance
@@ -272,7 +282,7 @@ func (graph *Graph) DijkstraShortestPath(startVertex *Vertex, endVertex *Vertex)
 		}
 	}
 	for label, vertex := range prevVertexMap {
-		fmt.Printf("%s->%s(%d)\n", vertex.Label, label, getWeightByLabelAndPrevVertex(label, vertex))
+		fmt.Printf("%s->%s(%d)\n", vertex.Label, label, graph.getWeightByLabelAndPrevVertex(label, vertex))
 	}
 }
 
@@ -334,9 +344,9 @@ func (graph *Graph) getVertexByLabel(label string) *Vertex {
 	return nil
 }
 
-func getWeightByLabelAndPrevVertex(label string, prevVertex *Vertex) int {
+func (graph *Graph) getWeightByLabelAndPrevVertex(label string, prevVertex *Vertex) int {
 	for _, edge := range prevVertex.Edges {
-		if edge.ToVertex.Label == label {
+		if graph.Vertices[edge.ToVertex].Label == label {
 			return edge.Weight
 		}
 	}
@@ -351,7 +361,7 @@ func (graph *Graph) TopologicalSort() {
 	}
 	for _, v := range graph.Vertices {
 		for _, e := range v.Edges {
-			graph.inDegreeMap[e.ToVertex.Label]++
+			graph.inDegreeMap[graph.Vertices[e.ToVertex].Label]++
 		}
 	}
 	for len(graph.getVisitedVertices()) < len(graph.Vertices) {
@@ -360,7 +370,7 @@ func (graph *Graph) TopologicalSort() {
 			fmt.Printf("%s ", v.Label)
 			v.isVisited = true
 			for _, edge := range v.Edges {
-				graph.inDegreeMap[edge.ToVertex.Label]--
+				graph.inDegreeMap[graph.Vertices[edge.ToVertex].Label]--
 			}
 		}
 		fmt.Println()
@@ -369,7 +379,7 @@ func (graph *Graph) TopologicalSort() {
 }
 
 func (graph *Graph) getZeroInDegreeVertices() []*Vertex {
-	vertices := []*Vertex{}
+	var vertices []*Vertex
 	for _, v := range graph.Vertices {
 		if graph.inDegreeMap[v.Label] == 0 && !v.isVisited {
 			vertices = append(vertices, v)
@@ -379,7 +389,7 @@ func (graph *Graph) getZeroInDegreeVertices() []*Vertex {
 }
 
 func (graph *Graph) getVisitedVertices() []*Vertex {
-	vertices := []*Vertex{}
+	var vertices []*Vertex
 	for _, vertex := range graph.Vertices {
 		if vertex.isVisited {
 			vertices = append(vertices, vertex)
@@ -403,10 +413,117 @@ func (graph *Graph) clearEdgesUseHistory() {
 	}
 }
 
-func convertToVertex(x interface{}) *Vertex {
-	if v, ok := x.(Vertex); ok {
-		return &v
-	} else {
-		panic("Type convertion exception.")
+/*-------------------- 边的最小堆定义 --------------------*/
+//PercDown 向下构造最小堆
+//参数: ESet 物理存储
+//		p ESet[p]为根的子堆
+//		N N个顶点
+func PercDown(ESet []*Edge, p, N int) {
+	/* 改编代码4.24的PercDown( MaxHeap H, int p )    */
+	/* 将N个元素的边数组中以ESet[p]为根的子堆调整为关于Weight的最小堆 */
+	var Parent, Child int
+
+	X := ESet[p] /* 取出根结点存放的值 */
+	for Parent = p; (Parent*2 + 1) < N; Parent = Child {
+		Child = Parent*2 + 1
+		if (Child != N-1) && (ESet[Child].Weight > ESet[Child+1].Weight) {
+			Child++ /* Child指向左右子结点的较小者 */
+		}
+		if X.Weight <= ESet[Child].Weight {
+			/* 找到了合适位置 */
+			break
+		} else {
+			/* 下滤X */
+			ESet[Parent] = ESet[Child]
+		}
 	}
+	ESet[Parent] = X
+}
+
+//InitializeESet 初始化边的集合
+//返回  最小堆（Edge切片）
+func (graph *Graph) InitializeESet() []*Edge {
+	/* 将图的边存入数组ESet，并且初始化为最小堆 */
+	var V int
+	//var W *Edge
+	var ESet []*Edge
+	/* 将图的边存入数组ESet */
+	ECount := 0
+	for V = 0; V < len(graph.Vertices); V++ {
+		for _, W := range graph.Vertices[V].Edges {
+			if V < W.ToVertex {
+				// 避免重复录入无向图的边，只收V1<V2的边
+				ESet = append(ESet, W)
+				ECount++
+				//if ESet[ECount] != nil {
+				//	ESet[ECount].Weight = W.Weight
+				//}
+			}
+		}
+	}
+	/* 初始化为最小堆 */
+	for ECount = len(ESet) / 2; ECount >= 0; ECount-- {
+		PercDown(ESet, ECount, len(ESet))
+	}
+	return ESet
+}
+
+//InitializeVSet 初始化顶点并查集
+func (graph *Graph) InitializeVSet() set.IntSet {
+	/* 初始化并查集 */
+	return set.Initialization(len(graph.Vertices))
+}
+
+//GetEdge 获取最小堆的最小元素
+//返回最小边所在位置
+func GetEdge(ESet []*Edge, CurrentSize int) int {
+	/* 给定当前堆的大小CurrentSize，将当前最小边位置弹出并调整堆 */
+
+	/* 将最小边与当前堆的最后一个位置的边交换 */
+	Swap(ESet, 0, CurrentSize-1)
+	/* 将剩下的边继续调整成最小堆 */
+	PercDown(ESet, 0, CurrentSize-1)
+	return CurrentSize - 1 /* 返回最小边所在位置 */
+}
+
+//Swap 交换最小堆的两个元素
+func Swap(ESet []*Edge, u, v int) {
+	ESet[u], ESet[v] = ESet[v], ESet[u]
+}
+
+/*-------------------- 最小堆定义结束 --------------------*/
+
+//Kruskal 使用并查集和边最小堆优化的Kruskal算法
+//返回：
+//		TotalWeight  最小生成树的总权重
+//		MST			 最小生成树里面的那些边
+func (graph Graph) Kruskal() (int, []*Edge) {
+	if len(graph.Vertices) == 0 {
+		return 0, nil
+	}
+	var MST []*Edge
+	TotalWeight := 0               /* 初始化权重和     */
+	ECount := 0                    /* 初始化收录的边数 */
+	VSet := graph.InitializeVSet() //初始化顶点并查集
+	ESet := graph.InitializeESet() //初始化边的最小堆
+
+	NextEdge := len(ESet) /* 原始边集的规模 */
+
+	for ECount < len(graph.Vertices)-1 { /* 当收集的边不足以构成树时 */
+		NextEdge = GetEdge(ESet, NextEdge) /* 从边集中得到最小边的位置 */
+		if NextEdge < 0 {
+			break /* 边集已空 */
+		}
+		/* 如果该边的加入不构成回路，即两端结点不属于同一连通集 */
+		if VSet.CheckCycle(ESet[NextEdge].FromVertex, ESet[NextEdge].ToVertex) == true {
+			/* 将该边插入MST */
+			MST = append(MST, ESet[NextEdge])
+			TotalWeight += ESet[NextEdge].Weight /* 累计权重 */
+			ECount++                             /* 生成树中边数加1 */
+		}
+	}
+	if ECount < len(graph.Vertices)-1 {
+		TotalWeight = -1 /* 设置错误标记，表示生成树不存在 */
+	}
+	return TotalWeight, MST
 }

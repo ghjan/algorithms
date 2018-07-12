@@ -55,11 +55,11 @@ func (S IntSet) InputConnection(u, v int) bool {
 //返回： 	true 表示uv原先没有连接，合并两个联通集
 //			false 表示原先已经在同一个联通集
 func (S IntSet) CheckCycle(u, v int) bool {
-	return S.InputConnection(u, v)
+	return S.InputConnection(u+1, v+1)
 }
 
 //CheckConnection 检查两个节点是否相连
-func (S IntSet) CheckConnection(u, v int) (bool) {
+func (S IntSet) CheckConnection(u, v int) bool {
 	Root1 := S.FindRoot(u - 1)
 	Root2 := S.FindRoot(v - 1)
 	return Root1 == Root2
