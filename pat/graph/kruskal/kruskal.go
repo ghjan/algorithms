@@ -350,7 +350,9 @@ func (graph *Graph) getWeightByLabelAndPrevVertex(label string, prevVertex *Vert
 }
 
 //TopologicalSort 拓扑排序
-func (graph *Graph) TopologicalSort() {
+func (graph *Graph) TopologicalSort(operationFunc func(vertex *Vertex, isSectionEnd bool)) []*Vertex {
+	var result []*Vertex
+
 	graph.inDegreeMap = make(map[string]int)
 	for _, v := range graph.Vertices {
 		graph.inDegreeMap[v.Label] = 0
@@ -361,17 +363,22 @@ func (graph *Graph) TopologicalSort() {
 		}
 	}
 	for len(graph.getVisitedVertices()) < len(graph.Vertices) {
-		topVertices := graph.getZeroInDegreeVertices()
-		for _, v := range topVertices { // Visit the zero-in-degree-vertex, and decrease the next vertices' in-degree.
-			fmt.Printf("%s ", v.Label)
-			v.IsVisited = true
-			for _, edge := range v.Edges {
-				graph.inDegreeMap[graph.Vertices[edge.ToVertex].Label]--
+		if topVertices := graph.getZeroInDegreeVertices(); topVertices != nil {
+			result = append(result, topVertices...)
+			for _, v := range topVertices { // Visit the zero-in-degree-vertex, and decrease the next vertices' in-degree.
+				operationFunc(v, false)
+				v.IsVisited = true
+				for _, edge := range v.Edges {
+					graph.inDegreeMap[graph.Vertices[edge.ToVertex].Label]--
+				}
 			}
+			operationFunc(nil, true)
+		} else {
+			break
 		}
-		fmt.Println()
 	}
 	graph.clearVerticesVisitHistory()
+	return result
 }
 
 func (graph *Graph) getZeroInDegreeVertices() []*Vertex {

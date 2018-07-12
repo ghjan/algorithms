@@ -14,7 +14,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func initGraph(directed bool) *Graph {
+func initGraph(directed bool) *Graph { //有环路
 	vertexLablels := []string{"A", "B", "C", "D", "E", "F", "G"}
 	graph := &Graph{}
 	for _, vertexLabel := range vertexLablels {
@@ -22,6 +22,38 @@ func initGraph(directed bool) *Graph {
 	}
 
 	edgesString := "0 1 2,0 3 1,1 3 3,1 4 10,2 0 4,2 5 5,3 2 2,3 4 2,3 5 8,3 6 4,4 6 6,6 5 1"
+	edgesInfoSlice := strings.Split(edgesString, ",")
+	for _, edgeInfo := range edgesInfoSlice {
+		edgeInfoSlice := strings.Split(edgeInfo, " ")
+		var err error
+		if indexFrom, err := strconv.Atoi(edgeInfoSlice[0]); err == nil {
+			if indexTo, err := strconv.Atoi(edgeInfoSlice[1]); err == nil {
+				if weight, err := strconv.Atoi(edgeInfoSlice[2]); err == nil {
+					graph.AddEdge(indexFrom, indexTo, weight, false)
+					if !directed {
+						graph.AddEdge(indexTo, indexFrom, weight, false)
+					}
+				}
+			}
+		}
+		if err != nil {
+			fmt.Printf("create edge fail:%s\n", edgeInfo)
+			fmt.Println(err)
+		}
+
+	}
+
+	return graph
+}
+
+func initGraph2(directed bool) *Graph { //去掉A的环路
+	vertexLablels := []string{"A", "B", "C", "D", "E", "F", "G"}
+	graph := &Graph{}
+	for _, vertexLabel := range vertexLablels {
+		graph.Vertices = append(graph.Vertices, &Vertex{vertexLabel, nil, false})
+	}
+
+	edgesString := "0 1 2,0 3 1,1 3 3,1 4 10,2 5 5,3 2 2,3 4 2,3 5 8,3 6 4,4 6 6,6 5 1"
 	edgesInfoSlice := strings.Split(edgesString, ",")
 	for _, edgeInfo := range edgesInfoSlice {
 		edgeInfoSlice := strings.Split(edgeInfo, " ")
@@ -168,4 +200,27 @@ func testVilvilPath() {
 
 func TestVilPath(t *testing.T) {
 	testVilvilPath()
+}
+
+func TestGraph_TopologicalSort(t *testing.T) {
+	fmt.Println("----------TestGraph_TopologicalSort-------------")
+
+	graph := initGraph(true) //环图
+	result := graph.TopologicalSort(nil)
+	assert.Equal(t, 0, len(result))
+
+	graph = initGraph2(true)
+
+	sortedString := ""
+	result = graph.TopologicalSort(func(vertex *Vertex, isSectionEnd bool) {
+		if isSectionEnd {
+			sortedString += ";"
+			fmt.Println()
+		} else {
+			sortedString += vertex.Label + " "
+			fmt.Printf("%s ", vertex.Label)
+		}
+	})
+	assert.Equal(t, "A ;B ;D ;C E ;G ;F ;", sortedString)
+	assert.Equal(t, len(graph.Vertices), len(result))
 }

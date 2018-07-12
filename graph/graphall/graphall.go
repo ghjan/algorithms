@@ -353,11 +353,10 @@ func (graph *Graph) TopologicalSort(operationFunc func(vertex *Vertex, isSection
 			graph.inDegreeMap[e.ToVertex.Label]++
 		}
 	}
-	for len(graph.getVisitedVertices()) < len(graph.Vertices) || (result != nil && len(result) >= len(graph.Vertices)) {
+	for len(graph.getVisitedVertices()) < len(graph.Vertices)  {
 		if topVertices := graph.getZeroInDegreeVertices(); topVertices != nil {
 			result = append(result, topVertices...)
 			for _, v := range topVertices { // Visit the zero-in-degree-vertex, and decrease the next vertices' in-degree.
-				//fmt.Printf("%s ", v.Label)
 				operationFunc(v, false)
 				v.isVisited = true
 				for _, edge := range v.Edges {

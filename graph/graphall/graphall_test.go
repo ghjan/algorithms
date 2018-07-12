@@ -126,13 +126,17 @@ func TestGraph_TopologicalSort(t *testing.T) {
 
 	graph = initGraph2(true)
 
+	sortedString := ""
 	result = graph.TopologicalSort(func(vertex *Vertex, isSectionEnd bool) {
 		if isSectionEnd {
+			sortedString += ";"
 			fmt.Println()
 		} else {
+			sortedString += vertex.Label + " "
 			fmt.Printf("%s ", vertex.Label)
 		}
 	})
+	assert.Equal(t, "A ;B ;D ;C E ;G ;F ;", sortedString)
 	assert.Equal(t, len(graph.Vertices), len(result))
 
 }
