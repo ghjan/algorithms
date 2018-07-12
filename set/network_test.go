@@ -32,13 +32,13 @@ func TestIntSet_Initialization(t *testing.T) {
 
 }
 
-func TestIntSet_FindRoot2(t *testing.T) {
+func TestIntSet_FindRoot(t *testing.T) {
 	network := createNetwork()
-	assert.Equal(t, 2, network.FindRoot2(3))
-	assert.Equal(t, 2, network.FindRoot2(4))
-	assert.Equal(t, 2, network.FindRoot2(2))
-	assert.Equal(t, 2, network.FindRoot2(1))
-	assert.Equal(t, 0, network.FindRoot2(0))
+	assert.Equal(t, 2, network.FindRoot(3))
+	assert.Equal(t, 2, network.FindRoot(4))
+	assert.Equal(t, 2, network.FindRoot(2))
+	assert.Equal(t, 2, network.FindRoot(1))
+	assert.Equal(t, 0, network.FindRoot(0))
 }
 
 func TestIntSet_CheckConnection(t *testing.T) {
@@ -95,7 +95,7 @@ func TestNetworkComponent(t *testing.T) {
 					v, _ := strconv.Atoi(cmds[2])
 					if network.CheckConnection(u, v) {
 						fmt.Println("yes")
-					}else{
+					} else {
 						fmt.Println("no")
 					}
 				}
@@ -110,4 +110,13 @@ func TestNetworkComponent(t *testing.T) {
 			}
 		}
 	}
+}
+
+func TestIntSet_CheckCycle(t *testing.T) {
+	network := createNetwork()
+	assert.Equal(t, false, network.CheckCycle(3, 2))
+	assert.Equal(t, false, network.CheckCycle(3, 4))
+	assert.Equal(t, false, network.FindRoot(3-1) == network.FindRoot(1-1))
+	assert.Equal(t, true, network.CheckCycle(3, 1))
+	assert.Equal(t, true, network.FindRoot(3-1) == network.FindRoot(1-1))
 }
