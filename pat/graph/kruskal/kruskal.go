@@ -1,6 +1,7 @@
 package kruskal
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/ghjan/algorithms/queue"
@@ -349,9 +350,9 @@ func (graph *Graph) getWeightByLabelAndPrevVertex(label string, prevVertex *Vert
 	return -1
 }
 
-//TopologicalSort 拓扑排序
-func (graph *Graph) TopologicalSort(operationFunc func(vertex *Vertex, isSectionEnd bool)) []*Vertex {
-	var result []*Vertex
+//TopologicalSort 拓扑排序 (使用队列优化过的）
+func (graph *Graph) TopologicalSort(operationFunc func(vertex int, isSectionEnd bool)) ([]int, error) {
+	var result []int
 
 	graph.inDegreeMap = make(map[string]int)
 	for _, v := range graph.Vertices {
@@ -362,23 +363,32 @@ func (graph *Graph) TopologicalSort(operationFunc func(vertex *Vertex, isSection
 			graph.inDegreeMap[graph.Vertices[e.ToVertex].Label]++
 		}
 	}
-	for len(graph.getVisitedVertices()) < len(graph.Vertices) {
-		if topVertices := graph.getZeroInDegreeVertices(); topVertices != nil {
-			result = append(result, topVertices...)
-			for _, v := range topVertices { // Visit the zero-in-degree-vertex, and decrease the next vertices' in-degree.
-				operationFunc(v, false)
-				v.IsVisited = true
-				for _, edge := range v.Edges {
-					graph.inDegreeMap[graph.Vertices[edge.ToVertex].Label]--
-				}
-			}
-			operationFunc(nil, true)
-		} else {
-			break
+	que := queue.ItemQueue{}
+	for i := 0; i < len(graph.Vertices); i++ {
+		v := graph.Vertices[i]
+		if graph.inDegreeMap[v.Label] == 0 {
+			que.Enqueue(i)
 		}
 	}
-	graph.clearVerticesVisitHistory()
-	return result
+	count := 0
+	for !que.IsEmpty() {
+		vertexIndex := (*que.Dequeue()).(int)
+		result = append(result, vertexIndex)
+		v := graph.Vertices[vertexIndex]
+		count++
+		operationFunc(vertexIndex, false)
+		for _, edge := range v.Edges {
+			graph.inDegreeMap[graph.Vertices[edge.ToVertex].Label]--
+			if graph.inDegreeMap[graph.Vertices[edge.ToVertex].Label] == 0 {
+				que.Enqueue(edge.ToVertex)
+			}
+		}
+	}
+
+	if count != len(graph.Vertices) {
+		return nil, errors.New("图中有回路")
+	}
+	return result, nil
 }
 
 func (graph *Graph) getZeroInDegreeVertices() []*Vertex {

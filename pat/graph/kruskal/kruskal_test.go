@@ -206,21 +206,28 @@ func TestGraph_TopologicalSort(t *testing.T) {
 	fmt.Println("----------TestGraph_TopologicalSort-------------")
 
 	graph := initGraph(true) //环图
-	result := graph.TopologicalSort(nil)
-	assert.Equal(t, 0, len(result))
+	if result, err := graph.TopologicalSort(nil); err == nil {
+		assert.Equal(t, 0, len(result))
+	} else {
+		assert.Error(t, err)
+	}
 
 	graph = initGraph2(true)
 
 	sortedString := ""
-	result = graph.TopologicalSort(func(vertex *Vertex, isSectionEnd bool) {
+	if result, err := graph.TopologicalSort(func(vertexIndex int, isSectionEnd bool) {
 		if isSectionEnd {
 			sortedString += ";"
 			fmt.Println()
 		} else {
+			vertex := graph.Vertices[vertexIndex]
 			sortedString += vertex.Label + " "
 			fmt.Printf("%s ", vertex.Label)
 		}
-	})
-	assert.Equal(t, "A ;B ;D ;C E ;G ;F ;", sortedString)
-	assert.Equal(t, len(graph.Vertices), len(result))
+	}); err == nil {
+		assert.Equal(t, "A B D C E G F", strings.TrimRight(sortedString, " "))
+		assert.Equal(t, len(graph.Vertices), len(result))
+	} else {
+		assert.Equal(t, "", err)
+	}
 }
