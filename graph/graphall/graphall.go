@@ -96,7 +96,7 @@ func (graph *Graph) DepthFirstSearch(startVertex *Vertex, operationFunc func(ver
 }
 
 //PrimMinimumSpanningTree Prim最小生成树算法
-func (graph *Graph) PrimMinimumSpanningTree(startVertex *Vertex) ([]*Edge) {
+func (graph *Graph) PrimMinimumSpanningTree(startVertex *Vertex) []*Edge {
 	treeEdges := []*Edge{}
 	startVertex.isVisited = true
 	for len(graph.getVisitedVertices()) < len(graph.Vertices) {
@@ -344,7 +344,9 @@ func getWeightByLabelAndPrevVertex(label string, prevVertex *Vertex) int {
 }
 
 //TopologicalSort 拓扑排序
-func (graph *Graph) TopologicalSort() {
+func (graph *Graph) TopologicalSort(operationFunc func(vertex *Vertex, isSectionEnd bool)) []*Vertex {
+	var result []*Vertex
+
 	graph.inDegreeMap = make(map[string]int)
 	for _, v := range graph.Vertices {
 		graph.inDegreeMap[v.Label] = 0
@@ -354,22 +356,28 @@ func (graph *Graph) TopologicalSort() {
 			graph.inDegreeMap[e.ToVertex.Label]++
 		}
 	}
-	for len(graph.getVisitedVertices()) < len(graph.Vertices) {
-		topVertices := graph.getZeroInDegreeVertices()
-		for _, v := range topVertices { // Visit the zero-in-degree-vertex, and decrease the next vertices' in-degree.
-			fmt.Printf("%s ", v.Label)
-			v.isVisited = true
-			for _, edge := range v.Edges {
-				graph.inDegreeMap[edge.ToVertex.Label]--
+	for len(graph.getVisitedVertices()) < len(graph.Vertices) || (result != nil && len(result) >= len(graph.Vertices)) {
+		if topVertices := graph.getZeroInDegreeVertices(); topVertices != nil {
+			result = append(result, topVertices...)
+			for _, v := range topVertices { // Visit the zero-in-degree-vertex, and decrease the next vertices' in-degree.
+				//fmt.Printf("%s ", v.Label)
+				operationFunc(v, false)
+				v.isVisited = true
+				for _, edge := range v.Edges {
+					graph.inDegreeMap[edge.ToVertex.Label]--
+				}
 			}
+			operationFunc(nil, true)
+		} else {
+			break
 		}
-		fmt.Println()
 	}
 	graph.clearVerticesVisitHistory()
+	return result
 }
 
 func (graph *Graph) getZeroInDegreeVertices() []*Vertex {
-	vertices := []*Vertex{}
+	var vertices []*Vertex
 	for _, v := range graph.Vertices {
 		if graph.inDegreeMap[v.Label] == 0 && !v.isVisited {
 			vertices = append(vertices, v)
@@ -379,7 +387,7 @@ func (graph *Graph) getZeroInDegreeVertices() []*Vertex {
 }
 
 func (graph *Graph) getVisitedVertices() []*Vertex {
-	vertices := []*Vertex{}
+	var vertices []*Vertex
 	for _, vertex := range graph.Vertices {
 		if vertex.isVisited {
 			vertices = append(vertices, vertex)
