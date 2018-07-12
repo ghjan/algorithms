@@ -30,7 +30,7 @@ type MGraph struct {
 	lock    sync.RWMutex // 保证线程安全
 }
 
-//PrintWeight 显示矩阵
+//PrintMatrix 显示矩阵
 func (mg MGraph) PrintMatrix(l int) {
 	mg.lock.RLock()
 	defer mg.lock.RUnlock()

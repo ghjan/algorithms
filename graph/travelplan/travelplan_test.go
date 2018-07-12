@@ -5,6 +5,7 @@ import (
 	"os"
 	"strings"
 	"fmt"
+	"github.com/stretchr/testify/assert"
 )
 
 func findBestTravel() (int, int) {
@@ -17,5 +18,7 @@ func findBestTravel() (int, int) {
 }
 func TestTravelGraph_Dijkstra(t *testing.T) {
 	totalLength, totalCost := findBestTravel()
+	assert.Equal(t, 3, totalLength)
+	assert.Equal(t, 40, totalCost)
 	fmt.Printf("%d %d", totalLength, totalCost)
 }
