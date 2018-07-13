@@ -4,10 +4,12 @@ import (
 	"errors"
 	"fmt"
 
+	"strconv"
+	"strings"
+
 	"github.com/ghjan/algorithms/queue"
 	"github.com/ghjan/algorithms/set"
 	"github.com/ghjan/algorithms/stack"
-	"strconv"
 )
 
 /*
@@ -362,7 +364,7 @@ func (graph *Graph) TopologicalSort(operationFunc func(vertex int, isSectionEnd 
 	for _, v := range graph.Vertices {
 		for _, e := range v.Edges {
 			graph.inDegreeMap[graph.Vertices[e.ToVertex].Label]++
-			inVertexes[e.ToVertex] += strconv.Itoa(e.FromVertex) + " "
+			inVertexes[e.ToVertex] += strconv.Itoa(e.FromVertex) + " " + strconv.Itoa(e.Weight) + ","
 		}
 	}
 	que := queue.ItemQueue{}
@@ -544,7 +546,7 @@ func (graph Graph) Kruskal() (int, []*Edge) {
 }
 
 //Earliest 整个工期有多长
-func (graph Graph) Earliest() ([]int, []int, error) {
+func (graph Graph) Earliest(operationFunc func(vertex int, isSectionEnd bool)) ([]int, []int, error) {
 	earliest := make([]int, len(graph.Vertices), len(graph.Vertices))
 	var topSort []int
 	sortedString := ""
@@ -556,12 +558,28 @@ func (graph Graph) Earliest() ([]int, []int, error) {
 			vertex := graph.Vertices[vertexIndex]
 			sortedString += vertex.Label + " "
 			topSort = append(topSort, vertexIndex)
-			fmt.Printf("%s ", vertex.Label)
+			// fmt.Printf("%s ", vertex.Label)
 		}
 	}); err == nil {
-		fmt.Println(result)
+		//fmt.Println("\n-------result of TopologicalSort--")
+		//fmt.Println(result)
+		//fmt.Println("-------inVertexes of TopologicalSort--")
 		for i := 0; i < len(graph.Vertices); i++ {
-			fmt.Println(inVertexes[i])
+			//fmt.Println(strings.TrimRight(inVertexes[i], " ,"))
+			if preInfoSlice := strings.Split(strings.TrimRight(inVertexes[i], " ,"), ","); preInfoSlice != nil {
+				for _, temp := range preInfoSlice {
+					prevInfo := strings.Split(temp, " ")
+					if prevInfo == nil || len(prevInfo) < 2 {
+						continue
+					}
+					prevIndex, _ := strconv.Atoi(prevInfo[0])
+					weight, _ := strconv.Atoi(prevInfo[1])
+					if earliest[prevIndex]+weight > earliest[result[i]] {
+						earliest[result[i]] = earliest[prevIndex] + weight
+					}
+				}
+			}
+
 		}
 		return earliest, topSort, nil
 	} else {

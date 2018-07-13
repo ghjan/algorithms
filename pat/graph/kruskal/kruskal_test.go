@@ -1,6 +1,7 @@
 package kruskal
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"math"
@@ -78,6 +79,46 @@ func initGraph2(directed bool) *Graph { //去掉A的环路
 	return graph
 }
 
+func buildGraph(filename string) *Graph {
+	graph := Graph{}
+	fi, err := os.Open(filename)
+	if err != nil {
+		fmt.Printf("Error: %s\n", err)
+		return &Graph{}
+	}
+	defer fi.Close()
+
+	br := bufio.NewReader(fi)
+	i := 0
+	var N, M int
+	for {
+		a, _, c := br.ReadLine()
+		if c == io.EOF {
+			break
+		}
+		if i == 0 { //顶点数量， 边数量
+			array := strings.Split(string(a), " ")
+			N, _ = strconv.Atoi(array[0])
+			M, _ = strconv.Atoi(array[1])
+			for i := 0; i < N; i++ {
+				graph.Vertices = append(graph.Vertices, &Vertex{strconv.Itoa(i), nil, false})
+			}
+
+		} else if i <= M { //边的数据输入 start, end, weight
+			array2 := strings.Split(string(a), " ")
+			start, _ := strconv.Atoi(array2[0])
+			end, _ := strconv.Atoi(array2[1])
+			weight, _ := strconv.Atoi(array2[2])
+			//单向的
+			graph.AddEdge(start, end, weight, false)
+		} else {
+			break
+		}
+		i++
+	}
+	return &graph
+
+}
 func buildVilGraph(filename string) Graph {
 
 	graph := Graph{}
@@ -225,13 +266,64 @@ func TestGraph_TopologicalSort(t *testing.T) {
 			fmt.Printf("%s ", vertex.Label)
 		}
 	}); err == nil {
-		expectedIn := []string{"", "0", "3", "0 1", "1 3", "2 3 6", "3 4"}
+		expectedIn := []string{"", "0 2", "3 2", "0 1,1 3", "1 10,3 2", "2 5,3 8,6 1", "3 4,4 6"}
 		for i := 0; i < len(graph.Vertices); i++ {
-			assert.Equal(t, expectedIn[i], strings.TrimRight(inVertexes[i], " "))
+			assert.Equal(t, expectedIn[i], strings.TrimRight(inVertexes[i], " ,"))
 		}
 		assert.Equal(t, "A B D C E G F", strings.TrimRight(sortedString, " "))
 		assert.Equal(t, len(graph.Vertices), len(result))
 	} else {
 		assert.Equal(t, "", err)
+	}
+}
+
+func TestGraph_Earliest(t *testing.T) {
+	fmt.Println("----------TestGraph_Earliest-------------")
+
+	graph := initGraph2(true)
+
+	expectedEarliest := strings.Split("0 2 5 2 12 18 11", " ") //[]int{0, 2, 5, 2, 12, 18, 11}
+	earliestTest(t, graph, expectedEarliest)
+
+	fmt.Println("----howlongtake_case_1----")
+	GOPATH := os.Getenv("GOPATH")
+	f := "howlongtake_case_1.txt"
+	filename := strings.Join([]string{GOPATH, "bin", f}, "/")
+	graph = buildGraph(filename)
+	expectedEarliest = strings.Split("0 6 4 5 7 7 16 14 18", " ")
+	earliestTest(t, graph, expectedEarliest)
+
+	fmt.Println("----howlongtake_case_2----")
+	f = "howlongtake_case_2.txt"
+	filename = strings.Join([]string{GOPATH, "bin", f}, "/")
+	graph = buildGraph(filename)
+	expectedEarliest = strings.Split("0 6 4 5 7 7 16 14 18", " ")
+	err := earliestTest(t, graph, expectedEarliest)
+	assert.Equal(t, true, err != nil)
+	fmt.Println(err)
+
+}
+func earliestTest(t *testing.T, graph *Graph, expectedEarliest []string) error {
+	sortedString := ""
+	if earliest, topSort, err := graph.Earliest(func(vertexIndex int, isSectionEnd bool) {
+		if isSectionEnd {
+			sortedString += ";"
+			fmt.Println()
+		} else {
+			vertex := graph.Vertices[vertexIndex]
+			sortedString += vertex.Label + " "
+			//fmt.Printf("%s ", vertex.Label)
+		}
+	}); err == nil {
+		fmt.Println("-----earliest------")
+		fmt.Println(earliest)
+		for i := 0; i < len(earliest); i++ {
+			assert.Equal(t, expectedEarliest[i], strconv.Itoa(earliest[i]))
+		}
+		assert.Equal(t, len(graph.Vertices), len(earliest))
+		assert.Equal(t, len(graph.Vertices), len(topSort))
+		return nil
+	} else {
+		return errors.New("Impossible")
 	}
 }
