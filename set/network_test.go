@@ -116,7 +116,8 @@ func TestIntSet_CheckCycle(t *testing.T) {
 	network := createNetwork()
 	assert.Equal(t, false, network.CheckCycle(3, 2))
 	assert.Equal(t, false, network.CheckCycle(3, 4))
+	assert.Equal(t, false, network.CheckCycle(3, 1))
 	assert.Equal(t, false, network.FindRoot(3-1) == network.FindRoot(1-1))
-	assert.Equal(t, true, network.CheckCycle(3, 1))
+	assert.Equal(t, true, network.CheckCycle(2, 0))
 	assert.Equal(t, true, network.FindRoot(3-1) == network.FindRoot(1-1))
 }
