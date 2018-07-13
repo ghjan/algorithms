@@ -387,7 +387,9 @@ func (graph *Graph) TopologicalSort(operationFunc func(vertex int, isSectionEnd 
 		result = append(result, vertexIndex)
 		v := graph.Vertices[vertexIndex]
 		count++
-		operationFunc(vertexIndex, false)
+		if operationFunc != nil {
+			operationFunc(vertexIndex, false)
+		}
 		for _, edge := range v.Edges {
 			graph.inDegreeMap[graph.Vertices[edge.ToVertex].Label]--
 			if graph.inDegreeMap[graph.Vertices[edge.ToVertex].Label] == 0 {
@@ -557,17 +559,21 @@ func (graph Graph) Earliest(operationFunc func(earliest, result, topSort []int, 
 	earliest := make([]int, len(graph.Vertices), len(graph.Vertices))
 	var topSort []int
 	sortedString := ""
-	if result, inVertexes, err := graph.TopologicalSort(func(vertexIndex int, isSectionEnd bool) {
-		if isSectionEnd {
-			sortedString += ";"
-			fmt.Println()
-		} else {
-			vertex := graph.Vertices[vertexIndex]
-			sortedString += vertex.Label + " "
-			topSort = append(topSort, vertexIndex)
-			// fmt.Printf("%s ", vertex.Label)
+	var operationFuncForTopo func(vertex int, isSectionEnd bool)
+	if operationFunc != nil {
+		operationFuncForTopo = func(vertexIndex int, isSectionEnd bool) {
+			if isSectionEnd {
+				sortedString += ";"
+				fmt.Println()
+			} else {
+				vertex := graph.Vertices[vertexIndex]
+				sortedString += vertex.Label + " "
+				topSort = append(topSort, vertexIndex)
+				// fmt.Printf("%s ", vertex.Label)
+			}
 		}
-	}); err == nil {
+	}
+	if result, inVertexes, err := graph.TopologicalSort(operationFuncForTopo); err == nil {
 		for i := 0; i < len(result); i++ {
 			vertexIndex := result[i]
 			//fmt.Println(strings.TrimRight(inVertexes[vertexIndex], " ,"))
@@ -585,7 +591,7 @@ func (graph Graph) Earliest(operationFunc func(earliest, result, topSort []int, 
 				}
 			}
 		}
-		if operationFunc!=nil{
+		if operationFunc != nil {
 			operationFunc(earliest, result, topSort, inVertexes, sortedString)
 		}
 		return earliest, topSort, nil
@@ -636,7 +642,7 @@ func (graph Graph) CrucialPath(isDebug bool) (int, []Maneuver, error) {
 		}
 	}); err == nil {
 		latest := graph.Latest(earliest, topSort)
-		if isDebug{
+		if isDebug {
 			fmt.Println("---earliest----")
 			fmt.Println(earliest)
 			fmt.Println("---latest----")
