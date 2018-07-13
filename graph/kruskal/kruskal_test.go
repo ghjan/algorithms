@@ -327,3 +327,24 @@ func earliestTest(t *testing.T, graph *Graph, expectedEarliest []string) error {
 		return errors.New("Impossible")
 	}
 }
+
+func TestGraph_Earliest2(t *testing.T) {
+	fmt.Println("----------TestGraph_Earliest2-------------")
+	GOPATH := os.Getenv("GOPATH")
+	fileList := []string{"howlongtake_case_1.txt", "howlongtake_case_2.txt"}
+	for _, f := range fileList {
+		filename := strings.Join([]string{GOPATH, "bin", f}, "/")
+		SolveHowLong(filename)
+	}
+}
+
+func TestGraph_CrucialPath(t *testing.T) {
+	fmt.Println("----------TestGraph_CrucialPath-------------")
+	GOPATH := os.Getenv("GOPATH")
+	fileList := []string{"crucialpath_case_1.txt",}
+	for _, f := range fileList {
+		filename := strings.Join([]string{GOPATH, "bin", f}, "/")
+		SolveCrucialPath(filename, false)
+	}
+
+}

@@ -10,7 +10,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/ghjan/algorithms/pat/graph/kruskal"
+	"github.com/ghjan/algorithms/graph/kruskal"
 )
 
 /*

@@ -33,6 +33,13 @@ type Edge struct {
 	isUsed     bool
 }
 
+//Maneuver 机动时间（AOE网络中的关键路径问题用得到）
+type Maneuver struct {
+	FromVertex int
+	ToVertex   int
+	time       int
+}
+
 //Graph 图类型
 type Graph struct {
 	Vertices    []*Vertex //顶点数组
@@ -561,12 +568,15 @@ func (graph Graph) Earliest(operationFunc func(vertex int, isSectionEnd bool)) (
 			// fmt.Printf("%s ", vertex.Label)
 		}
 	}); err == nil {
-		//fmt.Println("\n-------result of TopologicalSort--")
-		//fmt.Println(result)
-		//fmt.Println("-------inVertexes of TopologicalSort--")
-		for i := 0; i < len(graph.Vertices); i++ {
-			//fmt.Println(strings.TrimRight(inVertexes[i], " ,"))
-			if preInfoSlice := strings.Split(strings.TrimRight(inVertexes[i], " ,"), ","); preInfoSlice != nil {
+		fmt.Println("\n-------result of TopologicalSort--")
+		fmt.Println("result:", result)
+		fmt.Println("topSort:", topSort)
+		fmt.Println("sortedString:", sortedString)
+		fmt.Println("-------inVertexes of TopologicalSort--")
+		for i := 0; i < len(result); i++ {
+			vertexIndex := result[i]
+			fmt.Println(strings.TrimRight(inVertexes[vertexIndex], " ,"))
+			if preInfoSlice := strings.Split(strings.TrimRight(inVertexes[vertexIndex], " ,"), ","); preInfoSlice != nil {
 				for _, temp := range preInfoSlice {
 					prevInfo := strings.Split(temp, " ")
 					if prevInfo == nil || len(prevInfo) < 2 {
@@ -575,14 +585,66 @@ func (graph Graph) Earliest(operationFunc func(vertex int, isSectionEnd bool)) (
 					prevIndex, _ := strconv.Atoi(prevInfo[0])
 					weight, _ := strconv.Atoi(prevInfo[1])
 					if earliest[prevIndex]+weight > earliest[result[i]] {
-						earliest[result[i]] = earliest[prevIndex] + weight
+						earliest[vertexIndex] = earliest[prevIndex] + weight
 					}
 				}
 			}
-
 		}
 		return earliest, topSort, nil
 	} else {
 		return nil, nil, err
 	}
+}
+
+func (graph Graph) Latest(earliest, topSort []int) ([]int) {
+	latest := make([]int, len(earliest), len(earliest))
+	for i := 0; i < len(latest); i++ {
+		latest[i] = MaxInt //初始化为无穷大
+	}
+	latest[len(earliest)-1] = earliest[len(earliest)-1]
+
+	for i := len(earliest) - 2; i >= 0; i-- { //从最后一个开始
+		vertexIndex := topSort[i]
+		for _, e := range graph.Vertices[vertexIndex].Edges {
+			if latest[e.ToVertex]-e.Weight < latest[i] { //取最小值
+				latest[i] = latest[e.ToVertex] - e.Weight
+			}
+		}
+	}
+
+	return latest
+}
+
+func (graph Graph) ManeuverTime(earliest, latest, topSort []int) ([]Maneuver) {
+	var D []Maneuver
+	for i := 0; i < len(topSort); i++ {
+		vertexIndex := topSort[i]
+		for _, e := range graph.Vertices[vertexIndex].Edges {
+			D = append(D, Maneuver{vertexIndex, e.ToVertex, latest[e.ToVertex] - earliest[vertexIndex] - e.Weight})
+		}
+	}
+	return D
+}
+
+func (graph Graph) CrucialPath() (int, []Maneuver, error) {
+	var crucial []Maneuver
+	if earliest, topSort, err := graph.Earliest(nil); err == nil {
+		fmt.Println("---earliest----")
+		fmt.Println(earliest)
+		latest := graph.Latest(earliest, topSort)
+		fmt.Println("---latest----")
+		fmt.Println(latest)
+		D := graph.ManeuverTime(earliest, latest, topSort)
+		for i := 0; i < len(D); i++ {
+			maneuver := D[i]
+			if maneuver.time == 0 {
+				crucial = append(crucial, maneuver)
+			}
+		}
+		return earliest[len(earliest)-1], crucial, nil
+
+	} else {
+		return 0, nil, errors.New("Impossible")
+	}
+
 }
