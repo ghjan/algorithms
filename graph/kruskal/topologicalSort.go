@@ -10,7 +10,7 @@ import (
 	"strings"
 )
 
-func SolveEarliest(graph *Graph) (int, error) {
+func solveEarliest(graph *Graph) (int, error) {
 	if earliest, _, err := graph.Earliest(nil); err == nil {
 		return earliest[len(earliest)-1], nil
 	} else {
@@ -18,7 +18,7 @@ func SolveEarliest(graph *Graph) (int, error) {
 	}
 }
 
-func BuildGraphForToplogicalSort(filename string, isZeroIndex bool) *Graph {
+func BuildGraphForTopologicalSort(filename string, isZeroIndex bool) *Graph {
 	graph := Graph{}
 	fi, err := os.Open(filename)
 	if err != nil {
@@ -63,18 +63,18 @@ func BuildGraphForToplogicalSort(filename string, isZeroIndex bool) *Graph {
 
 }
 
-func SolveHowLong(filename string) {
-	graph := BuildGraphForToplogicalSort(filename, true)
-	if howLong, err := SolveEarliest(graph); err == nil {
+func SolveHowLong(filename string, isZeroIndex bool) {
+	graph := BuildGraphForTopologicalSort(filename, isZeroIndex)
+	if howLong, err := solveEarliest(graph); err == nil {
 		fmt.Println(howLong)
 	} else {
 		fmt.Println(err)
 	}
 }
 
-func SolveCrucialPath(filename string, isZeroIndex bool) {
-	graph := BuildGraphForToplogicalSort(filename, isZeroIndex)
-	if howLong, crucialPath, err := graph.CrucialPath(); err == nil {
+func SolveCrucialPath(filename string, isZeroIndex, isDebug bool) {
+	graph := BuildGraphForTopologicalSort(filename, isZeroIndex)
+	if howLong, crucialPath, err := graph.CrucialPath(isDebug); err == nil {
 		fmt.Println(howLong)
 		for _, cp := range crucialPath {
 			if !isZeroIndex {

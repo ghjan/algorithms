@@ -553,7 +553,7 @@ func (graph Graph) Kruskal() (int, []*Edge) {
 }
 
 //Earliest 整个工期有多长
-func (graph Graph) Earliest(operationFunc func(vertex int, isSectionEnd bool)) ([]int, []int, error) {
+func (graph Graph) Earliest(operationFunc func(earliest, result, topSort []int, inVertexes []string, sortedString string)) ([]int, []int, error) {
 	earliest := make([]int, len(graph.Vertices), len(graph.Vertices))
 	var topSort []int
 	sortedString := ""
@@ -568,14 +568,9 @@ func (graph Graph) Earliest(operationFunc func(vertex int, isSectionEnd bool)) (
 			// fmt.Printf("%s ", vertex.Label)
 		}
 	}); err == nil {
-		fmt.Println("\n-------result of TopologicalSort--")
-		fmt.Println("result:", result)
-		fmt.Println("topSort:", topSort)
-		fmt.Println("sortedString:", sortedString)
-		fmt.Println("-------inVertexes of TopologicalSort--")
 		for i := 0; i < len(result); i++ {
 			vertexIndex := result[i]
-			fmt.Println(strings.TrimRight(inVertexes[vertexIndex], " ,"))
+			//fmt.Println(strings.TrimRight(inVertexes[vertexIndex], " ,"))
 			if preInfoSlice := strings.Split(strings.TrimRight(inVertexes[vertexIndex], " ,"), ","); preInfoSlice != nil {
 				for _, temp := range preInfoSlice {
 					prevInfo := strings.Split(temp, " ")
@@ -589,6 +584,9 @@ func (graph Graph) Earliest(operationFunc func(vertex int, isSectionEnd bool)) (
 					}
 				}
 			}
+		}
+		if operationFunc!=nil{
+			operationFunc(earliest, result, topSort, inVertexes, sortedString)
 		}
 		return earliest, topSort, nil
 	} else {
@@ -626,14 +624,24 @@ func (graph Graph) ManeuverTime(earliest, latest, topSort []int) ([]Maneuver) {
 	return D
 }
 
-func (graph Graph) CrucialPath() (int, []Maneuver, error) {
+func (graph Graph) CrucialPath(isDebug bool) (int, []Maneuver, error) {
 	var crucial []Maneuver
-	if earliest, topSort, err := graph.Earliest(nil); err == nil {
-		fmt.Println("---earliest----")
-		fmt.Println(earliest)
+	if earliest, topSort, err := graph.Earliest(func(earliest, result, topSort []int, inVertexes []string, sortedString string) {
+		if isDebug {
+			fmt.Println("\n-------result of Earliest--")
+			fmt.Println("result:", result)
+			fmt.Println("topSort:", topSort)
+			fmt.Println("sortedString:", sortedString)
+			fmt.Println("-------inVertexes of TopologicalSort--", inVertexes)
+		}
+	}); err == nil {
 		latest := graph.Latest(earliest, topSort)
-		fmt.Println("---latest----")
-		fmt.Println(latest)
+		if isDebug{
+			fmt.Println("---earliest----")
+			fmt.Println(earliest)
+			fmt.Println("---latest----")
+			fmt.Println(latest)
+		}
 		D := graph.ManeuverTime(earliest, latest, topSort)
 		for i := 0; i < len(D); i++ {
 			maneuver := D[i]

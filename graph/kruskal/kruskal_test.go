@@ -187,7 +187,7 @@ func TestGraph_DepthFirstSearch(t *testing.T) {
 	expectedVertexLabel := "A B D C F E G"
 	assert.Equal(t, expectedVertexLabel, strings.TrimLeft(vertexesLabelString, " "))
 	for _, vertex := range vertexes {
-		fmt.Printf("%s ", graph.Vertices[vertex].Label)
+		fmt.Printf("%s \n", graph.Vertices[vertex].Label)
 	}
 }
 
@@ -201,7 +201,7 @@ func TestGraph_BreadthFirstSearch(t *testing.T) {
 	expectedVertexLabel := "A B D E C F G"
 	assert.Equal(t, expectedVertexLabel, strings.TrimLeft(vertexesLabelString, " "))
 	for _, vertex := range vertexes {
-		fmt.Printf("%s ", graph.Vertices[vertex].Label)
+		fmt.Printf("%s \n", graph.Vertices[vertex].Label)
 	}
 }
 
@@ -282,8 +282,8 @@ func TestGraph_Earliest(t *testing.T) {
 
 	graph := initGraph2(true)
 
-	expectedEarliest := strings.Split("0 2 5 2 12 18 11", " ") //[]int{0, 2, 5, 2, 12, 18, 11}
-	earliestTest(t, graph, expectedEarliest)
+	expectedEarliest := strings.Split("0 2 7 5 12 19 18", " ")
+	earliestTest(t, graph, expectedEarliest, true)
 
 	fmt.Println("----howlongtake_case_1----")
 	GOPATH := os.Getenv("GOPATH")
@@ -291,28 +291,25 @@ func TestGraph_Earliest(t *testing.T) {
 	filename := strings.Join([]string{GOPATH, "bin", f}, "/")
 	graph = buildGraph(filename)
 	expectedEarliest = strings.Split("0 6 4 5 7 7 16 14 18", " ")
-	earliestTest(t, graph, expectedEarliest)
+	earliestTest(t, graph, expectedEarliest, true)
 
 	fmt.Println("----howlongtake_case_2----")
 	f = "howlongtake_case_2.txt"
 	filename = strings.Join([]string{GOPATH, "bin", f}, "/")
 	graph = buildGraph(filename)
-	expectedEarliest = strings.Split("0 6 4 5 7 7 16 14 18", " ")
-	err := earliestTest(t, graph, expectedEarliest)
+	err := earliestTest(t, graph, nil, true)
 	assert.Equal(t, true, err != nil)
 	fmt.Println(err)
 
 }
-func earliestTest(t *testing.T, graph *Graph, expectedEarliest []string) error {
-	sortedString := ""
-	if earliest, topSort, err := graph.Earliest(func(vertexIndex int, isSectionEnd bool) {
-		if isSectionEnd {
-			sortedString += ";"
-			fmt.Println()
-		} else {
-			vertex := graph.Vertices[vertexIndex]
-			sortedString += vertex.Label + " "
-			//fmt.Printf("%s ", vertex.Label)
+func earliestTest(t *testing.T, graph *Graph, expectedEarliest []string, isDebug bool) error {
+	if earliest, topSort, err := graph.Earliest(func(earliest, result, topSort []int, inVertexes []string, sortedString string) {
+		if isDebug {
+			fmt.Println("\n-------result of Earliest--")
+			fmt.Println("result:", result)
+			fmt.Println("topSort:", topSort)
+			fmt.Println("sortedString:", sortedString)
+			fmt.Println("-------inVertexes of TopologicalSort--", inVertexes)
 		}
 	}); err == nil {
 		fmt.Println("-----earliest------")
@@ -328,23 +325,26 @@ func earliestTest(t *testing.T, graph *Graph, expectedEarliest []string) error {
 	}
 }
 
-func TestGraph_Earliest2(t *testing.T) {
+func TestGraph_SolveHowLong(t *testing.T) {
 	fmt.Println("----------TestGraph_Earliest2-------------")
 	GOPATH := os.Getenv("GOPATH")
 	fileList := []string{"howlongtake_case_1.txt", "howlongtake_case_2.txt"}
+	isZeroIndex := true
 	for _, f := range fileList {
 		filename := strings.Join([]string{GOPATH, "bin", f}, "/")
-		SolveHowLong(filename)
+		SolveHowLong(filename, isZeroIndex)
 	}
 }
 
 func TestGraph_CrucialPath(t *testing.T) {
 	fmt.Println("----------TestGraph_CrucialPath-------------")
 	GOPATH := os.Getenv("GOPATH")
-	fileList := []string{"crucialpath_case_1.txt",}
+	fileList := []string{"crucialpath_case_1.txt"}
+	isZeroIndex := false
+	isDebug := false
 	for _, f := range fileList {
 		filename := strings.Join([]string{GOPATH, "bin", f}, "/")
-		SolveCrucialPath(filename, false)
+		SolveCrucialPath(filename, isZeroIndex, isDebug)
 	}
 
 }
