@@ -45,7 +45,7 @@ func (s *ItemSet) Has(item Item) bool {
 
 // Items returns the Item(s) stored
 func (s *ItemSet) Items() []Item {
-	items := []Item{}
+	var items []Item
 	for i := range s.items {
 		items = append(items, i)
 	}

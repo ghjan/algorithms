@@ -21,7 +21,7 @@ const MaxInt = 999999999
 //Vertex 顶点类型
 type Vertex struct {
 	Label     string
-	Edges     []*Edge
+	Edges     EdgeSlice
 	IsVisited bool
 }
 
@@ -31,6 +31,17 @@ type Edge struct {
 	ToVertex   int
 	Weight     int
 	isUsed     bool
+}
+type EdgeSlice []*Edge
+
+func (c EdgeSlice) Len() int {
+	return len(c)
+}
+func (c EdgeSlice) Swap(i, j int) {
+	c[i], c[j] = c[j], c[i]
+}
+func (c EdgeSlice) Less(i, j int) bool {
+	return c[i].ToVertex < c[j].ToVertex || c[i].Weight < c[j].Weight
 }
 
 //Maneuver 机动时间（AOE网络中的关键路径问题用得到）
@@ -495,9 +506,9 @@ func (graph *Graph) InitializeESet() []*Edge {
 }
 
 //InitializeVSet 初始化顶点并查集
-func (graph *Graph) InitializeVSet() set.IntSet {
+func (graph *Graph) InitializeVSet() set.UnionFindSet {
 	/* 初始化并查集 */
-	return set.Initialization(len(graph.Vertices))
+	return set.InitializationUFS(len(graph.Vertices))
 }
 
 //GetEdge 获取最小堆的最小元素

@@ -22,7 +22,7 @@ func test1(filename string) {
 	br := bufio.NewReader(fi)
 	var n int //几个节点（电脑）
 	begin := true
-	var network set.IntSet
+	var network set.UnionFindSet
 	for i := 0; ; i++ {
 		a, _, c := br.ReadLine()
 		if c == io.EOF {
@@ -30,14 +30,14 @@ func test1(filename string) {
 		}
 		if begin {
 			n, _ = strconv.Atoi(string(a))
-			network = set.Initialization(n)
+			network = set.InitializationUFS(n)
 			begin = false
 		} else //读取节点数据
 		{
 			cmds := strings.Split(string(a), " ")
 			switch cmds[0] {
 			case "S":
-				counter := network.CheckNetwork(n)
+				counter, _ := network.CheckNetwork()
 				if counter == 1 {
 					fmt.Print("The network is connected.\n")
 				} else {

@@ -13,16 +13,16 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func createNetwork() IntSet {
-	network := Initialization(5)
+func createNetwork() UnionFindSet {
+	network := InitializationUFS(5)
 	network.InputConnection(3, 2)
 	network.InputConnection(4, 5)
 	network.InputConnection(2, 4)
 	return network
 }
-func TestIntSet_Initialization(t *testing.T) {
-	network := Initialization(5)
-	counter := network.CheckNetwork(5)
+func TestUnionFindSet_Initialization(t *testing.T) {
+	network := InitializationUFS(5)
+	counter, _ := network.CheckNetwork()
 	assert.Equal(t, 5, counter)
 	if counter == 1 {
 		fmt.Print("The network is connected.\n")
@@ -32,7 +32,7 @@ func TestIntSet_Initialization(t *testing.T) {
 
 }
 
-func TestIntSet_FindRoot(t *testing.T) {
+func TestUnionFindSet_FindRoot(t *testing.T) {
 	network := createNetwork()
 	assert.Equal(t, 2, network.FindRoot(3))
 	assert.Equal(t, 2, network.FindRoot(4))
@@ -41,16 +41,17 @@ func TestIntSet_FindRoot(t *testing.T) {
 	assert.Equal(t, 0, network.FindRoot(0))
 }
 
-func TestIntSet_CheckConnection(t *testing.T) {
+func TestUnionFindSet_CheckConnection(t *testing.T) {
 	network := createNetwork()
 	assert.Equal(t, true, network.CheckConnection(2, 3))
 	assert.Equal(t, true, network.CheckConnection(4, 3))
 	assert.Equal(t, false, network.CheckConnection(1, 3))
 }
 
-func TestIntSet_CheckNetwork(t *testing.T) {
+func TestUnionFindSet_CheckNetwork(t *testing.T) {
 	network := createNetwork()
-	assert.Equal(t, 2, network.CheckNetwork(5))
+	count, _ := network.CheckNetwork()
+	assert.Equal(t, 2, count)
 }
 
 func TestNetworkComponent(t *testing.T) {
@@ -67,7 +68,7 @@ func TestNetworkComponent(t *testing.T) {
 	br := bufio.NewReader(fi)
 	var n int //几个节点（电脑）
 	begin := true
-	var network IntSet
+	var network UnionFindSet
 	for i := 0; ; i++ {
 		a, _, c := br.ReadLine()
 		if c == io.EOF {
@@ -75,14 +76,14 @@ func TestNetworkComponent(t *testing.T) {
 		}
 		if begin {
 			n, _ = strconv.Atoi(string(a))
-			network = Initialization(n)
+			network = InitializationUFS(n)
 			begin = false
 		} else //读取节点数据
 		{
 			cmds := strings.Split(string(a), " ")
 			switch cmds[0] {
 			case "S":
-				counter := network.CheckNetwork(n)
+				counter, _ := network.CheckNetwork()
 				if counter == 1 {
 					fmt.Print("The network is connected.\n")
 				} else {
@@ -112,7 +113,7 @@ func TestNetworkComponent(t *testing.T) {
 	}
 }
 
-func TestIntSet_CheckCycle(t *testing.T) {
+func TestUnionFindSet_CheckCycle(t *testing.T) {
 	network := createNetwork()
 	assert.Equal(t, false, network.CheckCycle(3, 2))
 	assert.Equal(t, false, network.CheckCycle(3, 4))

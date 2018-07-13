@@ -161,6 +161,7 @@ func buildVilGraph(filename string) Graph {
 
 	return graph
 }
+
 func TestGraph_KruskalMinimumSpanningTree(t *testing.T) {
 	fmt.Println("----------TestGraph_KruskalMinimumSpanningTree-------------")
 	graph := initGraph(false)
@@ -302,28 +303,6 @@ func TestGraph_Earliest(t *testing.T) {
 	fmt.Println(err)
 
 }
-func earliestTest(t *testing.T, graph *Graph, expectedEarliest []string, isDebug bool) error {
-	if earliest, topSort, err := graph.Earliest(func(earliest, result, topSort []int, inVertexes []string, sortedString string) {
-		if isDebug {
-			fmt.Println("\n-------result of Earliest--")
-			fmt.Println("result:", result)
-			fmt.Println("topSort:", topSort)
-			fmt.Println("sortedString:", sortedString)
-			fmt.Println("-------inVertexes of TopologicalSort--", inVertexes)
-		}
-	}); err == nil {
-		fmt.Println("-----earliest------")
-		fmt.Println(earliest)
-		for i := 0; i < len(earliest); i++ {
-			assert.Equal(t, expectedEarliest[i], strconv.Itoa(earliest[i]))
-		}
-		assert.Equal(t, len(graph.Vertices), len(earliest))
-		assert.Equal(t, len(graph.Vertices), len(topSort))
-		return nil
-	} else {
-		return errors.New("Impossible")
-	}
-}
 
 func TestGraph_SolveHowLong(t *testing.T) {
 	fmt.Println("----------TestGraph_Earliest2-------------")
@@ -347,4 +326,38 @@ func TestGraph_CrucialPath(t *testing.T) {
 		SolveCrucialPath(filename, isZeroIndex, isDebug)
 	}
 
+}
+
+func TestGraph_SolveConnectedComponents(t *testing.T) {
+	fmt.Println("----------TestGraph_SolveConnectedComponents-------------")
+	GOPATH := os.Getenv("GOPATH")
+	fileList := []string{"connectedcomponents_case_1.txt"}
+	for _, f := range fileList {
+		filename := strings.Join([]string{GOPATH, "bin", f}, "/")
+		isZeroBased := true
+		SolveConnectedComponents(filename, isZeroBased)
+	}
+}
+
+func earliestTest(t *testing.T, graph *Graph, expectedEarliest []string, isDebug bool) error {
+	if earliest, topSort, err := graph.Earliest(func(earliest, result, topSort []int, inVertexes []string, sortedString string) {
+		if isDebug {
+			fmt.Println("\n-------result of Earliest--")
+			fmt.Println("result:", result)
+			fmt.Println("topSort:", topSort)
+			fmt.Println("sortedString:", sortedString)
+			fmt.Println("-------inVertexes of TopologicalSort--", inVertexes)
+		}
+	}); err == nil {
+		fmt.Println("-----earliest------")
+		fmt.Println(earliest)
+		for i := 0; i < len(earliest); i++ {
+			assert.Equal(t, expectedEarliest[i], strconv.Itoa(earliest[i]))
+		}
+		assert.Equal(t, len(graph.Vertices), len(earliest))
+		assert.Equal(t, len(graph.Vertices), len(topSort))
+		return nil
+	} else {
+		return errors.New("Impossible")
+	}
 }

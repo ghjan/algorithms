@@ -1,10 +1,10 @@
 package set
 
-//IntSet 并查集
-type IntSet []int //保存parent的index
+//UnionFindSet 并查集
+type UnionFindSet []int //保存parent的index
 
 //FindRoot 寻找某个节点的根节点（优化：路径压缩）
-func (S IntSet) FindRoot(X int) int {
+func (S UnionFindSet) FindRoot(X int) int {
 	//默认集合元素全部初始化为-1
 	if S[X] < 0 { // 找到集合的根
 		return X
@@ -15,7 +15,7 @@ func (S IntSet) FindRoot(X int) int {
 }
 
 //Union 集合合并 保证小集合并入大集合 按秩归并(比规模)
-func (S IntSet) Union(Root1, Root2 int) {
+func (S UnionFindSet) Union(Root1, Root2 int) {
 	//假设root1和root2分别是两个不同集合的根节点
 	if S[Root2] < S[Root1] {
 		S[Root2] += S[Root1]
@@ -26,8 +26,16 @@ func (S IntSet) Union(Root1, Root2 int) {
 	}
 }
 
-//Initialization 初始化
-func Initialization(n int) IntSet {
+func (S UnionFindSet) GetSet() ItemSet {
+	var is ItemSet
+	for i := 0; i < len(S); i++ {
+		is.Add(i)
+	}
+	return is
+}
+
+//InitializationUFS 初始化UnionFindSet
+func InitializationUFS(n int) UnionFindSet {
 	S := make([]int, n, n)
 	for i := 0; i < n; i++ {
 		S[i] = -1
@@ -38,7 +46,7 @@ func Initialization(n int) IntSet {
 //InputConnection 两个节点相连
 //返回： 	true 表示uv原先没有连接，合并两个联通集
 //			false 表示原先已经在同一个联通集
-func (S IntSet) InputConnection(u, v int) bool {
+func (S UnionFindSet) InputConnection(u, v int) bool {
 	//检查连接u,v的边是否在现有的子集中构成回路
 	Root1 := S.FindRoot(u - 1)
 	Root2 := S.FindRoot(v - 1)
@@ -54,25 +62,27 @@ func (S IntSet) InputConnection(u, v int) bool {
 //说明：和InputConnection函数重复了
 //返回： 	true 表示uv原先没有连接，合并两个联通集
 //			false 表示原先已经在同一个联通集
-func (S IntSet) CheckCycle(u, v int) bool {
+func (S UnionFindSet) CheckCycle(u, v int) bool {
 	return S.InputConnection(u+1, v+1)
 }
 
 //CheckConnection 检查两个节点是否相连
-func (S IntSet) CheckConnection(u, v int) bool {
+func (S UnionFindSet) CheckConnection(u, v int) bool {
 	Root1 := S.FindRoot(u - 1)
 	Root2 := S.FindRoot(v - 1)
 	return Root1 == Root2
 }
 
 //CheckNetwork 检查网络有几个根节点（也就是有几个独立的component）
-func (S IntSet) CheckNetwork(n int) int {
+func (S UnionFindSet) CheckNetwork() (int, []int) {
 	counter := 0
-	for i := 0; i < n; i++ {
+	var roots []int
+	for i := 0; i < len(S); i++ {
 		if S[i] < 0 {
 			counter++
+			roots = append(roots, i)
 		}
 	}
 
-	return counter
+	return counter, roots
 }
