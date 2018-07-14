@@ -182,8 +182,9 @@ func TestGraph_DepthFirstSearch(t *testing.T) {
 	fmt.Println("----------TestGraph_DepthFirstSearch-------------")
 	graph := initGraph(true)
 	vertexesLabelString := ""
-	vertexes := graph.DepthFirstSearch(0, func(vertexIndex int) {
+	vertexes := graph.DepthFirstSearch(0, func(vertexIndex int)bool {
 		vertexesLabelString += " " + graph.Vertices[vertexIndex].Label
+		return false
 	})
 	expectedVertexLabel := "A B D C F E G"
 	assert.Equal(t, expectedVertexLabel, strings.TrimLeft(vertexesLabelString, " "))

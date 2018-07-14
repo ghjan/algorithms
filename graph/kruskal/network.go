@@ -74,8 +74,9 @@ func SolveConnectedComponents(filename string, isZeroBased bool) {
 	}
 	for _, root := range roots {
 		subNetwork := "{ "
-		graph.DepthFirstSearch(root, func(vertex int) {
+		graph.DepthFirstSearch(root, func(vertex int) bool{
 			subNetwork += strconv.Itoa(vertex) + " "
+			return false
 		})
 		subNetwork += "}"
 		fmt.Println(subNetwork)

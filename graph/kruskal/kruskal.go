@@ -60,6 +60,9 @@ type Graph struct {
 
 //AddEdge 增加边
 func (graph *Graph) AddEdge(indexFrom, indexTo, weight int, isUsed bool) error {
+	if indexFrom> len(graph.Vertices)-1 || indexFrom<0{
+		fmt.Println(indexFrom)
+	}
 	fromVertex := graph.Vertices[indexFrom]
 	fromVertex.Edges = append(fromVertex.Edges, &Edge{indexFrom, indexTo, weight, isUsed})
 	graph.EdgeNum++
@@ -96,13 +99,15 @@ func (graph *Graph) BreadthFirstSearch(startVertex int, operationFunc func(verte
 }
 
 //DepthFirstSearch 深度优先遍历
-func (graph *Graph) DepthFirstSearch(startVertex int, operationFunc func(vertex int)) []int {
+func (graph *Graph) DepthFirstSearch(startVertex int, operationFunc func(vertex int) bool) []int {
 	if graph.Vertices == nil || len(graph.Vertices) == 0 {
 		panic("Graph has no vertex.")
 	}
-	var vertexs []int
-	operationFunc(startVertex)
-	vertexs = append(vertexs, startVertex)
+	var vertexes []int
+	if operationFunc!=nil{
+		operationFunc(startVertex)
+	}
+	vertexes = append(vertexes, startVertex)
 	graph.Vertices[startVertex].IsVisited = true
 	stk := &stack.ItemStack{}
 	stk.Push(startVertex)
@@ -111,8 +116,13 @@ func (graph *Graph) DepthFirstSearch(startVertex int, operationFunc func(vertex 
 		vertexObj := graph.Vertices[vertexIndex]
 		edge := graph.findEdgeWithUnvistedToVertex(vertexObj)
 		if edge != nil && !graph.Vertices[edge.ToVertex].IsVisited {
-			operationFunc(edge.ToVertex)
-			vertexs = append(vertexs, edge.ToVertex)
+			if operationFunc!=nil{
+				stop := operationFunc(edge.ToVertex)
+				if stop{
+					break
+				}
+			}
+			vertexes = append(vertexes, edge.ToVertex)
 			graph.Vertices[edge.ToVertex].IsVisited = true
 			stk.Push(edge.ToVertex)
 		} else {
@@ -120,7 +130,7 @@ func (graph *Graph) DepthFirstSearch(startVertex int, operationFunc func(vertex 
 		}
 	}
 	graph.clearVerticesVisitHistory()
-	return vertexs
+	return vertexes
 }
 
 //PrimMinimumSpanningTree Prim最小生成树算法
