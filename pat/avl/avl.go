@@ -9,8 +9,12 @@ import (
 	"strings"
 	"github.com/ghjan/algorithms/binarytree"
 )
-
-func test1(filename string) {
+/*
+AVL:自平衡二叉查找树
+Root of AVL Tree  2013年浙江大学计算机学院免试研究生上机考试真题，是关于AVL树的基本训练，一定要做；
+http://pintia.cn/problem-sets/951072707007700992/problems/977489194356715520
+ */
+func solveAVL(filename string) {
 
 	fi, err := os.Open(filename)
 	if err != nil {
@@ -51,7 +55,7 @@ func main() {
 	GOPATH := os.Getenv("GOPATH")
 	for _, f := range fileNames {
 		filename := strings.Join([]string{GOPATH, "bin", f}, "/")
-		test1(filename)
+		solveAVL(filename)
 		fmt.Println()
 	}
 }

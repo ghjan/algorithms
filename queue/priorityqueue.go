@@ -4,6 +4,7 @@ import "container/heap"
 
 /*
 优先队列（Priority Queue）：特殊的“队列”，取出元素的顺序是依照元素的优先权（关键字）大小，而不是元素进入队列的先后顺序
+其实优先级队列就是将堆进行一次封装，都调用了堆的函数。
 这里利用了最小堆
 https://blog.csdn.net/u012233832/article/details/79634048
 */
@@ -55,7 +56,7 @@ func (pg *PriorityQueue) Push(x interface{}) {
 		copy(npg, *pg)
 		*pg = npg
 	}
-	*pg = (*pg)[0 : n+1]
+	*pg = (*pg)[0: n+1]
 	item.Index = n
 	(*pg)[n] = item
 }
@@ -73,7 +74,7 @@ func (pg *PriorityQueue) Pop() interface{} {
 	if item != nil {
 		item.Index = -1
 	}
-	*pg = (*pg)[0 : n-1]
+	*pg = (*pg)[0: n-1]
 	return item
 }
 

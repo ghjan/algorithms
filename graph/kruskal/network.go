@@ -66,6 +66,7 @@ func SolveConnectedComponents(filename string, isZeroBased bool) {
 	graph, ufs := buildNetworkGraph(filename, isZeroBased)
 	_, roots := ufs.CheckNetwork()
 
+	//每个顶点的边 排序
 	for _, vertex := range graph.Vertices {
 		if !sort.IsSorted(vertex.Edges) {
 			sort.Sort(vertex.Edges)

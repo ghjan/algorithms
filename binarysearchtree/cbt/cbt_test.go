@@ -1,4 +1,4 @@
-package binarysearchtree
+package cbt
 
 import (
 	"fmt"
@@ -24,7 +24,7 @@ func TestCompleteBST(t *testing.T) {
 	sort.Ints(A)
 	N := len(A)
 	T := make([]int, N)
-	Solve(A, T, 0, N-1, 0)
+	SolveCBT(A, T, 0, N-1, 0)
 	result := ""
 	for i := 0; i < N; i++ {
 		result += fmt.Sprintf("%d ", T[i])

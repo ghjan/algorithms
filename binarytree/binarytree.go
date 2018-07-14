@@ -6,6 +6,10 @@ import (
 	"github.com/kataras/iris/core/errors"
 )
 
+/*
+二叉树和二叉树节点
+*/
+
 //Node 二叉树节点
 type Node struct {
 	Data  rune

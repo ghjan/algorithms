@@ -1,8 +1,14 @@
-package binarysearchtree
+package cbt
 
 import "math"
+/*
+CBT :Complete Binary Search Tree
+ */
 
-func Solve(A, T []int, ALeft, ARight, TRoot int) { /* 初始调用为Solve(A, T, 0, N-1, 0) */
+//SolveCBT 产生完全二叉搜索树
+//初始化调用binarysearchtree.SolveCBT(A, T, 0, N-1, 0)
+//产生的结果保存在T分片里面
+func SolveCBT(A, T []int, ALeft, ARight, TRoot int) { /* 初始调用为Solve(A, T, 0, N-1, 0) */
 	n := ARight - ALeft + 1
 	if n == 0 {
 		return
@@ -11,8 +17,8 @@ func Solve(A, T []int, ALeft, ARight, TRoot int) { /* 初始调用为Solve(A, T,
 	T[TRoot] = A[ALeft+L]
 	LeftTRoot := TRoot*2 + 1
 	RightTRoot := LeftTRoot + 1
-	Solve(A, T, ALeft, ALeft+L-1, LeftTRoot)
-	Solve(A, T, ALeft+L+1, ARight, RightTRoot)
+	SolveCBT(A, T, ALeft, ALeft+L-1, LeftTRoot)
+	SolveCBT(A, T, ALeft+L+1, ARight, RightTRoot)
 }
 
 func GetLeftLength(N int) int {

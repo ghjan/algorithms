@@ -7,6 +7,9 @@ import (
 	"github.com/kataras/iris/core/errors"
 )
 
+/*
+AVL:自平衡二叉查找树
+ */
 //AvlTreeNode avl树节点
 type AvlTreeNode struct {
 	Key    int
