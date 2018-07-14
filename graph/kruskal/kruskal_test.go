@@ -15,7 +15,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func initGraph(directed bool) *Graph { //有环路
+func initGraph(directed bool) *Graph { //有环路  等价于 graph_test.go里面的 createTestMGraph
 	vertexLablels := []string{"A", "B", "C", "D", "E", "F", "G"}
 	graph := &Graph{}
 	for _, vertexLabel := range vertexLablels {
@@ -182,7 +182,7 @@ func TestGraph_DepthFirstSearch(t *testing.T) {
 	fmt.Println("----------TestGraph_DepthFirstSearch-------------")
 	graph := initGraph(true)
 	vertexesLabelString := ""
-	vertexes := graph.DepthFirstSearch(0, func(vertexIndex int)bool {
+	vertexes := graph.DepthFirstSearch(0, func(vertexIndex int) bool {
 		vertexesLabelString += " " + graph.Vertices[vertexIndex].Label
 		return false
 	})
@@ -222,7 +222,7 @@ func TestGraph_Kruskal(t *testing.T) {
 
 }
 
-func testVilvilPath() {
+func solveVilvilPath() {
 	GOPATH := os.Getenv("GOPATH")
 	f := "vilvilpath_case_1.txt"
 	filename := strings.Join([]string{GOPATH, "bin", f}, "/")
@@ -242,7 +242,7 @@ func testVilvilPath() {
 }
 
 func TestVilPath(t *testing.T) {
-	testVilvilPath()
+	solveVilvilPath()
 }
 
 func TestGraph_TopologicalSort(t *testing.T) {
@@ -361,4 +361,96 @@ func earliestTest(t *testing.T, graph *Graph, expectedEarliest []string, isDebug
 	} else {
 		return errors.New("Impossible")
 	}
+}
+
+func TestGraph_DijkstraShortestPath(t *testing.T) {
+	fmt.Println("----------TestGraph_DijkstraShortestPath-------------")
+	graph := initGraph2(true)
+	start := 0
+	end := 2
+	prevVertexMap := graph.DijkstraShortestPath(start, end)
+	pathString := ""
+
+	for label, vertexIndex := range prevVertexMap {
+		vertex := graph.Vertices[vertexIndex]
+		pathString += fmt.Sprintf("%s->%s(%d),", vertex.Label, label, graph.getWeightByLabelAndPrevVertex(label, vertexIndex))
+	}
+	pathString = strings.TrimRight(pathString, ",")
+	assert.Equal(t, "D->C(2),A->D(1)", pathString)
+}
+
+func TestGraph_DijkstraShortestPath2(t *testing.T) {
+	fmt.Println("----------TestGraph_DijkstraShortestPath2-------------")
+	GOPATH := os.Getenv("GOPATH")
+	fileList := []string{"007hard_case_1.txt",} //"007hard_case_2.txt"
+	radius := float64(15.0 / 2.0)
+	for _, f := range fileList {
+		filename := strings.Join([]string{GOPATH, "bin", f}, "/")
+		graph, cords := BuildGraphForBond(filename, 100, 100, radius)
+		start := 0
+		end := 16
+		shortestPathTest(graph, cords, start, end, 3, "0->12(1),12->2(1),2->16(1)", "0 11(1),10 21(1),10 35(1)", t)
+	}
+}
+
+func shortestPathTest(graph *Graph, cords []Cordinate2d, start, end, expectedWeight int, expectedString, expectedString2 string, t *testing.T) ([]int, string, string, int) {
+	pathSlice := graph.DijkstraShortestPath2(start, end)
+	pathString, pathString2, totalWeight := GetPathString(pathSlice, cords, graph)
+	assert.Equal(t, expectedWeight, totalWeight)
+	assert.Equal(t, expectedString, pathString)
+	assert.Equal(t, expectedString2, pathString2)
+	fmt.Println(totalWeight)
+	fmt.Println(pathString)
+	fmt.Println(pathString2)
+	return pathSlice, pathString, pathString2, totalWeight
+}
+
+func TestGraph_DijkstraShortestPath3(t *testing.T) {
+	fmt.Println("----------TestGraph_DijkstraShortestPath3-------------")
+	GOPATH := os.Getenv("GOPATH")
+	fileList := []string{"007hard_case_1.txt",} //"007hard_case_2.txt"
+	radius := float64(15.0 / 2.0)
+	expectedWeight := []int{3, 0}
+	expectedString := []string{"0->12(1),12->2(1),2->16(1)", ""}
+	expectedString2 := []string{"0 11(1),10 21(1),10 35(1)", ""}
+	for indexFile, f := range fileList {
+		filename := strings.Join([]string{GOPATH, "bin", f}, "/")
+		graph, cords := BuildGraphForBond(filename, 100, 100, radius)
+		shortestTotalWeight, shortestPathSlice := SolveEscapeShortest(graph, cords)
+		if shortestPathSlice != nil {
+			fmt.Println(shortestTotalWeight)
+			pathString, pathString2, totalWeight := GetPathString(shortestPathSlice, cords, graph)
+			assert.Equal(t, expectedWeight[indexFile], totalWeight)
+			assert.Equal(t, expectedString[indexFile], pathString)
+			assert.Equal(t, expectedString2[indexFile], pathString2)
+
+			fmt.Println(totalWeight)
+			fmt.Println(pathString)
+			fmt.Println(pathString2)
+		} else {
+			fmt.Println(0)
+		}
+	}
+}
+
+func GetPathString(pathSlice []int, cords []Cordinate2d, graph *Graph) (string, string, int) {
+	pathString := ""
+	pathString2 := ""
+	totalWeight := 0
+	for u := len(pathSlice) - 1; u >= 1; u-- {
+		v := u - 1
+		if v >= 0 {
+			fromIndex := pathSlice[u]
+			toIndex := pathSlice[v]
+			weight := graph.GetWeightByIndexAndPrevIndex(toIndex, fromIndex)
+			totalWeight += weight
+			pathString += fmt.Sprintf("%s->%s(%d),", graph.Vertices[fromIndex].Label, graph.Vertices[toIndex].Label, weight)
+			pathString2 += fmt.Sprintf("%d %d(%d),", cords[toIndex].x, cords[toIndex].y, weight)
+		} else {
+			break
+		}
+	}
+	pathString = strings.TrimRight(pathString, ",")
+	pathString2 = strings.TrimRight(pathString2, ",")
+	return pathString, pathString2, totalWeight
 }

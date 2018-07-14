@@ -60,7 +60,7 @@ type Graph struct {
 
 //AddEdge 增加边
 func (graph *Graph) AddEdge(indexFrom, indexTo, weight int, isUsed bool) error {
-	if indexFrom> len(graph.Vertices)-1 || indexFrom<0{
+	if indexFrom > len(graph.Vertices)-1 || indexFrom < 0 {
 		fmt.Println(indexFrom)
 	}
 	fromVertex := graph.Vertices[indexFrom]
@@ -104,7 +104,7 @@ func (graph *Graph) DepthFirstSearch(startVertex int, operationFunc func(vertex 
 		panic("Graph has no vertex.")
 	}
 	var vertexes []int
-	if operationFunc!=nil{
+	if operationFunc != nil {
 		operationFunc(startVertex)
 	}
 	vertexes = append(vertexes, startVertex)
@@ -116,9 +116,9 @@ func (graph *Graph) DepthFirstSearch(startVertex int, operationFunc func(vertex 
 		vertexObj := graph.Vertices[vertexIndex]
 		edge := graph.findEdgeWithUnvistedToVertex(vertexObj)
 		if edge != nil && !graph.Vertices[edge.ToVertex].IsVisited {
-			if operationFunc!=nil{
+			if operationFunc != nil {
 				stop := operationFunc(edge.ToVertex)
-				if stop{
+				if stop {
 					break
 				}
 			}
@@ -270,17 +270,19 @@ func removeEdgeInEdges(edges []*Edge, e *Edge) []*Edge {
 }
 
 //DijkstraShortestPath Dijkstra最短路径算法
-func (graph *Graph) DijkstraShortestPath(startVertex *Vertex, endVertex *Vertex) {
+func (graph *Graph) DijkstraShortestPath(startVertexIndex int, endVertexIndex int) (map[string]int) {
 	distanceMap := make(map[string]int)
-	prevVertexMap := make(map[string]*Vertex)
+	prevVertexMap := make(map[string]int)
 	for _, v := range graph.Vertices {
 		distanceMap[v.Label] = MaxInt
-		prevVertexMap[v.Label] = nil
+		prevVertexMap[v.Label] = -1
 	}
+	startVertex := graph.Vertices[startVertexIndex]
 	distanceMap[startVertex.Label] = 0
 	for len(graph.getVisitedVertices()) < len(graph.Vertices) {
-		nearestVertex := graph.getNearestVertex(startVertex, distanceMap)
-		if nearestVertex == endVertex { //Reached EndVertex.
+		nearestVertexIndex := graph.getNearestVertex(startVertexIndex, distanceMap)
+		nearestVertex := graph.Vertices[nearestVertexIndex]
+		if nearestVertexIndex == endVertexIndex { //Reached EndVertex.
 			break
 		}
 		if distanceMap[nearestVertex.Label] == MaxInt { //There's no path between two vertices.
@@ -291,31 +293,79 @@ func (graph *Graph) DijkstraShortestPath(startVertex *Vertex, endVertex *Vertex)
 			distance := distanceMap[nearestVertex.Label] + edge.Weight
 			if distance < distanceMap[toVertex.Label] {
 				distanceMap[toVertex.Label] = distance
-				prevVertexMap[toVertex.Label] = nearestVertex
+				prevVertexMap[toVertex.Label] = nearestVertexIndex
 			}
 		}
 		nearestVertex.IsVisited = true
 	}
 	graph.clearVerticesVisitHistory()
-	for label, vertex := range prevVertexMap {
-		if vertex == nil { // Filter StartVertex.
-			delete(prevVertexMap, label)
+	var labelsShouldDelete []string
+	for label, vertexIndex := range prevVertexMap {
+		if vertexIndex == -1 { // Filter StartVertex.
+			labelsShouldDelete = append(labelsShouldDelete, label)
 		} else { // Filter the vertices that can't reach StartVertex and EndVertex.
-			if !canGoToStart(vertex, startVertex, prevVertexMap) {
-				delete(prevVertexMap, label)
+			if !graph.canGoToStart(vertexIndex, startVertexIndex, prevVertexMap) {
+				labelsShouldDelete = append(labelsShouldDelete, label)
 			}
-			if !canGoToEnd(graph.getVertexByLabel(label), endVertex, prevVertexMap) {
-				delete(prevVertexMap, label)
+			if !graph.canGoToEnd(graph.getVertexByLabel(label), endVertexIndex, prevVertexMap) {
+				labelsShouldDelete = append(labelsShouldDelete, label)
 			}
 		}
 	}
-	for label, vertex := range prevVertexMap {
-		fmt.Printf("%s->%s(%d)\n", vertex.Label, label, graph.getWeightByLabelAndPrevVertex(label, vertex))
+	for _, label := range labelsShouldDelete {
+		delete(prevVertexMap, label)
 	}
+
+	return prevVertexMap
 }
 
-func (graph *Graph) getNearestVertex(startVertex *Vertex, distanceMap map[string]int) *Vertex {
-	distance := -1
+//DijkstraShortestPath2 Dijkstra最短路径算法
+func (graph *Graph) DijkstraShortestPath2(startVertexIndex int, endVertexIndex int) ([]int) {
+	N := len(graph.Vertices)
+	distanceSlice := make([]int, N, N)
+	prevVertexSlice := make([]int, N, N)
+	var pathSlice []int
+	for index := 0; index < N; index++ {
+		distanceSlice[index] = MaxInt
+		prevVertexSlice[index] = -1
+	}
+	distanceSlice[startVertexIndex] = 0
+
+	nearestVertex := graph.Vertices[startVertexIndex]
+	for _, edge := range nearestVertex.Edges { // Update distance slice.
+		distance := distanceSlice[startVertexIndex] + edge.Weight
+		if distance < distanceSlice[edge.ToVertex] {
+			distanceSlice[edge.ToVertex] = distance
+			prevVertexSlice[edge.ToVertex] = startVertexIndex
+		}
+	}
+	nearestVertex.IsVisited = true
+	for len(graph.getVisitedVertices()) < len(graph.Vertices) {
+		nearestVertexIndex := graph.getNearestVertex2(startVertexIndex, distanceSlice)
+		if nearestVertexIndex == endVertexIndex { //Reached EndVertex.
+			break
+		}
+		if distanceSlice[nearestVertexIndex] == MaxInt || startVertexIndex == nearestVertexIndex { //There's no path between two vertices.
+			break
+		}
+		nearestVertex := graph.Vertices[nearestVertexIndex]
+		for _, edge := range nearestVertex.Edges { // Update distance slice.
+			distance := distanceSlice[nearestVertexIndex] + edge.Weight
+			if distance < distanceSlice[edge.ToVertex] {
+				distanceSlice[edge.ToVertex] = distance
+				prevVertexSlice[edge.ToVertex] = nearestVertexIndex
+			}
+		}
+		nearestVertex.IsVisited = true
+	}
+	graph.clearVerticesVisitHistory()
+	for now := endVertexIndex; now >= 0; now = prevVertexSlice[now] {
+		pathSlice = append(pathSlice, now)
+	}
+	return pathSlice
+}
+func (graph *Graph) getNearestVertex(startVertex int, distanceMap map[string]int) int {
+	distance := MaxInt
 	index := -1
 	for i, v := range graph.Vertices {
 		if !v.IsVisited {
@@ -328,53 +378,115 @@ func (graph *Graph) getNearestVertex(startVertex *Vertex, distanceMap map[string
 	if index == -1 { // First scanning, return StartVertex.
 		return startVertex
 	} else {
-		return graph.Vertices[index]
+		return index
 	}
 }
 
-func canGoToStart(v *Vertex, startV *Vertex, prevVertexMap map[string]*Vertex) bool {
-	if v == startV {
+func (graph *Graph) getNearestVertex2(startVertex int, distanceSlice []int) int {
+	distance := MaxInt
+	index := -1
+	for i, v := range graph.Vertices {
+		if startVertex!=i && !v.IsVisited {
+			if distance == -1 || distance > distanceSlice[i] {
+				distance = distanceSlice[i]
+				index = i
+			}
+		}
+	}
+	if index == -1 { // First scanning, return StartVertex.
+		return startVertex
+	} else {
+		return index
+	}
+}
+func (graph *Graph) canGoToStart(vIndex int, startVIndex int, prevVertexMap map[string]int) bool {
+	if vIndex == startVIndex {
 		return true
 	}
-	prevV := prevVertexMap[v.Label]
-	for prevV != nil {
-		if prevV == startV {
+	v := graph.Vertices[vIndex]
+	prevVIndex := prevVertexMap[v.Label]
+	for prevVIndex != -1 {
+		if prevVIndex == startVIndex {
 			return true
 		} else {
-			prevV = prevVertexMap[prevV.Label]
+			prevV := graph.Vertices[prevVIndex]
+			prevVIndex = prevVertexMap[prevV.Label]
 		}
 	}
 	return false
 }
 
-func canGoToEnd(v *Vertex, endV *Vertex, prevVertexMap map[string]*Vertex) bool {
-	if v == endV {
+func (graph *Graph) canGoToStart2(vIndex int, startVIndex int, prevVertexSlice []int) bool {
+	if vIndex == startVIndex {
 		return true
 	}
-	prevV := prevVertexMap[endV.Label]
-	for prevV != nil {
-		if prevV == v {
+	prevVIndex := prevVertexSlice[vIndex]
+	for prevVIndex != -1 {
+		if prevVIndex == startVIndex {
 			return true
 		} else {
-			prevV = prevVertexMap[prevV.Label]
+			prevVIndex = prevVertexSlice[prevVIndex]
+		}
+	}
+	return false
+}
+
+func (graph *Graph) canGoToEnd(vIndex int, endVIndex int, prevVertexMap map[string]int) bool {
+	if vIndex == endVIndex {
+		return true
+	}
+	endV := graph.Vertices[endVIndex]
+	prevVIndex := prevVertexMap[endV.Label]
+	for prevVIndex != -1 {
+		if prevVIndex == vIndex {
+			return true
+		} else {
+			prevV := graph.Vertices[prevVIndex]
+			prevVIndex = prevVertexMap[prevV.Label]
+		}
+	}
+	return false
+}
+
+func (graph *Graph) canGoToEnd2(vIndex int, endVIndex int, prevVertexSlice []int) bool {
+	if vIndex == endVIndex {
+		return true
+	}
+	prevVIndex := prevVertexSlice[endVIndex]
+	for prevVIndex != -1 {
+		if prevVIndex == vIndex {
+			return true
+		} else {
+			prevVIndex = prevVertexSlice[prevVIndex]
 		}
 	}
 	return false
 }
 
 //getVertexByLabel 通过label找到相应的顶点
-func (graph *Graph) getVertexByLabel(label string) *Vertex {
-	for _, v := range graph.Vertices {
+func (graph *Graph) getVertexByLabel(label string) int {
+	for index, v := range graph.Vertices {
 		if v.Label == label {
-			return v
+			return index
 		}
 	}
-	return nil
+	return -1
 }
 
-func (graph *Graph) getWeightByLabelAndPrevVertex(label string, prevVertex *Vertex) int {
+func (graph *Graph) getWeightByLabelAndPrevVertex(label string, prevIndex int) int {
+	prevVertex := graph.Vertices[prevIndex]
 	for _, edge := range prevVertex.Edges {
 		if graph.Vertices[edge.ToVertex].Label == label {
+			return edge.Weight
+		}
+	}
+	return -1
+}
+
+func (graph *Graph) GetWeightByIndexAndPrevIndex(index, prevIndex int) int {
+	prevVertex := graph.Vertices[prevIndex]
+	for _, edge := range prevVertex.Edges {
+		if edge.ToVertex == index {
 			return edge.Weight
 		}
 	}

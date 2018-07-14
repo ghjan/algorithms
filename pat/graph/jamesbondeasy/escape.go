@@ -13,7 +13,7 @@ func main() {
 	for _, f := range fileList {
 		filename := strings.Join([]string{GOPATH, "bin", f}, "/")
 		graph, cords := escape.BuildGraphForBond(filename, 100, 100, 15)
-		canEscape := escape.SolveEscape(graph, cords)
+		canEscape := escape.SolveCanEscape(graph, cords)
 		if canEscape {
 			fmt.Println("Yes")
 		} else {

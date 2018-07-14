@@ -1,4 +1,4 @@
-package escape
+package kruskal
 
 import (
 	"bufio"
@@ -8,8 +8,6 @@ import (
 	"os"
 	"strconv"
 	"strings"
-
-	"github.com/ghjan/algorithms/graph/kruskal"
 )
 
 /*
@@ -20,7 +18,7 @@ import (
 type Cordinate2d struct {
 	x      int
 	y      int
-	radius int
+	radius float64
 	escape bool
 }
 
@@ -40,18 +38,18 @@ func (cord Cordinate2d) CanEscape(width, length, D int) bool {
 	if cord.radius == 0 {
 		return rightBank-cord.x <= D || cord.x-leftBank <= D || topBank-cord.y <= D || cord.y-bottomeBank <= D
 	} else {
-		return rightBank-cord.x-cord.radius <= D || cord.x-cord.radius-leftBank <= D || topBank-cord.radius-cord.y <= D || cord.y-cord.radius-bottomeBank <= D
+		return float64(rightBank-cord.x)-cord.radius <= float64(D) || float64(cord.x-leftBank)-cord.radius <= float64(D) || float64(topBank-cord.y)-cord.radius <= float64(D) || float64(cord.y-bottomeBank)-cord.radius <= float64(D)
 	}
 }
 
 //BuildGraphForBond 构建graph对象和cords分片
-func BuildGraphForBond(filename string, width, lendth, radius int) (*kruskal.Graph, []Cordinate2d) {
-	graph := kruskal.Graph{}
+func BuildGraphForBond(filename string, width, lendth int, radius float64) (*Graph, []Cordinate2d) {
+	graph := Graph{}
 	var cords []Cordinate2d
 	fi, err := os.Open(filename)
 	if err != nil {
 		fmt.Printf("Error: %s\n", err)
-		return &kruskal.Graph{}, cords
+		return &Graph{}, cords
 	}
 	defer fi.Close()
 
@@ -68,7 +66,7 @@ func BuildGraphForBond(filename string, width, lendth, radius int) (*kruskal.Gra
 			N, _ = strconv.Atoi(array[0]) //节点数量
 			D, _ = strconv.Atoi(array[1]) //007最大跳跃距离
 			for i := 0; i < N+1; i++ {
-				graph.Vertices = append(graph.Vertices, &kruskal.Vertex{strconv.Itoa(i), nil, false})
+				graph.Vertices = append(graph.Vertices, &Vertex{strconv.Itoa(i), nil, false})
 			}
 			cords = append(cords, Cordinate2d{0, 0, radius, false})
 
@@ -92,21 +90,21 @@ func BuildGraphForBond(filename string, width, lendth, radius int) (*kruskal.Gra
 }
 
 //processCordAndGraph 处理新输入的坐标点，和原先的每个坐标点是否能够成为有连线的边（距离<=D)
-func processCordAndGraph(graph kruskal.Graph, cords []Cordinate2d, D int) {
+func processCordAndGraph(graph Graph, cords []Cordinate2d, D int) {
 	lastCord := cords[len(cords)-1]
 	for i := 0; i < len(cords)-1; i++ {
 		distance := lastCord.Distance(cords[i])
 		if distance <= float64(D) {
 			//双向的
 			//顶点index已经从0开始
-			graph.AddEdge(i, len(cords)-1, int(distance), false)
-			graph.AddEdge(len(cords)-1, i, int(distance), false)
+			graph.AddEdge(i, len(cords)-1, 1, false)
+			graph.AddEdge(len(cords)-1, i, 1, false)
 		}
 	}
 }
 
-//SolveEscape 解决是否能够逃脱
-func SolveEscape(graph *kruskal.Graph, cords []Cordinate2d) bool {
+//SolveCanEscape 解决是否能够逃脱
+func SolveCanEscape(graph *Graph, cords []Cordinate2d) bool {
 	result := false
 	graph.DepthFirstSearch(0, func(vertexIndex int) bool {
 		if cords[vertexIndex].escape {
@@ -117,4 +115,34 @@ func SolveEscape(graph *kruskal.Graph, cords []Cordinate2d) bool {
 	})
 
 	return result
+}
+
+func SolveEscapeShortest(graph *Graph, cords []Cordinate2d) (int, []int) {
+	start := 0
+	var shortestPathSlice []int
+	shortestTotalWeight := MaxInt
+	for index := 0; index < len(cords); index++ {
+		if start == index || !cords[index].escape {
+			continue
+		}
+		pathSlice := graph.DijkstraShortestPath2(start, index)
+		totalWeight := 0
+		for u := len(pathSlice) - 1; u >= 1; u-- {
+			v := u - 1
+			if v >= 0 {
+				fromIndex := pathSlice[u]
+				toIndex := pathSlice[v]
+				weight := graph.GetWeightByIndexAndPrevIndex(toIndex, fromIndex)
+				totalWeight += weight
+			} else {
+				break
+			}
+		}
+		if totalWeight > 0 && totalWeight < shortestTotalWeight || (totalWeight == shortestTotalWeight && pathSlice[len(pathSlice)-2] < shortestPathSlice[len(pathSlice)-2]) {
+			shortestTotalWeight = totalWeight
+			shortestPathSlice = pathSlice
+		}
+	}
+
+	return shortestTotalWeight, shortestPathSlice
 }
