@@ -1,4 +1,4 @@
-package kruskal
+package escape
 
 import (
 	"bufio"
@@ -8,23 +8,24 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"github.com/ghjan/algorithms/graph/kruskal"
 )
 
 /*
 利用图论知识解决逃脱问题
 
- */
+*/
 //Cordinate2d 二维坐标
 type Cordinate2d struct {
-	x      int
-	y      int
+	X      int
+	Y      int
 	radius float64
 	escape bool
 }
 
 //Distance 两个坐标之间的距离
 func (cord Cordinate2d) Distance(target Cordinate2d) float64 {
-	return math.Sqrt(float64((cord.x-target.x)*(cord.x-target.x)+(cord.y-target.y)*(cord.y-target.y))) - float64(cord.radius+target.radius)
+	return math.Sqrt(float64((cord.X-target.X)*(cord.X-target.X)+(cord.Y-target.Y)*(cord.Y-target.Y))) - float64(cord.radius+target.radius)
 }
 
 //CanEscape 是否能够逃脱
@@ -36,20 +37,20 @@ func (cord Cordinate2d) CanEscape(width, length, D int) bool {
 	topBank := length / 2
 	bottomeBank := -1 * topBank
 	if cord.radius == 0 {
-		return rightBank-cord.x <= D || cord.x-leftBank <= D || topBank-cord.y <= D || cord.y-bottomeBank <= D
+		return rightBank-cord.X <= D || cord.X-leftBank <= D || topBank-cord.Y <= D || cord.Y-bottomeBank <= D
 	} else {
-		return float64(rightBank-cord.x)-cord.radius <= float64(D) || float64(cord.x-leftBank)-cord.radius <= float64(D) || float64(topBank-cord.y)-cord.radius <= float64(D) || float64(cord.y-bottomeBank)-cord.radius <= float64(D)
+		return float64(rightBank-cord.X)-cord.radius <= float64(D) || float64(cord.X-leftBank)-cord.radius <= float64(D) || float64(topBank-cord.Y)-cord.radius <= float64(D) || float64(cord.Y-bottomeBank)-cord.radius <= float64(D)
 	}
 }
 
 //BuildGraphForBond 构建graph对象和cords分片
-func BuildGraphForBond(filename string, width, lendth int, radius float64) (*Graph, []Cordinate2d) {
-	graph := Graph{}
+func BuildGraphForBond(filename string, width, lendth int, radius float64) (*kruskal.Graph, []Cordinate2d) {
+	graph := kruskal.Graph{}
 	var cords []Cordinate2d
 	fi, err := os.Open(filename)
 	if err != nil {
 		fmt.Printf("Error: %s\n", err)
-		return &Graph{}, cords
+		return &kruskal.Graph{}, cords
 	}
 	defer fi.Close()
 
@@ -66,7 +67,7 @@ func BuildGraphForBond(filename string, width, lendth int, radius float64) (*Gra
 			N, _ = strconv.Atoi(array[0]) //节点数量
 			D, _ = strconv.Atoi(array[1]) //007最大跳跃距离
 			for i := 0; i < N+1; i++ {
-				graph.Vertices = append(graph.Vertices, &Vertex{strconv.Itoa(i), nil, false})
+				graph.Vertices = append(graph.Vertices, &kruskal.Vertex{strconv.Itoa(i), nil, false})
 			}
 			cords = append(cords, Cordinate2d{0, 0, radius, false})
 
@@ -90,7 +91,7 @@ func BuildGraphForBond(filename string, width, lendth int, radius float64) (*Gra
 }
 
 //processCordAndGraph 处理新输入的坐标点，和原先的每个坐标点是否能够成为有连线的边（距离<=D)
-func processCordAndGraph(graph Graph, cords []Cordinate2d, D int) {
+func processCordAndGraph(graph kruskal.Graph, cords []Cordinate2d, D int) {
 	lastCord := cords[len(cords)-1]
 	for i := 0; i < len(cords)-1; i++ {
 		distance := lastCord.Distance(cords[i])
@@ -104,7 +105,7 @@ func processCordAndGraph(graph Graph, cords []Cordinate2d, D int) {
 }
 
 //SolveCanEscape 解决是否能够逃脱
-func SolveCanEscape(graph *Graph, cords []Cordinate2d) bool {
+func SolveCanEscape(graph *kruskal.Graph, cords []Cordinate2d) bool {
 	result := false
 	graph.DepthFirstSearch(0, func(vertexIndex int) bool {
 		if cords[vertexIndex].escape {
@@ -117,10 +118,10 @@ func SolveCanEscape(graph *Graph, cords []Cordinate2d) bool {
 	return result
 }
 
-func SolveEscapeShortest(graph *Graph, cords []Cordinate2d) (int, []int) {
+func SolveEscapeShortest(graph *kruskal.Graph, cords []Cordinate2d) (int, []int) {
 	start := 0
 	var shortestPathSlice []int
-	shortestTotalWeight := MaxInt
+	shortestTotalWeight := kruskal.MaxInt
 	for index := 0; index < len(cords); index++ {
 		if start == index || !cords[index].escape {
 			continue

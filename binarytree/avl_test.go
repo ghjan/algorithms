@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"strings"
 	"testing"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestAvl(t *testing.T) {
@@ -42,6 +43,7 @@ func TestAvl(t *testing.T) {
 		}
 		fmt.Printf("%d \t", avlNode.Key)
 	})
+	assert.Equal(t, 4, depth)
 }
 
 func TestAvlRoot(t *testing.T) {
@@ -94,5 +96,6 @@ func TestAvlRoot(t *testing.T) {
 			}
 		}
 	}
-	fmt.Print(root.Key)
+	assert.Equal(t, 70, root.Key)
+	//fmt.Print(root.Key)
 }

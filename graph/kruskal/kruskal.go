@@ -270,7 +270,7 @@ func removeEdgeInEdges(edges []*Edge, e *Edge) []*Edge {
 }
 
 //DijkstraShortestPath Dijkstra最短路径算法
-func (graph *Graph) DijkstraShortestPath(startVertexIndex int, endVertexIndex int) (map[string]int) {
+func (graph *Graph) DijkstraShortestPath(startVertexIndex int, endVertexIndex int) map[string]int {
 	distanceMap := make(map[string]int)
 	prevVertexMap := make(map[string]int)
 	for _, v := range graph.Vertices {
@@ -320,7 +320,7 @@ func (graph *Graph) DijkstraShortestPath(startVertexIndex int, endVertexIndex in
 }
 
 //DijkstraShortestPath2 Dijkstra最短路径算法
-func (graph *Graph) DijkstraShortestPath2(startVertexIndex int, endVertexIndex int) ([]int) {
+func (graph *Graph) DijkstraShortestPath2(startVertexIndex int, endVertexIndex int) []int {
 	N := len(graph.Vertices)
 	distanceSlice := make([]int, N, N)
 	prevVertexSlice := make([]int, N, N)
@@ -386,7 +386,7 @@ func (graph *Graph) getNearestVertex2(startVertex int, distanceSlice []int) int 
 	distance := MaxInt
 	index := -1
 	for i, v := range graph.Vertices {
-		if startVertex!=i && !v.IsVisited {
+		if startVertex != i && !v.IsVisited {
 			if distance == -1 || distance > distanceSlice[i] {
 				distance = distanceSlice[i]
 				index = i
@@ -733,7 +733,7 @@ func (graph Graph) Earliest(operationFunc func(earliest, result, topSort []int, 
 	}
 }
 
-func (graph Graph) Latest(earliest, topSort []int) ([]int) {
+func (graph Graph) Latest(earliest, topSort []int) []int {
 	latest := make([]int, len(earliest), len(earliest))
 	for i := 0; i < len(latest); i++ {
 		latest[i] = MaxInt //初始化为无穷大
@@ -752,7 +752,7 @@ func (graph Graph) Latest(earliest, topSort []int) ([]int) {
 	return latest
 }
 
-func (graph Graph) ManeuverTime(earliest, latest, topSort []int) ([]Maneuver) {
+func (graph Graph) ManeuverTime(earliest, latest, topSort []int) []Maneuver {
 	var D []Maneuver
 	for i := 0; i < len(topSort); i++ {
 		vertexIndex := topSort[i]
@@ -795,3 +795,4 @@ func (graph Graph) CrucialPath(isDebug bool) (int, []Maneuver, error) {
 	}
 
 }
+
