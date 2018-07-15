@@ -9,44 +9,34 @@ import (
 
 func initGraph() Graph {
 	var g Graph
-	n1, n2, n3, n4, n5 := GNode{1}, GNode{2}, GNode{3}, GNode{4}, GNode{5}
-	g.AddNode(&n1)
-	g.AddNode(&n2)
-	g.AddNode(&n3)
-	g.AddNode(&n4)
-	g.AddNode(&n5)
-	g.AddEdge(&n1, &n2)
-	g.AddEdge(&n1, &n5)
-	g.AddEdge(&n2, &n3)
-	g.AddEdge(&n2, &n4)
-	g.AddEdge(&n2, &n5)
-	g.AddEdge(&n3, &n4)
-	g.AddEdge(&n4, &n5)
+	for i := 0; i < 8; i++ {
+		g.AddNode(&GNode{i})
+	}
+	g.AddEdge(1, 2, false)
+	g.AddEdge(1, 5, false)
+	g.AddEdge(2, 3, false)
+	g.AddEdge(2, 4, false)
+	g.AddEdge(2, 5, false)
+	g.AddEdge(3, 4, false)
+	g.AddEdge(4, 6, false)
 	return g
 }
 
 func initGraphDirection() Graph {
 	var g Graph
-	n1, n2, n3, n4, n5, n6, n7, n8 := GNode{1}, GNode{2}, GNode{3}, GNode{4}, GNode{5},
-		GNode{6}, GNode{7}, GNode{8}
-	g.AddNode(&n1)
-	g.AddNode(&n2)
-	g.AddNode(&n3)
-	g.AddNode(&n4)
-	g.AddNode(&n5)
-	g.AddNode(&n6)
-	g.AddNode(&n7)
-	g.AddNode(&n8)
-	g.AddEdgeDirection(&n1, &n2)
-	g.AddEdgeDirection(&n1, &n5)
-	g.AddEdgeDirection(&n2, &n3)
-	g.AddEdgeDirection(&n2, &n4)
-	g.AddEdgeDirection(&n2, &n5)
-	g.AddEdgeDirection(&n3, &n4)
-	g.AddEdgeDirection(&n4, &n6)
-	g.AddEdgeDirection(&n4, &n8)
-	g.AddEdgeDirection(&n8, &n7)
-	g.AddEdgeDirection(&n5, &n8)
+	for i := 0; i < 8; i++ {
+		g.AddNode(&GNode{i})
+	}
+	g.AddEdgeDirection(1, 2, false)
+	g.AddEdgeDirection(1, 5, false)
+	g.AddEdgeDirection(2, 3, false)
+	g.AddEdgeDirection(2, 4, false)
+	g.AddEdgeDirection(2, 5, false)
+	g.AddEdgeDirection(3, 4, false)
+	g.AddEdgeDirection(4, 6, false)
+	g.AddEdgeDirection(4, 8, false)
+	g.AddEdgeDirection(8, 7, false)
+	g.AddEdgeDirection(5, 8, false)
 	return g
 }
 
@@ -60,8 +50,8 @@ func TestGraph_Add(t *testing.T) {
 func TestGraph_BFS(t *testing.T) {
 	fmt.Println("--------TestGraph_BFS--------")
 	g := initGraph()
-	g.BFS(func(node *GNode) {
-		fmt.Printf("[Current Traverse GNode]: %v\n", node)
+	g.BFS(func(nodeIndex int) {
+		fmt.Printf("[Current Traverse GNode]: %v\n", g.nodes[nodeIndex])
 	})
 }
 
@@ -70,20 +60,20 @@ func TestGraph_Unweighted(t *testing.T) {
 	g := initGraphDirection()
 	g.String()
 
-	source := g.nodes[0]
+	source := 0
 
-	path := g.Unweighted(*source)
-	target := g.nodes[3]
+	path := g.Unweighted(source)
+	target := 3
 
 	result := g.GetPath(path, source, target)
-	fmt.Printf("shortest path from %d to %d:%s\n", source.value, target.value, result)
+	fmt.Printf("shortest path from %d to %d:%s\n", g.nodes[source].value, g.nodes[target].value, result)
 
-	assert.Equal(t, "1 2 4 ", result, fmt.Sprintf("expected path is:%s, actual is:%s", "1 2 4 ", result))
+	assert.Equal(t, "0 1 3 ", result, fmt.Sprintf("expected path is:%s, actual is:%s", "0 1 3 ", result))
 
-	target = g.nodes[7]
+	target = 7
 	result = g.GetPath(path, source, target)
-	fmt.Printf("shortest path from %d to %d:%s\n", source.value, target.value, result)
+	fmt.Printf("shortest path from %d to %d:%s\n", g.nodes[source].value, g.nodes[target].value, result)
 
-	assert.Equal(t, "1 5 8 ", result, fmt.Sprintf("expected path is:%s, actual is:%s", "1 5 8 ", result))
+	assert.Equal(t, "0 4 7 ", result, fmt.Sprintf("expected path is:%s, actual is:%s", "0 4 7 ", result))
 
 }
