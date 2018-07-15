@@ -13,8 +13,8 @@ func solveSixDegree() {
 
 	for _, f := range fileList {
 		filename := strings.Join([]string{GOPATH, "bin", f}, "/")
-		N, _, mp := sixdegree.BuildGraphForSixDegree(filename)
-		sixdegree.SolveSixDegree(N, mp)
+		N, _, bitMatrix := sixdegree.BuildGraphForSixDegree(filename)
+		sixdegree.SolveSixDegree(N, bitMatrix)
 	}
 }
 
