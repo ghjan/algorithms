@@ -1,16 +1,21 @@
 package main
 
 import (
-	"bufio"
-	"fmt"
-	"io"
-	"os"
-	"strconv"
-	"strings"
 	"github.com/ghjan/algorithms/binarysearchtree"
+	"os"
+	"fmt"
+	"bufio"
+	"io"
+	"strings"
+	"strconv"
 )
 
-func test1(filename string) {
+/*
+04-树4 是否同一棵二叉搜索树
+https://pintia.cn/problem-sets/951072707007700992/problems/977489131995787264
+ */
+
+func solveBSTSameTRee(filename string) {
 
 	var treeLocal binarysearchtree.ItemBinarySearchTree
 	var treeGenerated binarysearchtree.ItemBinarySearchTree
@@ -67,6 +72,6 @@ func main() {
 	GOPATH := os.Getenv("GOPATH")
 	f := "bst_sametree_case_1.txt"
 	filename := strings.Join([]string{GOPATH, "bin", f}, "/")
-	test1(filename)
+	solveBSTSameTRee(filename)
 
 }
