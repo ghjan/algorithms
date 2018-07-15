@@ -23,9 +23,16 @@ func initTree() BinaryTree {
 	return tree
 }
 
-func TestTraverse(t *testing.T) {
-	tree := initTree()
+func TestBinaryTree_RootIndex(t *testing.T) {
 	fmt.Println("----PreOrderTraverse-----------")
+	tree := initTree()
+	rootIndex := tree.RootIndex()
+	assert.Equal(t, 0, rootIndex)
+}
+
+func TestTraverse(t *testing.T) {
+	fmt.Println("----PreOrderTraverse-----------")
+	tree := initTree()
 	result := ""
 	tree.PreOrderTraverse(func(nodeMe *Node) {
 		result += fmt.Sprintf("%d ", nodeMe.Data)
@@ -37,7 +44,7 @@ func TestTraverse(t *testing.T) {
 	tree.InOrderTraverse(func(nodeMe *Node) {
 		result += fmt.Sprintf("%d ", nodeMe.Data)
 	})
-	assert.Equal(t, "55 15 2 30 9 27 5 49 60 23 10 42 40 56 24 12 45 8 ", result, "")
+	assert.Equal(t, "55 15 2 30 9 27 5 49 60 23 10 42 40 56 24 12 45 8 ", result, "") //
 	fmt.Println(result)
 	fmt.Println("\n----PostOrderTraverse-----------")
 	result = ""
@@ -169,21 +176,17 @@ func TestLevelOrderTraverse(t *testing.T) {
 			sons := strings.Split(string(a), " ")
 			left := -1
 			right := -1
-			var leftChild *Node = nil
-			var rightChild *Node = nil
 			if sons[0] != "-" {
 				left, _ = strconv.Atoi(sons[0])
-				leftChild = &tree[left]
 			}
 			if sons[1] != "-" {
 				right, _ = strconv.Atoi(sons[1])
-				rightChild = &tree[right]
 			}
 			if left >= 0 {
 
 			}
 
-			tree[i-1] = Node{rune(i - 1), leftChild, rightChild}
+			tree[i-1] = Node{rune(i - 1), left, right}
 			if i == n { //最后一个节点数据
 				break
 			}
@@ -208,7 +211,7 @@ func TestLevelOrderTraverse(t *testing.T) {
 			break
 		}
 	}
-	tree[rootNode].LevelOrderTraverse(func(node *Node) {
+	tree[rootNode].LevelOrderTraverse(tree, func(node *Node) {
 		if node.IsLeaf() {
 			result += fmt.Sprintf("%d ", node.Data)
 		}

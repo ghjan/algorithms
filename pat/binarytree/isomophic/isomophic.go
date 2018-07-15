@@ -3,7 +3,6 @@ package main
 import (
 	"os"
 	"strings"
-	"fmt"
 	"github.com/ghjan/algorithms/binarytree"
 )
 
@@ -15,7 +14,6 @@ func solveIsomorphic() {
 	for _, f := range fileNames {
 		filename := strings.Join([]string{GOPATH, "bin", f}, "/")
 		binarytree.SolveBTIsomorphic(filename)
-		fmt.Println()
 	}
 }
 

@@ -63,7 +63,7 @@ func (tree *Tree) IsBestCode(encodeMap map[rune]string, freqMap map[rune]int) (b
 	resultTree = make([]binarytree.Node, len(encodeMap))
 	weight := 0
 	for k, v := range encodeMap {
-		if _, err := resultTree[0].InsertCode(k, v); err != nil {
+		if _, err := resultTree[0].InsertCode(resultTree, k, v); err != nil {
 			return false, err
 		} else {
 			weight += freqMap[k] * len(v)

@@ -23,7 +23,7 @@ func buildTrees(filename string) (BinaryTree, BinaryTree) {
 	var tree, tree2 BinaryTree
 	begin := true
 	index := 0
-	for i := 0; ; i++ {
+	for {
 		a, _, c := br.ReadLine()
 		if c == io.EOF {
 			break
@@ -32,9 +32,10 @@ func buildTrees(filename string) (BinaryTree, BinaryTree) {
 			if N, err = strconv.Atoi(string(a)); N > 0 && err == nil {
 				if index == 0 {
 					tree = InitNewTree(N)
-				} else {
-					tree2 = InitNewTree(N)
 				}
+				//else {
+				//	tree2 = InitNewTree(N)
+				//}
 				begin = false
 			} else {
 				fmt.Printf("N:%d", N)
@@ -42,7 +43,7 @@ func buildTrees(filename string) (BinaryTree, BinaryTree) {
 				break
 			}
 		} else {
-			if nodeInfo := strings.Split(string(a), " "); len(nodeInfo) >= 3 {
+			if nodeInfo := strings.Split(string(a), " "); len(nodeInfo) >= 2 {
 				leftIndex := -1
 				rightIndex := -1
 				if nodeInfo[1] != "-" {
@@ -51,17 +52,16 @@ func buildTrees(filename string) (BinaryTree, BinaryTree) {
 				if nodeInfo[2] != "-" {
 					rightIndex, _ = strconv.Atoi(nodeInfo[2])
 				}
-				if index < N {
+				if index <= N {
 					tree.Insert(rune(nodeInfo[0][0]), (index-1)%N, leftIndex, rightIndex)
 				} else {
-					tree2.Insert(rune(nodeInfo[0][0]), (index-1)%N, leftIndex, rightIndex)
+					tree2.Insert(rune(nodeInfo[0][0]), (index-2)%N, leftIndex, rightIndex)
 				}
-			}
-			index++
-			if index == N {
-				begin = true
+			} else {
+				tree2 = InitNewTree(N)
 			}
 		}
+		index++
 	}
 	return tree, tree2
 }
@@ -69,7 +69,7 @@ func SolveBTIsomorphic(filename string) {
 	tree, tree2 := buildTrees(filename)
 	root1 := tree.RootIndex()
 	root2 := tree2.RootIndex()
-	if tree.Isomorphic(tree2, &tree[root1], &tree2[root2]) {
+	if tree.Isomorphic(tree2, root1, root2) {
 		fmt.Println("Yes")
 	} else {
 		fmt.Println("No")
