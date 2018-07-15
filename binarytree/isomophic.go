@@ -31,9 +31,9 @@ func buildTrees(filename string) (BinaryTree, BinaryTree) {
 		if begin { // n is the total number of keys to be inserted.
 			if N, err = strconv.Atoi(string(a)); N > 0 && err == nil {
 				if index == 0 {
-					tree = CreateNewTree(N)
+					tree = InitNewTree(N)
 				} else {
-					tree2 = CreateNewTree(N)
+					tree2 = InitNewTree(N)
 				}
 				begin = false
 			} else {
@@ -52,9 +52,9 @@ func buildTrees(filename string) (BinaryTree, BinaryTree) {
 					rightIndex, _ = strconv.Atoi(nodeInfo[2])
 				}
 				if index < N {
-					tree.Insert(rune(nodeInfo[0][0]), index%N, leftIndex, rightIndex)
+					tree.Insert(rune(nodeInfo[0][0]), (index-1)%N, leftIndex, rightIndex)
 				} else {
-					tree2.Insert(rune(nodeInfo[0][0]), index%N, leftIndex, rightIndex)
+					tree2.Insert(rune(nodeInfo[0][0]), (index-1)%N, leftIndex, rightIndex)
 				}
 			}
 			index++

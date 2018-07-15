@@ -127,9 +127,9 @@ func CreateBinaryTree(arr []int) BinaryTree {
 	return d
 }
 
-func CreateNewTree(cap int) BinaryTree {
+func InitNewTree(cap int) BinaryTree {
 	var tree BinaryTree
-	tree = make([]Node, cap)
+	tree = make([]Node, cap, cap)
 	return tree
 }
 func (tree BinaryTree) Insert(data rune, index, left, right int) {
@@ -176,10 +176,19 @@ func (tree BinaryTree) Isomorphic(T2 BinaryTree, R1, R2 *Node) bool {
 	} else if (R1.Left == nil) && (R2.Left == nil) {
 		//如果左边全部是nil，那么就只要检查是否右子树同构
 		return tree.Isomorphic(T2, R1.Right, R2.Right)
+	} else if (R1.Right == nil) && (R2.Right == nil) {
+		//如果右边全部是nil，那么就只要检查是否右子树同构
+		return tree.Isomorphic(T2, R1.Left, R2.Left)
+	} else if R1.Left == nil && R2.Right == nil {
+		//如果都有一边是nil，
+		return tree.Isomorphic(T2, R1.Right, R2.Left)
+	} else if R1.Right == nil && R2.Left == nil {
+		//如果都有一边是nil，
+		return tree.Isomorphic(T2, R1.Left, R2.Right)
 	} else if ((R1.Left != nil) && (R2.Left != nil)) &&
 		((R1.Left.Data) == (R2.Left.Data)) { //如果左边都不是nil，而且left本身相等，那么检查左子树同构和右子树同构
 		return tree.Isomorphic(T2, R1.Left, R2.Left) && tree.Isomorphic(T2, R1.Right, R2.Right)
-	} else if (R1.Left.Data == R2.Right.Data) &&
+	} else if (R1.Left != nil) && (R2.Left != nil) && (R1.Right != nil) && (R2.Right != nil) && (R1.Left.Data == R2.Right.Data) &&
 		(R1.Right.Data == R2.Left.Data) { //如果左子树和右子树元素相同，而且右子树和左子树元素相同，那么就检查左子树和右子树是否同构
 		return (tree.Isomorphic(T2, R1.Left, R2.Right)) && (tree.Isomorphic(T2, R1.Right, R2.Left))
 	} else { //其他情况都非同构
