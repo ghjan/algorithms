@@ -98,18 +98,26 @@ func MaxSumSubsequenceSum3(A []int) int {
 }
 
 //算法4：在线处理
-func MaxSumSubsequenceSum4(A []int) int {
+func MaxSumSubsequenceSum4(A []int) (int, int, int) {
 	MaxSum := 0
 	NN := len(A)
 	ThisSum := 0
+	from := 0
+	to := 0
+	fromTemp := 0
 	for i := 0; i < NN; i++ {
 		ThisSum += A[i] //向右累加
 		if ThisSum > MaxSum {
 			MaxSum = ThisSum // 发现更大和则更新当前结果
+			if fromTemp > 0 && fromTemp < NN {
+				from = fromTemp
+			}
+			to = i
 		} else if ThisSum < 0 {
 			// 如果当前子列和为负数
 			ThisSum = 0 // 则不可能使后面部分和增大，抛弃之
+			fromTemp = i + 1
 		}
 	}
-	return MaxSum
+	return MaxSum, from, to
 }

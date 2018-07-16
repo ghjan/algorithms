@@ -7,10 +7,11 @@ import (
 	"os"
 	"strconv"
 	"strings"
-	"github.com/ghjan/algorithms/pat/maxsumsubsequence/subsequence"
+
+	"github.com/ghjan/algorithms/pat/subsequence/subsequence"
 )
 
-var algoSlice []func([]int) int
+var algoSlice []func([]int) (int, int, int)
 
 func main() {
 	fileNames := [...]string{"maxsumsubsequence_case_1.txt"}
@@ -62,7 +63,7 @@ func solveMaxSumSubsequence(filename string) {
 	//algoSlice = append(algoSlice, subsequence.MaxSumSubsequenceSum3)
 	algoSlice = append(algoSlice, subsequence.MaxSumSubsequenceSum4)
 	for _, algorithm := range algoSlice {
-		sum := algorithm(sequence)
-		fmt.Println(sum)
+		sum, _, _ := algorithm(sequence)
+		fmt.Printf("%d", sum)
 	}
 }
