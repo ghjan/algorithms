@@ -2,11 +2,10 @@ package main
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 	"io"
-	"log"
 	"os"
-	"path/filepath"
 	"strconv"
 	"strings"
 
@@ -14,23 +13,11 @@ import (
 	"github.com/ghjan/algorithms/set"
 )
 
-func getCurrentDirectory() string {
-	dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
-	if err != nil {
-		log.Fatal(err)
-	}
-	return strings.Replace(dir, "\\", "/", -1)
-}
-
-func test1() {
-	GOPATH := os.Getenv("GOPATH")
-	f := "listleaves_case_1.txt"
-	filename := strings.Join([]string{GOPATH, "bin", f}, "/")
-
+func buildList(filename string) (binarytree.SimpleBinaryTree, int) {
 	fi, err := os.Open(filename)
 	if err != nil {
 		fmt.Printf("Error: %s\n", err)
-		return
+		return nil, -1
 	}
 	defer fi.Close()
 
@@ -39,7 +26,7 @@ func test1() {
 	//binaryTree := make([]Node, 0)
 	var simpleBinaryTree binarytree.SimpleBinaryTree
 	var rootNode int
-	var notRootSet set.ItemSet
+	var notRootSet set.ItemSet //非根节点的集合
 	for i := 0; ; i++ {
 		a, _, c := br.ReadLine()
 		if c == io.EOF {
@@ -50,7 +37,7 @@ func test1() {
 			if n == 1 {
 				rootNode = 0
 			} else if n < 1 {
-				return
+				return nil, -1
 			}
 			simpleBinaryTree = make([]binarytree.SimpleNode, n)
 		} else //读取节点数据
@@ -80,8 +67,6 @@ func test1() {
 		}
 
 	}
-	result := ""
-
 	//获取root节点
 	for i := 0; i < n; i++ {
 		if !notRootSet.Has(i) {
@@ -89,14 +74,30 @@ func test1() {
 			break
 		}
 	}
+
+	return simpleBinaryTree, rootNode
+}
+func solveListLeaves() error {
+	GOPATH := os.Getenv("GOPATH")
+	f := "listleaves_case_1.txt"
+	filename := strings.Join([]string{GOPATH, "bin", f}, "/")
+	simpleBinaryTree, rootNode := buildList(filename)
+	if simpleBinaryTree == nil || rootNode < 0 {
+		return errors.New("simpleBinaryTree is nil or rootNode is -1")
+	}
+	result := ""
+
 	simpleBinaryTree.LevelOrderTraverse(rootNode, func(node binarytree.SimpleNode) {
 		if node.IsLeaf() {
 			result += fmt.Sprintf("%d ", node.Data)
 		}
 	})
 	fmt.Printf(strings.Trim(result, " "))
+	return nil
 }
 
 func main() {
-	test1()
+	if err := solveListLeaves(); err != nil {
+		fmt.Println(err)
+	}
 }
