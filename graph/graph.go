@@ -9,8 +9,6 @@ import (
 
 /*
 邻接表存储 - 无权图的单源最短路算法  Unweighted
-邻接表存储 - Kruskal最小生成树算法 Kruskal
-邻接表存储 - 拓扑排序算法 TopSort
  */
 type GNode struct {
 	value int
