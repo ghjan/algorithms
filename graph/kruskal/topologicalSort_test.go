@@ -1,15 +1,28 @@
 package kruskal
 
-import "fmt"
+import (
+	"github.com/ghjan/algorithms/hashtable/inthashtable"
+	"os"
+	"strings"
+	"fmt"
+	"testing"
+)
 
-func SolveHashingHard() {
-	//hashtable的大小是N
-	var N int
-	fmt.Scanf("%d\r\n", &N)
-
-	for j := 0; j < N; j++ {
-		var key int
-		fmt.Scanf("%d", &key)
+func TestSolveHashingHard(t *testing.T) {
+	GOPATH := os.Getenv("GOPATH")
+	fileList := []string{"hashinghard_case_1.txt"}
+	for _, f := range fileList {
+		filename := strings.Join([]string{GOPATH, "bin", f}, "/")
+		table := inthashtable.CreateTableForHashingHard(filename, true)
+		graph := BuildGraphFromHashtable(table)
+		if result, inVertexes, err := graph.TopologicalSort(nil); err == nil {
+			for _, item := range result {
+				fmt.Println(item)
+			}
+			for _, inv := range inVertexes {
+				fmt.Println(inv)
+			}
+		}
 	}
 
 }

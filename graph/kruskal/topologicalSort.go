@@ -8,6 +8,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"github.com/ghjan/algorithms/hashtable/inthashtable"
 )
 
 func solveEarliest(graph *Graph) (int, error) {
@@ -43,7 +44,7 @@ func BuildGraphForTopologicalSort(filename string, isZeroIndex bool) *Graph {
 				graph.Vertices = append(graph.Vertices, &Vertex{strconv.Itoa(i), nil, false})
 			}
 
-		} else if i <= M { //边的数据输入 start, end, weight
+		} else if i <= M { //边的数据输入 start, end, weight 含义：从start到end的边表示start是end的前驱节点
 			array2 := strings.Split(string(a), " ")
 			start, _ := strconv.Atoi(array2[0])
 			end, _ := strconv.Atoi(array2[1])
@@ -58,6 +59,34 @@ func BuildGraphForTopologicalSort(filename string, isZeroIndex bool) *Graph {
 			break
 		}
 		i++
+	}
+	return &graph
+
+}
+
+func BuildGraphFromHashtable(table inthashtable.IntHashTable) *Graph {
+	graph := Graph{}
+
+	i := 0
+	N := table.TableSize
+	for i := 0; i < N; i++ { //顶点数量 N
+		if table.Cells[i].Info != inthashtable.Legitimate {
+			continue
+		}
+		graph.Vertices = append(graph.Vertices, &Vertex{strconv.Itoa(table.Cells[i].Data), nil, false})
+	}
+
+	for i = 0; i <= N; i++ { //边的数据输入 start, end, weight 含义：从start到end的边表示start是end的前驱节点
+		if table.Cells[i].Info != inthashtable.Legitimate {
+			continue
+		}
+		hashValue := table.Hash(table.Cells[i].Data) //原始的hash值
+		if hashValue != i {
+			for start := hashValue; start%table.TableSize < i; start++ {
+				end := i
+				graph.AddEdge(start, end, 1, false)
+			}
+		}
 	}
 	return &graph
 

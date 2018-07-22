@@ -1,17 +1,17 @@
-package inthashtable
+package main
 
 import (
 	"os"
 	"strings"
-	"testing"
+	"github.com/ghjan/algorithms/hashtable/inthashtable"
 )
 
-func TestSolveHashing(t *testing.T) {
+func main() {
 	GOPATH := os.Getenv("GOPATH")
 	fileList := []string{"hashing_case_1.txt"}
 	for _, f := range fileList {
 		filename := strings.Join([]string{GOPATH, "bin", f}, "/")
-		positionSlice := CreateTableForHashing(filename, false)
-		PrintPosition(positionSlice)
+		positionSlice := inthashtable.CreateTableForHashing(filename, false)
+		inthashtable.PrintPosition(positionSlice)
 	}
 }
