@@ -14,14 +14,19 @@ func TestSolveHashingHard(t *testing.T) {
 	for _, f := range fileList {
 		filename := strings.Join([]string{GOPATH, "bin", f}, "/")
 		table := inthashtable.CreateTableForHashingHard(filename, true)
-		graph := BuildGraphFromHashtable(table)
-		if result, inVertexes, err := graph.TopologicalSort(nil); err == nil {
+		graph := BuildGraphFromHashTable(table)
+		if result, inVertexes, err := graph.TopologicalSortConditional(nil); err == nil {
+			fmt.Println("------result of TopologicalSort")
 			for _, item := range result {
-				fmt.Println(item)
+				fmt.Printf("%s ", item.Label)
 			}
+			fmt.Println("\n------inVertexes")
 			for _, inv := range inVertexes {
-				fmt.Println(inv)
+				fmt.Printf("%s ", inv)
 			}
+			fmt.Println()
+		} else {
+			fmt.Println(err)
 		}
 	}
 

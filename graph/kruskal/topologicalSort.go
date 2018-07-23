@@ -64,30 +64,59 @@ func BuildGraphForTopologicalSort(filename string, isZeroIndex bool) *Graph {
 
 }
 
-func BuildGraphFromHashtable(table inthashtable.IntHashTable) *Graph {
+func BuildGraphFromHashTable(table inthashtable.IntHashTable) *Graph {
 	graph := Graph{}
 
 	i := 0
 	N := table.TableSize
+	graph.Vertices = make([]*Vertex, N, N)
 	for i := 0; i < N; i++ { //顶点数量 N
-		if table.Cells[i].Info != inthashtable.Legitimate {
+		if table.Cells[i].Info != inthashtable.Legitimate || table.Cells[i].Data < 0 {
+			graph.Vertices[i] = nil
 			continue
 		}
-		graph.Vertices = append(graph.Vertices, &Vertex{strconv.Itoa(table.Cells[i].Data), nil, false})
+		graph.Vertices[i] = &Vertex{strconv.Itoa(table.Cells[i].Data), nil, false}
 	}
 
-	for i = 0; i <= N; i++ { //边的数据输入 start, end, weight 含义：从start到end的边表示start是end的前驱节点
-		if table.Cells[i].Info != inthashtable.Legitimate {
+	var firstGroup, secondGroup []int //第一集团， hashValue正好和i相同的
+	var edgesMap map[int][]int = make(map[int][]int, N)
+	for i = 0; i < N; i++ { //边的数据输入 start, end, weight 含义：从start到end的边表示start是end的前驱节点
+		if table.Cells[i].Info != inthashtable.Legitimate || table.Cells[i].Data < 0 {
 			continue
 		}
 		hashValue := table.Hash(table.Cells[i].Data) //原始的hash值
 		if hashValue != i {
-			for start := hashValue; start%table.TableSize < i; start++ {
-				end := i
-				graph.AddEdge(start, end, 1, false)
+			secondGroup = append(secondGroup, i)
+			if hashValue < i {
+				for start := hashValue; start%table.TableSize < i; start++ {
+					end := i
+					if graph.Vertices[start] != nil {
+						graph.AddEdge(start, end, 1, false)
+						edgesMap[start] = append(edgesMap[start], end)
+					}
+				}
+			} else {
+				for start := hashValue; start != i; start = (start + 1) % table.TableSize {
+					end := i
+					if graph.Vertices[start] != nil {
+						graph.AddEdge(start, end, 1, false)
+						edgesMap[start] = append(edgesMap[start], end)
+					}
+				}
 			}
+		} else {
+			firstGroup = append(firstGroup, i)
 		}
 	}
+	//for _, first := range firstGroup {
+	//	intersectGroup := set.IntSet(secondGroup).Minus(set.IntSet(edgesMap[first]))
+	//	for _, second := range intersectGroup.Items() {
+	//		if err := graph.AddEdge(first, second.(int), 1, false); err != nil {
+	//			fmt.Println(err)
+	//		}
+	//	}
+	//}
+
 	return &graph
 
 }

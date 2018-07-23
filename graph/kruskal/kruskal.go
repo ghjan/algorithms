@@ -61,7 +61,7 @@ type Graph struct {
 //AddEdge 增加边
 func (graph *Graph) AddEdge(indexFrom, indexTo, weight int, isUsed bool) error {
 	if indexFrom > len(graph.Vertices)-1 || indexFrom < 0 {
-		fmt.Println(indexFrom)
+		return errors.New(fmt.Sprintf("indexFrom(%d) is out of range", indexFrom))
 	}
 	fromVertex := graph.Vertices[indexFrom]
 	fromVertex.Edges = append(fromVertex.Edges, &Edge{indexFrom, indexTo, weight, isUsed})
@@ -494,14 +494,25 @@ func (graph *Graph) GetWeightByIndexAndPrevIndex(index, prevIndex int) int {
 }
 
 //TopologicalSort 拓扑排序 (使用队列优化过的）
+//operationFunc 可以对拓扑排序输出的结果进行操作
+//result 拓扑排序的结果
+//inVertexes 每个结点前驱结点
 func (graph *Graph) TopologicalSort(operationFunc func(vertex int, isSectionEnd bool)) ([]int, []string, error) {
 	var result []int
 	inVertexes := make([]string, len(graph.Vertices), len(graph.Vertices)) //存放每个节点的前驱节点
 	graph.inDegreeMap = make(map[string]int)
+	countNilVertix := 0
 	for _, v := range graph.Vertices {
+		if v == nil {
+			countNilVertix++
+			continue
+		}
 		graph.inDegreeMap[v.Label] = 0
 	}
 	for _, v := range graph.Vertices {
+		if v == nil {
+			continue
+		}
 		for _, e := range v.Edges {
 			graph.inDegreeMap[graph.Vertices[e.ToVertex].Label]++
 			inVertexes[e.ToVertex] += strconv.Itoa(e.FromVertex) + " " + strconv.Itoa(e.Weight) + ","
@@ -510,7 +521,7 @@ func (graph *Graph) TopologicalSort(operationFunc func(vertex int, isSectionEnd 
 	que := queue.ItemQueue{}
 	for i := 0; i < len(graph.Vertices); i++ {
 		v := graph.Vertices[i]
-		if graph.inDegreeMap[v.Label] == 0 {
+		if v != nil && graph.inDegreeMap[v.Label] == 0 {
 			que.Enqueue(i)
 		}
 	}
@@ -531,7 +542,64 @@ func (graph *Graph) TopologicalSort(operationFunc func(vertex int, isSectionEnd 
 		}
 	}
 
-	if count != len(graph.Vertices) {
+	if count != len(graph.Vertices)-countNilVertix {
+		return nil, nil, errors.New("图中有回路")
+	}
+	return result, inVertexes, nil
+}
+
+//TopologicalSortConditional 拓扑排序 (出队列的时候取最小值）
+//operationFunc 可以对拓扑排序输出的结果进行操作
+//result 拓扑排序的结果
+//inVertexes 每个结点前驱结点
+func (graph *Graph) TopologicalSortConditional(operationFunc func(vertex Vertex, isSectionEnd bool)) ([]Vertex, []string, error) {
+	var result []Vertex
+	inVertexes := make([]string, len(graph.Vertices), len(graph.Vertices)) //存放每个节点的前驱节点
+	graph.inDegreeMap = make(map[string]int)
+	countNilVertix := 0
+	for _, v := range graph.Vertices {
+		if v == nil {
+			countNilVertix++
+			continue
+		}
+		graph.inDegreeMap[v.Label] = 0
+	}
+	for _, v := range graph.Vertices {
+		if v == nil {
+			continue
+		}
+		for _, e := range v.Edges {
+			graph.inDegreeMap[graph.Vertices[e.ToVertex].Label]++
+			inVertexes[e.ToVertex] += strconv.Itoa(e.FromVertex) + " " + strconv.Itoa(e.Weight) + ","
+		}
+	}
+	que := VertexQueue{}
+	for i := 0; i < len(graph.Vertices); i++ {
+		v := graph.Vertices[i]
+		if v != nil && graph.inDegreeMap[v.Label] == 0 {
+			que.Enqueue(*v)
+		}
+	}
+	count := 0
+	for !que.IsEmpty() {
+		que.Sort()
+		vertex := *que.Dequeue()
+		result = append(result, vertex)
+		//v := graph.Vertices[vertex]
+		count++
+		if operationFunc != nil {
+			operationFunc(vertex, false)
+		}
+		for _, edge := range vertex.Edges {
+			toVertex := graph.Vertices[edge.ToVertex]
+			graph.inDegreeMap[toVertex.Label]--
+			if graph.inDegreeMap[toVertex.Label] == 0 {
+				que.Enqueue(*toVertex)
+			}
+		}
+	}
+
+	if count != len(graph.Vertices)-countNilVertix {
 		return nil, nil, errors.New("图中有回路")
 	}
 	return result, inVertexes, nil
@@ -795,4 +863,3 @@ func (graph Graph) CrucialPath(isDebug bool) (int, []Maneuver, error) {
 	}
 
 }
-

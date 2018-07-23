@@ -56,3 +56,60 @@ func (s *ItemSet) Items() []Item {
 func (s *ItemSet) Size() int {
 	return len(s.items)
 }
+
+//Intersect 两个集合的交集
+func (s ItemSet) Intersect(target ItemSet) (ItemSet) {
+	var result ItemSet
+	for i := range s.items {
+		if target.Has(i) {
+			result.Add(i)
+		}
+	}
+	return result
+
+}
+
+//Minus 两个集合的差 s-target
+func (s ItemSet) Minus(target ItemSet) (ItemSet) {
+	var result ItemSet
+	for i := range s.items {
+		if !target.Has(i) {
+			result.Add(i)
+		}
+	}
+	return result
+
+}
+
+//Union 两个集合的并集
+func (s ItemSet) Union(target ItemSet) (ItemSet) {
+	var result ItemSet
+	for i := range s.items {
+		result.Add(i)
+	}
+	for j := range target.items {
+		if !result.Has(j) {
+			result.Add(j)
+		}
+	}
+	return result
+
+}
+
+//IntSet 转换为整数集合
+func IntSet(items []int) (ItemSet) {
+	var result ItemSet
+	for _, item := range items {
+		result.Add(item)
+	}
+	return result
+}
+
+//StringSet 转换为整数集合
+func StringSet(items []string) (ItemSet) {
+	var result ItemSet
+	for _, item := range items {
+		result.Add(item)
+	}
+	return result
+}
